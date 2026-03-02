@@ -17,9 +17,9 @@ Set up four CinemachineCamera objects (tee, flight, landing, reset) with priorit
 - **Status**: Done (PR #14 merged)
 - **Dependencies**: M1 (can parallel with M2 — only needs Core)
 
-### M4: Course Environment + Scoring (Issue #5)
-Build the 125-yard hole with placeholder geometry: tee box, fairway, rough, green, pin, OB markers. Implement distance-to-pin calculation, best-distance tracking across 6 shots, and shot statistics (distance, carry, curve, ball speed). Testable: distance measurement is accurate, stats display correctly, game ends after 6 shots with correct best distance.
-- **Status**: Pending
+### M4: Course Environment + Scoring (Issue #5) -- DONE
+Build the 125-yard hole with placeholder geometry and scoring system.
+- **Status**: Done (PR #15 merged)
 - **Dependencies**: M2
 
 ### M5: UI System (UI Toolkit) (Issue #6)
