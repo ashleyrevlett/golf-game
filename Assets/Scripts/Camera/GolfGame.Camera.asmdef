@@ -3,6 +3,7 @@
     "rootNamespace": "GolfGame.Camera",
     "references": [
         "GolfGame.Core",
+        "GolfGame.Golf",
         "Unity.Cinemachine"
     ],
     "includePlatforms": [],
