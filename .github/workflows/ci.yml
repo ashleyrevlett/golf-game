@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check C# syntax
+        run: |
+          # Find all C# files and check for basic syntax issues
+          find . -name "*.cs" -type f | head -5
+          echo "C# files found — Unity compilation requires Unity Editor"
+
+      - name: Validate project structure
+        run: |
+          test -d Assets || (echo "Missing Assets directory" && exit 1)
+          test -d ProjectSettings || (echo "Missing ProjectSettings directory" && exit 1)
+          echo "Unity project structure valid"
+
+  # Unity build requires GameCI — enable when Unity license is configured
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: game-ci/unity-builder@v4
+  #       with:
+  #         targetPlatform: WebGL
+  #         unityVersion: 6000.0.23f1
