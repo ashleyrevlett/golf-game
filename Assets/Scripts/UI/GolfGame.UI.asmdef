@@ -1,0 +1,17 @@
+{
+    "name": "GolfGame.UI",
+    "rootNamespace": "GolfGame.UI",
+    "references": [
+        "GolfGame.Core",
+        "Unity.UIElements"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,16 @@
+{
+    "name": "GolfGame.Environment",
+    "rootNamespace": "GolfGame.Environment",
+    "references": [
+        "GolfGame.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
