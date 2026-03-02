@@ -1,0 +1,100 @@
+# Binary assets — huge, not useful as context
+*.png
+*.jpg
+*.jpeg
+*.tga
+*.psd
+*.exr
+*.hdr
+*.gif
+*.bmp
+*.tif
+*.tiff
+*.svg
+
+# 3D models
+*.fbx
+*.FBX
+*.obj
+*.blend
+*.3ds
+*.dae
+*.max
+*.ma
+*.mb
+
+# Audio
+*.wav
+*.mp3
+*.ogg
+*.aif
+*.aiff
+*.flac
+
+# Video
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Fonts
+*.ttf
+*.otf
+*.woff
+*.woff2
+
+# Unity binary/serialized (huge YAML, not useful)
+*.unity
+*.prefab
+*.asset
+*.mat
+*.controller
+*.anim
+*.overrideController
+*.physicMaterial
+*.physicsMaterial2D
+*.lighting
+*.shadergraph
+*.shadersubgraph
+*.renderTexture
+*.flare
+*.giparams
+*.mask
+*.signal
+*.playable
+
+# Unity meta files — GUID references, never useful as context
+*.meta
+
+# Compiled/intermediate
+*.dll
+*.so
+*.dylib
+*.bundle
+*.wasm
+*.wasm.br
+*.data
+*.data.br
+
+# Packages and third-party (read via docs, not source)
+Packages/
+Assets/Plugins/
+Assets/TextMesh Pro/
+
+# Unity generated
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+MemoryCaptures/
+
+# IDE
+.idea/
+.vs/
+.vscode/
+
+# Project settings (binary-ish YAML, rarely useful)
+ProjectSettings/

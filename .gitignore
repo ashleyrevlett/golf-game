@@ -25,6 +25,18 @@ Assembly-CSharp*.csproj
 *.pdb.meta
 *.mdb.meta
 
+# Unity additional
+ExportedObj/
+*.unitypackage
+.consulo/
+*.apk
+*.aab
+*.unitypackage
+*.app
+/[Aa]ssets/AssetStoreTools*
+/[Aa]ssets/Plugins/Editor/JetBrains*
+*.lfs-assets-id
+
 # Crashlytics
 crashlytics-build.properties
 sysinfo.txt
