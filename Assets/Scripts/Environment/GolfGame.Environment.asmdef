@@ -2,7 +2,8 @@
     "name": "GolfGame.Environment",
     "rootNamespace": "GolfGame.Environment",
     "references": [
-        "GolfGame.Core"
+        "GolfGame.Core",
+        "GolfGame.Golf"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
