@@ -2,19 +2,19 @@
 
 ## Milestones
 
-### M1: Unity Project Scaffold + Core Game Loop (Issue #2)
-Set up Unity 6 project structure, packages (Cinemachine 3.x, UI Toolkit), assembly definitions, and the core game state machine (MainMenu -> Gameplay -> GameOver). Deliver a running project with state transitions and placeholder scenes. Testable: scenes load, state machine transitions work, project compiles in Unity 6.
-- **Status**: stage:implementing (visual-design skip, architecture plan, test plan done)
+### M1: Unity Project Scaffold + Core Game Loop (Issue #2) -- DONE
+Set up Unity 6 project structure, packages (Cinemachine 3.x, UI Toolkit), assembly definitions, and the core game state machine (MainMenu -> Gameplay -> GameOver).
+- **Status**: Done (PR #12 merged)
 - **Dependencies**: None
 
-### M2: Ball Physics + Shot Mechanics (Issue #3)
-Implement the shot cycle: aiming (touch input for direction), power meter (hold-and-release), ball launch via Rigidbody.AddForce, flight physics (gravity, drag), and landing (bounce, roll, stop detection). Includes course terrain colliders and physics materials. Testable: player can aim, charge, and hit a ball that flies realistically and lands on the course.
-- **Status**: Pending (needs full pipeline from visual-designer)
+### M2: Ball Physics + Shot Mechanics (Issue #3) -- DONE
+Implement the shot cycle: aiming, power meter, ball launch, flight physics, and landing.
+- **Status**: Done (PR #13 merged)
 - **Dependencies**: M1
 
-### M3: Camera System (Cinemachine 3.x) (Issue #4)
-Set up four CinemachineCamera objects (tee, flight, landing, reset) with priority-based switching driven by the shot state machine. Flight camera follows ball with orbital tracking. Landing camera zooms in. Reset cuts back to tee. Testable: camera transitions match shot phases, flight tracking feels dramatic.
-- **Status**: Pending
+### M3: Camera System (Cinemachine 3.x) (Issue #4) -- DONE
+Set up four CinemachineCamera objects (tee, flight, landing, reset) with priority-based switching driven by the shot state machine. Flight camera follows ball with orbital tracking. Landing camera zooms in. Reset cuts back to tee.
+- **Status**: Done (PR #14 merged)
 - **Dependencies**: M1 (can parallel with M2 — only needs Core)
 
 ### M4: Course Environment + Scoring (Issue #5)
