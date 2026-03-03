@@ -22,9 +22,9 @@ Build the 125-yard hole with placeholder geometry and scoring system.
 - **Status**: Done (PR #15 merged)
 - **Dependencies**: M2
 
-### M5: UI System (UI Toolkit) (Issue #6)
-Build all UI screens with UXML/USS: main menu, settings, gameplay HUD (shot count, best distance, shot stats, mini-leaderboard), and game over screen. Wire UI to game state and scoring systems. Testable: all screens render, data updates live during gameplay, touch-friendly on mobile viewport.
-- **Status**: Pending
+### M5: UI System (UI Toolkit) (Issue #6) -- DONE
+Build all UI screens with UXML/USS: main menu, settings, gameplay HUD, game over.
+- **Status**: Done (PR #16 merged)
 - **Dependencies**: M1 (state machine), M4 (data to display)
 
 ### M6: Multiplayer + Leaderboard Integration (Issue #7)
