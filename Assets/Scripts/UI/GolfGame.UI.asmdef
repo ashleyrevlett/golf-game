@@ -3,6 +3,8 @@
     "rootNamespace": "GolfGame.UI",
     "references": [
         "GolfGame.Core",
+        "GolfGame.Golf",
+        "GolfGame.Environment",
         "Unity.UIElements"
     ],
     "includePlatforms": [],

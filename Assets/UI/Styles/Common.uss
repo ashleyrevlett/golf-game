@@ -1,0 +1,105 @@
+/* Common design tokens and base styles */
+
+:root {
+    --color-bg-panel: rgba(0, 0, 0, 0.7);
+    --color-bg-button: rgb(76, 175, 80);
+    --color-bg-button-hover: rgb(102, 187, 106);
+    --color-bg-button-pressed: rgb(46, 125, 50);
+    --color-text-primary: rgb(255, 255, 255);
+    --color-text-secondary: rgba(255, 255, 255, 0.7);
+    --color-accent: rgb(244, 67, 54);
+    --color-best: rgb(255, 215, 0);
+    --font-size-title: 48px;
+    --font-size-heading: 32px;
+    --font-size-body: 20px;
+    --font-size-stat: 16px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 32px;
+    --radius-panel: 12px;
+    --radius-button: 8px;
+    --min-tap-target: 44px;
+}
+
+.screen-root {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-panel);
+    padding: var(--spacing-md);
+}
+
+.text-title {
+    font-size: var(--font-size-title);
+    color: var(--color-text-primary);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.text-heading {
+    font-size: var(--font-size-heading);
+    color: var(--color-text-primary);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.text-body {
+    font-size: var(--font-size-body);
+    color: var(--color-text-primary);
+}
+
+.text-secondary {
+    font-size: var(--font-size-body);
+    color: var(--color-text-secondary);
+}
+
+.text-stat {
+    font-size: var(--font-size-stat);
+    color: var(--color-text-secondary);
+}
+
+.text-gold {
+    color: var(--color-best);
+}
+
+.btn-primary {
+    background-color: var(--color-bg-button);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-button);
+    border-width: 0;
+    min-height: var(--min-tap-target);
+    min-width: 200px;
+    font-size: var(--font-size-body);
+    -unity-font-style: bold;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: var(--spacing-sm) 0;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-bg-button-hover);
+}
+
+.btn-primary:active {
+    background-color: var(--color-bg-button-pressed);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-button);
+    border-width: 2px;
+    border-color: var(--color-text-secondary);
+    min-height: var(--min-tap-target);
+    min-width: 200px;
+    font-size: var(--font-size-body);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: var(--spacing-sm) 0;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}

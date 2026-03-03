@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:VisualElement name="menu-root" class="screen-root">
+        <ui:VisualElement name="menu-panel" class="panel" style="align-items: center; padding: 48px 64px;">
+            <ui:Label name="title-label" text="GOLF GAME" class="text-title" style="margin-bottom: 48px;" />
+            <ui:Button name="play-button" text="PLAY" class="btn-primary" />
+            <ui:Button name="settings-button" text="SETTINGS" class="btn-secondary" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

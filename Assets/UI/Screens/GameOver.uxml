@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:VisualElement name="gameover-root" class="screen-root">
+        <ui:VisualElement name="gameover-panel" class="panel" style="align-items: center; padding: 48px 64px;">
+            <ui:Label text="GAME OVER" class="text-heading" style="margin-bottom: 24px;" />
+            <ui:Label text="Best Distance" class="text-secondary" style="margin-bottom: 8px;" />
+            <ui:Label name="final-distance" text="--" class="text-title text-gold" style="margin-bottom: 32px;" />
+            <ui:Button name="play-again-button" text="PLAY AGAIN" class="btn-primary" />
+            <ui:Button name="menu-button" text="MENU" class="btn-secondary" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
