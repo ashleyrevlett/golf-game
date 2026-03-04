@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace GolfGame.Multiplayer
 {
     /// <summary>
@@ -9,11 +11,23 @@ namespace GolfGame.Multiplayer
         /// <summary>
         /// Get the current player's authentication token.
         /// </summary>
-        string GetPlayerToken();
+        Task<string> GetPlayerTokenAsync();
 
         /// <summary>
         /// Get the current player's information.
         /// </summary>
-        PlayerInfo GetPlayerInfo();
+        Task<PlayerInfo> GetPlayerInfoAsync();
+
+        /// <summary>
+        /// Whether the player is currently signed in.
+        /// Synchronous getter for cached state.
+        /// </summary>
+        bool IsSignedIn { get; }
+
+        /// <summary>
+        /// The current player's ID.
+        /// Synchronous getter for cached state.
+        /// </summary>
+        string PlayerId { get; }
     }
 }
