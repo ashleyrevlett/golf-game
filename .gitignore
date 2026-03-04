@@ -51,6 +51,12 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Node
+node_modules/
+
+# Unity license files
+*.ulf
+
 # Environment
 .env
 *.env.local
