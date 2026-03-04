@@ -215,8 +215,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 747c06848088e417fb0bdb342cadbd27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Camera::GolfGame.Camera.CameraController
-  gameManager: {fileID: 0}
-  ballController: {fileID: 0}
   config: {fileID: 0}
 --- !u!1 &200
 GameObject:
@@ -231,7 +229,7 @@ GameObject:
   - component: {fileID: 203}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -385,7 +383,7 @@ GameObject:
   - component: {fileID: 414546899}
   m_Layer: 0
   m_Name: WindSystem
-  m_TagString: Untagged
+  m_TagString: WindSystem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -403,7 +401,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Golf::GolfGame.Golf.WindSystem
   config: {fileID: 0}
-  gameManager: {fileID: 0}
 --- !u!4 &414546900
 Transform:
   m_ObjectHideFlags: 0
@@ -450,9 +447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c721177991d934ee18931c4240e3b6a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Audio::GolfGame.Audio.AmbientAudioController
-  windSystem: {fileID: 0}
-  scoringManager: {fileID: 0}
-  gameManager: {fileID: 0}
 --- !u!114 &550780108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,8 +459,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a9a0a0fbf5f74fcaa4954a164e4f6d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Audio::GolfGame.Audio.BallAudioController
-  ballController: {fileID: 0}
-  gameManager: {fileID: 0}
 --- !u!114 &550780109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -508,7 +500,7 @@ GameObject:
   - component: {fileID: 735115680}
   m_Layer: 0
   m_Name: ScoringManager
-  m_TagString: Untagged
+  m_TagString: ScoringManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -525,9 +517,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 656215c95481b4655bbc19ceac30da10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Environment::GolfGame.Environment.ScoringManager
-  gameManager: {fileID: 0}
-  ballController: {fileID: 0}
-  pinController: {fileID: 0}
 --- !u!4 &735115681
 Transform:
   m_ObjectHideFlags: 0
@@ -574,6 +563,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1021592049
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1021592051}
+  - component: {fileID: 1021592050}
+  m_Layer: 0
+  m_Name: ShotInput
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1021592050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021592049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98715bc50f5d747638406bfe93ae4d87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GolfGame.Golf::GolfGame.Golf.ShotInput
+  maxAimAngle: 45
+  aimSensitivity: 0.5
+  chargeSpeed: 0.5
+  defaultBackspinRpm: 3000
+--- !u!4 &1021592051
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021592049}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1114519308
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,7 +623,7 @@ GameObject:
   - component: {fileID: 1114519309}
   m_Layer: 0
   m_Name: PinController
-  m_TagString: Untagged
+  m_TagString: PinController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -676,7 +713,7 @@ GameObject:
   - component: {fileID: 1985423958}
   m_Layer: 0
   m_Name: BallController
-  m_TagString: Untagged
+  m_TagString: BallController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -694,9 +731,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Golf::GolfGame.Golf.BallController
   config: {fileID: 0}
-  windSystem: {fileID: 0}
-  gameManager: {fileID: 0}
-  teePosition: {fileID: 0}
 --- !u!4 &1985423959
 Transform:
   m_ObjectHideFlags: 0
@@ -742,7 +776,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Environment::GolfGame.Environment.CourseBuilder
   config: {fileID: 0}
-  pinController: {fileID: 0}
 --- !u!4 &1999835576
 Transform:
   m_ObjectHideFlags: 0
@@ -787,8 +820,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbfb5b925a991474c9139d681e433c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Multiplayer::GolfGame.Multiplayer.LeaderboardManager
-  scoringManager: {fileID: 0}
-  gameManager: {fileID: 0}
   pollInterval: 5
   leaderboardSize: 10
 --- !u!4 &2011462203
@@ -835,7 +866,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efd5a99efaa1b4856a487424958a4e65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Environment::GolfGame.Environment.WindIndicator
-  windSystem: {fileID: 0}
   baseLength: 1
   speedScale: 0.5
   minScale: 0.2
@@ -871,3 +901,4 @@ SceneRoots:
   - {fileID: 1999835576}
   - {fileID: 550780110}
   - {fileID: 2143905950}
+  - {fileID: 1021592051}
