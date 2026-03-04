@@ -89,8 +89,6 @@ namespace GolfGame.Golf
         {
             isFlying = false;
             rb.isKinematic = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             transform.position = initialTeePosition;
         }
 

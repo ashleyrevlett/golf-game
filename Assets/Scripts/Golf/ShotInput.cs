@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using GolfGame.Core;
 
 namespace GolfGame.Golf
@@ -105,7 +106,7 @@ namespace GolfGame.Golf
         private void Update()
         {
             // Debug: spacebar always fires regardless of state
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
             {
                 Debug.Log($"[ShotInput#{GetInstanceID()}] Space pressed. isActive={isActive} state={inputState}");
                 currentAimAngle = 0f;
@@ -136,16 +137,16 @@ namespace GolfGame.Golf
 
         private void HandleIdleInput()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                pointerStartPosition = Input.mousePosition;
+                pointerStartPosition = Mouse.current.position.ReadValue();
                 inputState = InputState.Aiming;
             }
         }
 
         private void HandleAimingInput()
         {
-            if (!Input.GetMouseButton(0))
+            if (Mouse.current == null || !Mouse.current.leftButton.isPressed)
             {
                 // Released without charging — start charging on next press
                 inputState = InputState.Charging;
@@ -154,7 +155,7 @@ namespace GolfGame.Golf
             }
 
             // Horizontal drag to aim
-            float deltaX = Input.mousePosition.x - pointerStartPosition.x;
+            float deltaX = Mouse.current.position.ReadValue().x - pointerStartPosition.x;
             float screenNormalized = deltaX / Screen.width;
             currentAimAngle = Mathf.Clamp(
                 screenNormalized * maxAimAngle / aimSensitivity,
@@ -164,19 +165,19 @@ namespace GolfGame.Golf
 
         private void HandleChargingInput()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 // Start charging
                 currentPower = 0f;
             }
 
-            if (Input.GetMouseButton(0))
+            if (Mouse.current != null && Mouse.current.leftButton.isPressed)
             {
                 // Charge power
                 currentPower = Mathf.Clamp01(currentPower + chargeSpeed * Time.deltaTime);
             }
 
-            if (Input.GetMouseButtonUp(0) && currentPower > 0f)
+            if (Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame && currentPower > 0f)
             {
                 // Release — fire shot
                 FireShot();
