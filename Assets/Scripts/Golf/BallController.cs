@@ -13,6 +13,7 @@ namespace GolfGame.Golf
         private GameManager gameManager;
         private Rigidbody rb;
         private bool isFlying;
+        private float flightTimer;
         private Vector3 initialTeePosition;
 
         public event Action<Vector3> OnBallLanded;
@@ -45,13 +46,15 @@ namespace GolfGame.Golf
             var aimRotation = Quaternion.AngleAxis(shot.AimAngleDegrees, Vector3.up);
             var aimed = aimRotation * Vector3.forward;
 
-            // Apply loft
-            var loftRotation = Quaternion.AngleAxis(-loftAngle, Vector3.Cross(aimed, Vector3.up).normalized);
+            // Apply loft upward: rotate around the right axis (positive = up)
+            var rightAxis = Vector3.Cross(Vector3.up, aimed).normalized;
+            var loftRotation = Quaternion.AngleAxis(loftAngle, rightAxis);
             var launchDir = loftRotation * aimed;
 
             float speed = launchSpeed * shot.PowerNormalized;
             var launchVelocity = launchDir.normalized * speed;
 
+            flightTimer = 0f;
             isFlying = true;
             rb.isKinematic = false;
             rb.linearVelocity = Vector3.zero;
@@ -65,7 +68,11 @@ namespace GolfGame.Golf
         {
             if (!isFlying) return;
 
-            // Ball has settled: slow + on ground
+            flightTimer += Time.fixedDeltaTime;
+
+            // Don't check stop until ball has had time to move (min 0.5s)
+            if (flightTimer < 0.5f) return;
+
             bool slow = rb.linearVelocity.magnitude < 0.2f && rb.angularVelocity.magnitude < 0.1f;
             if (slow)
             {
