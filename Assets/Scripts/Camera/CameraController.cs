@@ -112,10 +112,19 @@ namespace GolfGame.Camera
             currentCamera = ActiveCamera.Flight;
             SetCameraPriorities(InactivePriority, ActivePriority, InactivePriority);
 
-            if (flightCamera != null && ballController != null)
+            if (ballController != null)
             {
-                flightCamera.Follow = ballController.transform;
-                flightCamera.LookAt = ballController.transform;
+                if (flightCamera != null)
+                {
+                    flightCamera.Follow = ballController.transform;
+                    flightCamera.LookAt = ballController.transform;
+                }
+                // Pre-wire landing camera so it's ready for the transition
+                if (landingCamera != null)
+                {
+                    landingCamera.Follow = ballController.transform;
+                    landingCamera.LookAt = ballController.transform;
+                }
             }
 
             Debug.Log("[CameraController] Flight camera active");
