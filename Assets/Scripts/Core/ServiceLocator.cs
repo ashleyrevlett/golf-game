@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GolfGame.Multiplayer
+namespace GolfGame.Core
 {
     /// <summary>
     /// Simple service locator for dependency injection.

@@ -128,10 +128,9 @@ ScoringManager.HandleBallLanded()
 ### Final Shot → Game Over
 
 ```
-GameManager fires OnGameOver
+GameManager fires OnGameOver(shotCount, isNewBest)
     ↓
 ScoringManager.HandleGameOver()
-    ├─ OnGameComplete(results, bestDistance)
     └─ OnAllShotsComplete(totalCtpDistance) → GameOverController shows overlay
         ↓ async
         IBestScoreService comparison        → "NEW BEST!" or previous best display

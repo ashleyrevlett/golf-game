@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using GolfGame.Core;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using Unity.Services.Core;
 #endif

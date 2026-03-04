@@ -18,6 +18,7 @@ namespace GolfGame.UI
         private ScoringManager scoringManager;
 
         private VisualElement root;
+        private VisualElement gameoverRoot;
         private VisualElement gameoverPanel;
         private Label finalScore;
         private Label bestScore;
@@ -38,7 +39,7 @@ namespace GolfGame.UI
 
             root = uiDocument.rootVisualElement;
 
-            var gameoverRoot = root.Q("gameover-root");
+            gameoverRoot = root.Q("gameover-root");
             gameoverPanel = root.Q("gameover-panel");
             finalScore = root.Q<Label>("final-score");
             bestScore = root.Q<Label>("best-score");
@@ -97,7 +98,6 @@ namespace GolfGame.UI
             SetVisible(true);
 
             // Trigger fade-in transitions
-            var gameoverRoot = root.Q("gameover-root");
             if (gameoverRoot != null)
             {
                 gameoverRoot.style.opacity = 1f;
@@ -174,22 +174,6 @@ namespace GolfGame.UI
             return $"BEST: {bestCtp:F1} yds";
         }
 
-        /// <summary>
-        /// Determine if a score is a new best compared to a previous best.
-        /// </summary>
-        public static bool IsNewBestScore(float current, float previousBest)
-        {
-            return current < previousBest;
-        }
-
-        /// <summary>
-        /// Determine if a historical best score exists.
-        /// </summary>
-        public static bool HasBestScore(float bestValue)
-        {
-            return bestValue < float.MaxValue / 2f;
-        }
-
         private void OnPlayAgainClicked(ClickEvent evt)
         {
             if (AppManager.Instance != null)
@@ -216,7 +200,6 @@ namespace GolfGame.UI
             if (!visible)
             {
                 // Reset overlay/panel for next show
-                var gameoverRoot = root?.Q("gameover-root");
                 if (gameoverRoot != null)
                 {
                     gameoverRoot.style.opacity = 0f;

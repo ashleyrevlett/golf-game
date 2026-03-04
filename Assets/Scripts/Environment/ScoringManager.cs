@@ -56,11 +56,6 @@ namespace GolfGame.Environment
         public event Action<float> OnBestDistanceUpdated;
 
         /// <summary>
-        /// Fires when the game completes. Payload: (all results, best distance).
-        /// </summary>
-        public event Action<IReadOnlyList<ShotResult>, float> OnGameComplete;
-
-        /// <summary>
         /// Fires when all shots are complete. Payload is the total CTP distance.
         /// </summary>
         public event Action<float> OnAllShotsComplete;
@@ -186,7 +181,6 @@ namespace GolfGame.Environment
 
         private void HandleGameOver(int shots, bool isNewBest)
         {
-            OnGameComplete?.Invoke(results, bestDistance);
             OnAllShotsComplete?.Invoke(totalCtpDistance);
         }
 
