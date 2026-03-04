@@ -12,6 +12,7 @@ namespace GolfGame.Audio
     {
         private BallController ballController;
         private GameManager gameManager;
+        private ShotInput shotInput;
 
         private AudioSource rollSource;
         private float lastLaunchPower;
@@ -20,6 +21,7 @@ namespace GolfGame.Audio
         {
             ballController = FindFirstObjectByType<BallController>();
             gameManager = FindFirstObjectByType<GameManager>();
+            shotInput = FindFirstObjectByType<ShotInput>();
 
             if (gameManager != null)
             {
@@ -30,6 +32,11 @@ namespace GolfGame.Audio
             {
                 ballController.OnBallBounced += HandleBallBounced;
                 ballController.OnBallLanded += HandleBallLanded;
+            }
+
+            if (shotInput != null)
+            {
+                shotInput.OnShotReady += HandleShotReady;
             }
         }
 
@@ -45,6 +52,11 @@ namespace GolfGame.Audio
                 ballController.OnBallBounced -= HandleBallBounced;
                 ballController.OnBallLanded -= HandleBallLanded;
             }
+
+            if (shotInput != null)
+            {
+                shotInput.OnShotReady -= HandleShotReady;
+            }
         }
 
         private void HandleShotStateChanged(ShotState state)
@@ -53,6 +65,11 @@ namespace GolfGame.Audio
             {
                 PlayHitSound();
             }
+        }
+
+        private void HandleShotReady(ShotParameters parameters)
+        {
+            SetLaunchPower(parameters.PowerNormalized);
         }
 
         private void HandleBallBounced(Vector3 position, float speed)
