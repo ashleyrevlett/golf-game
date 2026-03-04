@@ -1,4 +1,9 @@
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using Unity.Services.Core;
+#endif
 
 namespace GolfGame.Multiplayer
 {
@@ -11,23 +16,44 @@ namespace GolfGame.Multiplayer
     {
         private static bool initialized;
 
-        private void Awake()
+        private async void Awake()
         {
             if (initialized) return;
             initialized = true;
 
-            RegisterServices();
+            await RegisterServicesAsync();
             ConfigurePlatform();
 
             Debug.Log("[Bootstrap] Initialization complete");
         }
 
-        private static void RegisterServices()
+        private static async Task RegisterServicesAsync()
         {
+            // Always register mocks first as fallback
             ServiceLocator.Register<IAuthService>(new MockAuthService());
             ServiceLocator.Register<ILeaderboardService>(new MockLeaderboardService());
 
-            Debug.Log("[Bootstrap] Mock services registered");
+#if UNITY_WEBGL && !UNITY_EDITOR
+            try
+            {
+                await UnityServices.InitializeAsync();
+                var authService = new UgsAuthService();
+                await authService.SignInAsync();
+
+                ServiceLocator.Register<IAuthService>(authService);
+                ServiceLocator.Register<ILeaderboardService>(new UgsLeaderboardService());
+
+                Debug.Log("[Bootstrap] UGS services registered");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[Bootstrap] UGS init failed, using mocks: {ex.Message}");
+                // Mocks already registered above -- game continues
+            }
+#else
+            await Task.CompletedTask; // suppress warning in editor
+            Debug.Log("[Bootstrap] Editor mode: mock services registered");
+#endif
         }
 
         private static void ConfigurePlatform()
