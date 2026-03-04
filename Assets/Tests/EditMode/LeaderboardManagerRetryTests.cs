@@ -52,6 +52,17 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
+        public void PostScoreAsync_WhenServiceThrows_StartsRetryLoop()
+        {
+            var failing = new FailingLeaderboardService(postThrows: true);
+            var mgr = CreateManager(failing);
+
+            mgr.PostScoreWithRetryAsync("player1", 5.0f).GetAwaiter().GetResult();
+
+            Assert.IsTrue(mgr.IsRetrying, "RetryLoop should be started after failed post");
+        }
+
+        [Test]
         public void ProcessRetryQueue_WhenServiceRecovers_DequeuesSuccessfully()
         {
             var failing = new FailingLeaderboardService(postThrows: true);

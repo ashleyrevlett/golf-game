@@ -29,6 +29,7 @@ namespace GolfGame.Multiplayer
         private readonly Queue<(string playerId, float distance)> retryQueue
             = new Queue<(string, float)>();
         private const float RetryInterval = 10f;
+        private bool isRetrying;
 
         /// <summary>
         /// Current leaderboard entries.
@@ -108,11 +109,13 @@ namespace GolfGame.Multiplayer
 
         private System.Collections.IEnumerator RetryLoop()
         {
+            isRetrying = true;
             while (retryQueue.Count > 0)
             {
                 yield return new WaitForSeconds(RetryInterval);
                 if (retryQueue.Count > 0) _ = ProcessRetryQueueAsync();
             }
+            isRetrying = false;
         }
 
         private void HandleShotStateChanged(ShotState state)
@@ -125,6 +128,7 @@ namespace GolfGame.Multiplayer
 
         private void StartRetryIfNeeded()
         {
+            if (isRetrying) return;
             StartCoroutine(RetryLoop());
         }
 
@@ -151,6 +155,7 @@ namespace GolfGame.Multiplayer
             {
                 Debug.LogWarning($"[LeaderboardManager] Post failed, queuing retry: {ex.Message}");
                 retryQueue.Enqueue((id, dist));
+                StartRetryIfNeeded();
             }
         }
 
@@ -189,5 +194,10 @@ namespace GolfGame.Multiplayer
         /// Number of items in the retry queue. Exposed for testing.
         /// </summary>
         internal int RetryQueueCount => retryQueue.Count;
+
+        /// <summary>
+        /// Whether the retry loop coroutine is currently active. Exposed for testing.
+        /// </summary>
+        internal bool IsRetrying => isRetrying;
     }
 }
