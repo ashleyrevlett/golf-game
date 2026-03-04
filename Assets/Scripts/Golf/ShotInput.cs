@@ -115,6 +115,15 @@ namespace GolfGame.Golf
 
         private void HandleIdleInput()
         {
+            // Debug: spacebar fires with center aim + mid power
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                currentAimAngle = 0f;
+                currentPower = 0.5f;
+                FireShot();
+                return;
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 pointerStartPosition = Input.mousePosition;
