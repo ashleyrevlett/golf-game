@@ -2,9 +2,7 @@ using UnityEngine;
 using GolfGame.Core;
 using GolfGame.Golf;
 
-#if CINEMACHINE_3
 using Unity.Cinemachine;
-#endif
 
 namespace GolfGame.Camera
 {
@@ -20,11 +18,9 @@ namespace GolfGame.Camera
         private GameManager gameManager;
         private BallController ballController;
 
-#if CINEMACHINE_3
         private CinemachineCamera teeCamera;
         private CinemachineCamera flightCamera;
         private CinemachineCamera landingCamera;
-#endif
 
         [Header("Config")]
         [SerializeField] private CameraConfig config;
@@ -41,11 +37,9 @@ namespace GolfGame.Camera
             gameManager = FindFirstObjectByType<GameManager>();
             ballController = FindFirstObjectByType<BallController>();
 
-#if CINEMACHINE_3
             teeCamera = GameObject.Find("TeeCamera")?.GetComponent<CinemachineCamera>();
             flightCamera = GameObject.Find("FlightCamera")?.GetComponent<CinemachineCamera>();
             landingCamera = GameObject.Find("LandingCamera")?.GetComponent<CinemachineCamera>();
-#endif
 
             if (gameManager != null)
             {
@@ -92,13 +86,11 @@ namespace GolfGame.Camera
         private void HandleBallLanded(Vector3 landPosition)
         {
             // Update landing camera to look at where ball stopped
-#if CINEMACHINE_3
             if (landingCamera != null)
             {
                 landingCamera.Follow = ballController.transform;
                 landingCamera.LookAt = ballController.transform;
             }
-#endif
         }
 
         /// <summary>
@@ -120,13 +112,11 @@ namespace GolfGame.Camera
             currentCamera = ActiveCamera.Flight;
             SetCameraPriorities(InactivePriority, ActivePriority, InactivePriority);
 
-#if CINEMACHINE_3
             if (flightCamera != null && ballController != null)
             {
                 flightCamera.Follow = ballController.transform;
                 flightCamera.LookAt = ballController.transform;
             }
-#endif
 
             Debug.Log("[CameraController] Flight camera active");
         }
@@ -144,11 +134,9 @@ namespace GolfGame.Camera
 
         private void SetCameraPriorities(int tee, int flight, int landing)
         {
-#if CINEMACHINE_3
             if (teeCamera != null) teeCamera.Priority = tee;
             if (flightCamera != null) flightCamera.Priority = flight;
             if (landingCamera != null) landingCamera.Priority = landing;
-#endif
         }
 
         /// <summary>
@@ -156,14 +144,12 @@ namespace GolfGame.Camera
         /// </summary>
         public int GetCameraPriority(ActiveCamera camera)
         {
-#if CINEMACHINE_3
             switch (camera)
             {
                 case ActiveCamera.Tee: return teeCamera != null ? (int)teeCamera.Priority : 0;
                 case ActiveCamera.Flight: return flightCamera != null ? (int)flightCamera.Priority : 0;
                 case ActiveCamera.Landing: return landingCamera != null ? (int)landingCamera.Priority : 0;
             }
-#endif
             return 0;
         }
     }
