@@ -29,9 +29,23 @@ jobs:
       - name: Run Cloud Code tests
         run: node --test Assets/CloudCode/validate-and-post-score.test.js
 
+  check-license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Unity license
+        env:
+          HAS_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          if [ -z "$HAS_LICENSE" ]; then
+            echo "::error::UNITY_LICENSE secret is not set — Unity tests cannot run"
+            echo "Add UNITY_LICENSE to repository secrets to enable Unity test jobs"
+            exit 1
+          fi
+          echo "Unity license secret is configured"
+
   unity-tests:
     runs-on: ubuntu-latest
-    if: ${{ vars.UNITY_LICENSE != '' || secrets.UNITY_LICENSE != '' }}
+    needs: check-license
     steps:
       - uses: actions/checkout@v4
 
