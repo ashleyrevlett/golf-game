@@ -113,7 +113,7 @@ namespace GolfGame.Tests.EditMode
 
             var gameOverFired = false;
             var gameOverShotCount = 0;
-            gameManager.OnGameOver += (shots, _) =>
+            gameManager.OnGameOver += (shots) =>
             {
                 gameOverFired = true;
                 gameOverShotCount = shots;

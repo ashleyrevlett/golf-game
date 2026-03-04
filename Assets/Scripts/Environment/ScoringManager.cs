@@ -179,7 +179,7 @@ namespace GolfGame.Environment
             ShotPopup.Create(landPosition + Vector3.up * 1.5f, distanceToPin, Camera.main);
         }
 
-        private void HandleGameOver(int shots, bool isNewBest)
+        private void HandleGameOver(int shots)
         {
             OnAllShotsComplete?.Invoke(totalCtpDistance);
         }

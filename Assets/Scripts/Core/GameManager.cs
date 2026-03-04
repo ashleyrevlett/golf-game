@@ -42,10 +42,9 @@ namespace GolfGame.Core
         public event Action OnResetToTee;
 
         /// <summary>
-        /// Fires when the game ends. Payload: (shotCount, isNewBest).
-        /// isNewBest is always false for now — scoring is in M4.
+        /// Fires when the game ends. Payload: shotCount.
         /// </summary>
-        public event Action<int, bool> OnGameOver;
+        public event Action<int> OnGameOver;
 
         private void Start()
         {
@@ -172,7 +171,7 @@ namespace GolfGame.Core
         {
             isActive = false;
             Debug.Log($"[GameManager] Game over after {currentShot} shots");
-            OnGameOver?.Invoke(currentShot, false);
+            OnGameOver?.Invoke(currentShot);
 
             if (AppManager.Instance != null)
             {

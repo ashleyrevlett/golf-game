@@ -144,7 +144,6 @@ namespace GolfGame.Golf
             {
                 case MeterPhase.Idle:
                     HandleIdlePhase(spacePressed);
-                    HandleMouseAiming();
                     break;
                 case MeterPhase.Power:
                     UpdatePowerMeter();
@@ -167,16 +166,6 @@ namespace GolfGame.Golf
                 meterValue = 0f;
                 meterRising = true;
                 OnMeterPhaseChanged?.Invoke(currentPhase);
-            }
-        }
-
-        private void HandleMouseAiming()
-        {
-            if (Mouse.current == null) return;
-
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                // Could add mouse aiming here in future
             }
         }
 

@@ -139,7 +139,7 @@ namespace GolfGame.Multiplayer
             await PollLeaderboardAsync();
         }
 
-        private async void HandleGameOver(int shots, bool isNewBest)
+        private async void HandleGameOver(int shots)
         {
             isPolling = false;
             await PollLeaderboardAsync();

@@ -92,7 +92,7 @@ namespace GolfGame.Audio
             }
         }
 
-        private void HandleGameOver(int shots, bool isNewBest)
+        private void HandleGameOver(int shots)
         {
             StopWind();
         }
