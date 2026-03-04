@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
+using GolfGame.Core;
 using GolfGame.Multiplayer;
 
 namespace GolfGame.Tests.EditMode

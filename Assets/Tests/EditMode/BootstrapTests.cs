@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using GolfGame.Core;
 using GolfGame.Multiplayer;
 
 namespace GolfGame.Tests.EditMode

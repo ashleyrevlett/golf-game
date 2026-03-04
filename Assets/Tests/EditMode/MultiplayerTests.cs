@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using GolfGame.Core;
 using GolfGame.Multiplayer;
 
 namespace GolfGame.Tests.EditMode
