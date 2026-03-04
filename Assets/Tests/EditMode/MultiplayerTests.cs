@@ -46,22 +46,37 @@ namespace GolfGame.Tests.EditMode
             Assert.AreSame(second, ServiceLocator.Get<IAuthService>());
         }
 
-        // MockAuthService Tests
+        [Test]
+        public void ServiceLocator_Clear_RemovesAllServices()
+        {
+            ServiceLocator.Register<IAuthService>(new MockAuthService());
+            ServiceLocator.Clear();
+            Assert.IsNull(ServiceLocator.Get<IAuthService>());
+        }
 
         [Test]
-        public void MockAuth_GetPlayerToken_ReturnsNonEmpty()
+        public void ServiceLocator_RegisterNull_StoresNull()
+        {
+            ServiceLocator.Register<IAuthService>(null);
+            Assert.IsNull(ServiceLocator.Get<IAuthService>());
+        }
+
+        // MockAuthService Tests (async migrated)
+
+        [Test]
+        public void MockAuth_GetPlayerTokenAsync_ReturnsNonEmpty()
         {
             var auth = new MockAuthService();
-            var token = auth.GetPlayerToken();
+            var token = auth.GetPlayerTokenAsync().GetAwaiter().GetResult();
             Assert.IsNotNull(token);
             Assert.IsNotEmpty(token);
         }
 
         [Test]
-        public void MockAuth_GetPlayerInfo_ReturnsValidPlayer()
+        public void MockAuth_GetPlayerInfoAsync_ReturnsValidPlayer()
         {
             var auth = new MockAuthService();
-            var info = auth.GetPlayerInfo();
+            var info = auth.GetPlayerInfoAsync().GetAwaiter().GetResult();
             Assert.IsNotNull(info.PlayerId);
             Assert.IsNotEmpty(info.PlayerId);
             Assert.IsNotNull(info.DisplayName);
@@ -69,15 +84,30 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
+        public void MockAuth_IsSignedIn_ReturnsTrue()
+        {
+            var auth = new MockAuthService();
+            Assert.IsTrue(auth.IsSignedIn);
+        }
+
+        [Test]
+        public void MockAuth_PlayerId_MatchesPlayerInfo()
+        {
+            var auth = new MockAuthService();
+            var info = auth.GetPlayerInfoAsync().GetAwaiter().GetResult();
+            Assert.AreEqual(info.PlayerId, auth.PlayerId);
+        }
+
+        [Test]
         public void MockAuth_CustomPlayer_ReturnsCorrectInfo()
         {
             var auth = new MockAuthService("test_id", "TestPlayer");
-            var info = auth.GetPlayerInfo();
+            var info = auth.GetPlayerInfoAsync().GetAwaiter().GetResult();
             Assert.AreEqual("test_id", info.PlayerId);
             Assert.AreEqual("TestPlayer", info.DisplayName);
         }
 
-        // MockLeaderboardService Tests
+        // MockLeaderboardService Tests (async migrated)
 
         [Test]
         public void MockLeaderboard_PrePopulated_HasEntries()
@@ -87,19 +117,19 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
-        public void MockLeaderboard_PostScore_AddsEntry()
+        public void MockLeaderboard_PostScoreAsync_AddsEntry()
         {
             var lb = new MockLeaderboardService();
             int before = lb.EntryCount;
-            lb.PostScore("new_player", 5.0f);
+            lb.PostScoreAsync("new_player", 5.0f).GetAwaiter().GetResult();
             Assert.AreEqual(before + 1, lb.EntryCount);
         }
 
         [Test]
-        public void MockLeaderboard_GetLeaderboard_SortedAscending()
+        public void MockLeaderboard_GetLeaderboardAsync_SortedAscending()
         {
             var lb = new MockLeaderboardService();
-            var entries = lb.GetLeaderboard(10);
+            var entries = lb.GetLeaderboardAsync(10).GetAwaiter().GetResult();
             for (int i = 1; i < entries.Length; i++)
             {
                 Assert.LessOrEqual(entries[i - 1].Distance, entries[i].Distance,
@@ -108,39 +138,39 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
-        public void MockLeaderboard_GetLeaderboard_RespectsCount()
+        public void MockLeaderboard_GetLeaderboardAsync_RespectsCount()
         {
             var lb = new MockLeaderboardService();
-            var entries = lb.GetLeaderboard(3);
+            var entries = lb.GetLeaderboardAsync(3).GetAwaiter().GetResult();
             Assert.AreEqual(3, entries.Length);
         }
 
         [Test]
-        public void MockLeaderboard_GetPlayerRank_Correct()
+        public void MockLeaderboard_GetPlayerRankAsync_Correct()
         {
             var lb = new MockLeaderboardService();
-            lb.PostScore("test_player", 0.1f); // very close — should be rank 1
-            int rank = lb.GetPlayerRank("test_player");
+            lb.PostScoreAsync("test_player", 0.1f).GetAwaiter().GetResult();
+            int rank = lb.GetPlayerRankAsync("test_player").GetAwaiter().GetResult();
             Assert.AreEqual(1, rank);
         }
 
         [Test]
-        public void MockLeaderboard_PostScore_UpdatesExisting()
+        public void MockLeaderboard_PostScoreAsync_UpdatesExisting()
         {
             var lb = new MockLeaderboardService();
-            lb.PostScore("test_player", 10.0f);
+            lb.PostScoreAsync("test_player", 10.0f).GetAwaiter().GetResult();
             int countAfterFirst = lb.EntryCount;
-            lb.PostScore("test_player", 5.0f); // better score
+            lb.PostScoreAsync("test_player", 5.0f).GetAwaiter().GetResult();
             Assert.AreEqual(countAfterFirst, lb.EntryCount); // no duplicate
         }
 
         [Test]
-        public void MockLeaderboard_PostScore_OnlyUpdatesIfBetter()
+        public void MockLeaderboard_PostScoreAsync_OnlyUpdatesIfBetter()
         {
             var lb = new MockLeaderboardService();
-            lb.PostScore("test_player", 2.0f);
-            lb.PostScore("test_player", 10.0f); // worse score
-            var entries = lb.GetLeaderboard(20);
+            lb.PostScoreAsync("test_player", 2.0f).GetAwaiter().GetResult();
+            lb.PostScoreAsync("test_player", 10.0f).GetAwaiter().GetResult();
+            var entries = lb.GetLeaderboardAsync(20).GetAwaiter().GetResult();
             foreach (var entry in entries)
             {
                 if (entry.PlayerId == "test_player")
@@ -153,10 +183,10 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
-        public void MockLeaderboard_GetPlayerRank_UnknownPlayer_ReturnsNegative()
+        public void MockLeaderboard_GetPlayerRankAsync_UnknownPlayer_ReturnsNegative()
         {
             var lb = new MockLeaderboardService();
-            int rank = lb.GetPlayerRank("nonexistent");
+            int rank = lb.GetPlayerRankAsync("nonexistent").GetAwaiter().GetResult();
             Assert.AreEqual(-1, rank);
         }
 
@@ -164,7 +194,7 @@ namespace GolfGame.Tests.EditMode
         public void MockLeaderboard_Ranks_AreOneBased()
         {
             var lb = new MockLeaderboardService();
-            var entries = lb.GetLeaderboard(5);
+            var entries = lb.GetLeaderboardAsync(5).GetAwaiter().GetResult();
             Assert.AreEqual(1, entries[0].Rank);
             Assert.AreEqual(2, entries[1].Rank);
         }

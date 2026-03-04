@@ -76,5 +76,42 @@ namespace GolfGame.Tests.EditMode
             Object.DestroyImmediate(obj1);
             Object.DestroyImmediate(obj2);
         }
+
+        [Test]
+        public void Bootstrap_Awake_MocksAvailableSynchronously()
+        {
+            // Mocks must be registered in the synchronous portion of Awake
+            // before any await, so they are available immediately.
+            var obj = new GameObject("Bootstrap");
+            obj.AddComponent<Bootstrap>();
+
+            // Both services should be non-null immediately
+            var auth = ServiceLocator.Get<IAuthService>();
+            var lb = ServiceLocator.Get<ILeaderboardService>();
+            Assert.IsNotNull(auth, "Auth service should be available immediately after Awake");
+            Assert.IsNotNull(lb, "Leaderboard service should be available immediately after Awake");
+
+            Object.DestroyImmediate(obj);
+        }
+
+        [Test]
+        public void Bootstrap_AfterReset_CanReinitialize()
+        {
+            var obj1 = new GameObject("Bootstrap1");
+            obj1.AddComponent<Bootstrap>();
+
+            Assert.IsNotNull(ServiceLocator.Get<IAuthService>());
+            Object.DestroyImmediate(obj1);
+
+            // Reset and reinitialize
+            Bootstrap.ResetForTesting();
+            Assert.IsNull(ServiceLocator.Get<IAuthService>());
+
+            var obj2 = new GameObject("Bootstrap2");
+            obj2.AddComponent<Bootstrap>();
+
+            Assert.IsNotNull(ServiceLocator.Get<IAuthService>());
+            Object.DestroyImmediate(obj2);
+        }
     }
 }
