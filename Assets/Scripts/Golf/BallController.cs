@@ -7,7 +7,7 @@ namespace GolfGame.Golf
     public class BallController : MonoBehaviour
     {
         [Header("Launch Settings")]
-        [SerializeField] private float launchSpeed = 30f;
+        [SerializeField] private float launchForce = 15f;  // Newtons*seconds impulse
         [SerializeField] private float loftAngle = 25f;
 
         private GameManager gameManager;
@@ -51,17 +51,16 @@ namespace GolfGame.Golf
             var loftRotation = Quaternion.AngleAxis(loftAngle, rightAxis);
             var launchDir = loftRotation * aimed;
 
-            float speed = launchSpeed * shot.PowerNormalized;
-            var launchVelocity = launchDir.normalized * speed;
+            float force = launchForce * shot.PowerNormalized;
 
             flightTimer = 0f;
             isFlying = true;
             rb.isKinematic = false;
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.AddForce(launchVelocity, ForceMode.VelocityChange);
+            rb.AddForce(launchDir.normalized * force, ForceMode.Impulse);
 
-            Debug.Log($"[BallController] Launched: speed={speed:F1} dir={launchDir} vel={launchVelocity}");
+            Debug.Log($"[BallController] Launched: force={force:F1} dir={launchDir}");
         }
 
         private void FixedUpdate()
