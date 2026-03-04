@@ -6,7 +6,9 @@ using GolfGame.Core;
 namespace GolfGame.Golf
 {
     /// <summary>
-    /// Handles touch/mouse input for aiming and power control.
+    /// Handles keyboard input for the 3-click power meter shot system.
+    /// Click 1: start power oscillation. Click 2: lock power, start accuracy.
+    /// Click 3: lock accuracy offset and fire.
     /// Only active when GameManager is in ShotState.Ready.
     /// </summary>
     public class ShotInput : MonoBehaviour
@@ -14,20 +16,30 @@ namespace GolfGame.Golf
         [Header("Settings")]
         [SerializeField] private float maxAimAngle = 45f;
         [SerializeField] private float aimSensitivity = 0.5f;
-        [SerializeField] private float chargeSpeed = 0.5f;
         [SerializeField] private float defaultBackspinRpm = 3000f;
+
+        [Header("Power Meter")]
+        [SerializeField] private float meterSpeed = 1.2f;
+        [SerializeField] private float accuracySpeed = 2.0f;
+        [SerializeField] private float maxAccuracyDeviation = 8f;
 
         private GameManager gameManager;
         private BallController ballController;
         private LineRenderer aimLine;
 
-        private enum InputState { Idle, Aiming, Charging }
+        /// <summary>
+        /// Shot input phases for the 3-click meter.
+        /// </summary>
+        public enum MeterPhase { Idle, Power, Accuracy }
 
-        private InputState inputState;
+        private MeterPhase currentPhase;
         private float currentAimAngle;
-        private float currentPower;
-        private Vector2 pointerStartPosition;
+        private float meterValue;
+        private float lockedPower;
+        private float accuracyValue;
         private bool isActive;
+        private bool meterRising;
+        private bool accuracyRising;
 
         /// <summary>
         /// Fires when a shot is ready with parameters. Consumed by BallController.
@@ -35,19 +47,36 @@ namespace GolfGame.Golf
         public event Action<ShotParameters> OnShotReady;
 
         /// <summary>
-        /// Current aim angle in degrees.
+        /// Fires when the meter phase changes. UI subscribes to this.
         /// </summary>
+        public event Action<MeterPhase> OnMeterPhaseChanged;
+
+        /// <summary>
+        /// Fires every frame with updated meter value (0-1). UI subscribes.
+        /// </summary>
+        public event Action<float> OnMeterValueChanged;
+
+        /// <summary>
+        /// Fires every frame with updated accuracy value (-1 to 1). UI subscribes.
+        /// </summary>
+        public event Action<float> OnAccuracyValueChanged;
+
+        /// <summary>
+        /// Fires when power is locked (click 2). Payload is locked power 0-1.
+        /// </summary>
+        public event Action<float> OnPowerLocked;
+
+        /// <summary>Current aim angle in degrees.</summary>
         public float CurrentAimAngle => currentAimAngle;
 
-        /// <summary>
-        /// Current power level (0-1).
-        /// </summary>
-        public float CurrentPower => currentPower;
+        /// <summary>Current power meter value (0-1).</summary>
+        public float CurrentPower => currentPhase == MeterPhase.Power ? meterValue : lockedPower;
 
-        /// <summary>
-        /// Whether input is currently active.
-        /// </summary>
+        /// <summary>Whether input is currently active.</summary>
         public bool IsActive => isActive;
+
+        /// <summary>Current meter phase.</summary>
+        public MeterPhase CurrentPhase => currentPhase;
 
         private void Start()
         {
@@ -58,15 +87,10 @@ namespace GolfGame.Golf
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;
-                Debug.Log($"[ShotInput#{GetInstanceID()}] Found GameManager, current state: {gameManager.CurrentShotState}, isActive: {gameManager.IsActive}");
-            }
-            else
-            {
-                Debug.LogWarning($"[ShotInput#{GetInstanceID()}] GameManager NOT FOUND");
             }
 
             if (ballController == null)
-                Debug.LogWarning($"[ShotInput#{GetInstanceID()}] BallController NOT FOUND");
+                Debug.LogWarning($"[ShotInput] BallController NOT FOUND");
 
             SetInputActive(false);
         }
@@ -86,10 +110,13 @@ namespace GolfGame.Golf
 
         private void SetInputActive(bool active)
         {
-            Debug.Log($"[ShotInput#{GetInstanceID()}] SetInputActive: {active}");
             isActive = active;
-            inputState = InputState.Idle;
-            currentPower = 0f;
+            currentPhase = MeterPhase.Idle;
+            meterValue = 0f;
+            lockedPower = 0f;
+            accuracyValue = 0f;
+            meterRising = true;
+            accuracyRising = true;
 
             if (aimLine != null)
             {
@@ -101,105 +128,138 @@ namespace GolfGame.Golf
                 currentAimAngle = 0f;
                 UpdateAimLine();
             }
+
+            OnMeterPhaseChanged?.Invoke(currentPhase);
+            OnMeterValueChanged?.Invoke(0f);
+            OnAccuracyValueChanged?.Invoke(0f);
         }
 
         private void Update()
         {
-            // Debug: spacebar always fires regardless of state
-            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-            {
-                Debug.Log($"[ShotInput#{GetInstanceID()}] Space pressed. isActive={isActive} state={inputState}");
-                currentAimAngle = 0f;
-                currentPower = 0.5f;
-                isActive = true;
-                inputState = InputState.Idle;
-                FireShot();
-                return;
-            }
-
             if (!isActive) return;
 
-            switch (inputState)
+            bool spacePressed = Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
+
+            switch (currentPhase)
             {
-                case InputState.Idle:
-                    HandleIdleInput();
+                case MeterPhase.Idle:
+                    HandleIdlePhase(spacePressed);
+                    HandleMouseAiming();
                     break;
-                case InputState.Aiming:
-                    HandleAimingInput();
+                case MeterPhase.Power:
+                    UpdatePowerMeter();
+                    if (spacePressed) LockPower();
                     break;
-                case InputState.Charging:
-                    HandleChargingInput();
+                case MeterPhase.Accuracy:
+                    UpdateAccuracyMeter();
+                    if (spacePressed) LockAccuracyAndFire();
                     break;
             }
 
             UpdateAimLine();
         }
 
-        private void HandleIdleInput()
+        private void HandleIdlePhase(bool spacePressed)
         {
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            if (spacePressed)
             {
-                pointerStartPosition = Mouse.current.position.ReadValue();
-                inputState = InputState.Aiming;
+                currentPhase = MeterPhase.Power;
+                meterValue = 0f;
+                meterRising = true;
+                OnMeterPhaseChanged?.Invoke(currentPhase);
             }
         }
 
-        private void HandleAimingInput()
+        private void HandleMouseAiming()
         {
-            if (Mouse.current == null || !Mouse.current.leftButton.isPressed)
-            {
-                // Released without charging — start charging on next press
-                inputState = InputState.Charging;
-                currentPower = 0f;
-                return;
-            }
+            if (Mouse.current == null) return;
 
-            // Horizontal drag to aim
-            float deltaX = Mouse.current.position.ReadValue().x - pointerStartPosition.x;
-            float screenNormalized = deltaX / Screen.width;
-            currentAimAngle = Mathf.Clamp(
-                screenNormalized * maxAimAngle / aimSensitivity,
-                -maxAimAngle,
-                maxAimAngle);
-        }
-
-        private void HandleChargingInput()
-        {
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                // Start charging
-                currentPower = 0f;
-            }
-
-            if (Mouse.current != null && Mouse.current.leftButton.isPressed)
-            {
-                // Charge power
-                currentPower = Mathf.Clamp01(currentPower + chargeSpeed * Time.deltaTime);
-            }
-
-            if (Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame && currentPower > 0f)
-            {
-                // Release — fire shot
-                FireShot();
+                // Could add mouse aiming here in future
             }
         }
 
-        private void FireShot()
+        private void UpdatePowerMeter()
         {
+            // Oscillate 0 -> 1 -> 0 -> 1 ...
+            float delta = meterSpeed * Time.deltaTime;
+            if (meterRising)
+            {
+                meterValue += delta;
+                if (meterValue >= 1f)
+                {
+                    meterValue = 1f;
+                    meterRising = false;
+                }
+            }
+            else
+            {
+                meterValue -= delta;
+                if (meterValue <= 0f)
+                {
+                    meterValue = 0f;
+                    meterRising = true;
+                }
+            }
+
+            OnMeterValueChanged?.Invoke(meterValue);
+        }
+
+        private void LockPower()
+        {
+            lockedPower = meterValue;
+            currentPhase = MeterPhase.Accuracy;
+            accuracyValue = 0f;
+            accuracyRising = true;
+
+            OnPowerLocked?.Invoke(lockedPower);
+            OnMeterPhaseChanged?.Invoke(currentPhase);
+        }
+
+        private void UpdateAccuracyMeter()
+        {
+            // Oscillate -1 -> 1 -> -1 ...
+            float delta = accuracySpeed * Time.deltaTime;
+            if (accuracyRising)
+            {
+                accuracyValue += delta;
+                if (accuracyValue >= 1f)
+                {
+                    accuracyValue = 1f;
+                    accuracyRising = false;
+                }
+            }
+            else
+            {
+                accuracyValue -= delta;
+                if (accuracyValue <= -1f)
+                {
+                    accuracyValue = -1f;
+                    accuracyRising = true;
+                }
+            }
+
+            OnAccuracyValueChanged?.Invoke(accuracyValue);
+        }
+
+        private void LockAccuracyAndFire()
+        {
+            float aimDeviation = accuracyValue * maxAccuracyDeviation;
+
             var parameters = new ShotParameters
             {
-                PowerNormalized = currentPower,
-                AimAngleDegrees = currentAimAngle,
+                PowerNormalized = lockedPower,
+                AimAngleDegrees = currentAimAngle + aimDeviation,
                 BackspinRpm = defaultBackspinRpm,
                 SidespinRpm = 0f
             };
 
-            inputState = InputState.Idle;
+            currentPhase = MeterPhase.Idle;
             SetInputActive(false);
 
             OnShotReady?.Invoke(parameters);
 
-            // Launch the ball and notify GameManager
             if (ballController != null)
             {
                 ballController.Launch(parameters);

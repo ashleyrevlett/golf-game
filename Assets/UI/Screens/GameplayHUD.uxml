@@ -17,5 +17,17 @@
         <ui:VisualElement name="wind-pod" class="hud-pod" style="position: absolute; left: 12px; bottom: 12px;">
             <ui:Label name="wind-display" text="Wind: --" class="text-stat" />
         </ui:VisualElement>
+
+        <!-- Power meter: bottom-center -->
+        <ui:VisualElement name="power-meter-container" class="power-meter-container" style="display: none;">
+            <ui:Label name="power-meter-label" text="POWER" class="power-meter-label" />
+            <ui:VisualElement name="power-meter-track" class="power-meter-track">
+                <ui:VisualElement name="power-meter-fill" class="power-meter-fill" />
+                <ui:VisualElement name="power-meter-marker" class="power-meter-marker" />
+                <ui:VisualElement name="accuracy-zone" class="accuracy-zone" style="display: none;" />
+                <ui:VisualElement name="accuracy-marker" class="accuracy-marker" style="display: none;" />
+            </ui:VisualElement>
+            <ui:Label name="power-readout" text="0%" class="power-readout" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

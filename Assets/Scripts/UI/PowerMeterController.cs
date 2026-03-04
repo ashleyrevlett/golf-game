@@ -1,0 +1,210 @@
+using UnityEngine;
+using UnityEngine.UIElements;
+using GolfGame.Core;
+using GolfGame.Golf;
+
+namespace GolfGame.UI
+{
+    /// <summary>
+    /// Controls the 3-click power meter UI. Subscribes to ShotInput events
+    /// and updates the visual bar, marker, and labels.
+    /// </summary>
+    public class PowerMeterController : MonoBehaviour
+    {
+        [SerializeField] private UIDocument uiDocument;
+
+        private ShotInput shotInput;
+        private VisualElement root;
+        private VisualElement meterContainer;
+        private VisualElement meterFill;
+        private VisualElement meterMarker;
+        private VisualElement accuracyZone;
+        private VisualElement accuracyMarker;
+        private Label meterLabel;
+        private Label powerReadout;
+
+        private void Awake()
+        {
+            if (uiDocument == null)
+            {
+                uiDocument = GetComponent<UIDocument>();
+            }
+        }
+
+        private void Start()
+        {
+            shotInput = FindFirstObjectByType<ShotInput>();
+
+            root = uiDocument.rootVisualElement;
+            meterContainer = root.Q("power-meter-container");
+            meterFill = root.Q("power-meter-fill");
+            meterMarker = root.Q("power-meter-marker");
+            accuracyZone = root.Q("accuracy-zone");
+            accuracyMarker = root.Q("accuracy-marker");
+            meterLabel = root.Q<Label>("power-meter-label");
+            powerReadout = root.Q<Label>("power-readout");
+
+            if (shotInput != null)
+            {
+                shotInput.OnMeterPhaseChanged += HandlePhaseChanged;
+                shotInput.OnMeterValueChanged += HandleMeterValueChanged;
+                shotInput.OnAccuracyValueChanged += HandleAccuracyValueChanged;
+                shotInput.OnPowerLocked += HandlePowerLocked;
+            }
+
+            SetMeterVisible(false);
+        }
+
+        private void OnDestroy()
+        {
+            if (shotInput != null)
+            {
+                shotInput.OnMeterPhaseChanged -= HandlePhaseChanged;
+                shotInput.OnMeterValueChanged -= HandleMeterValueChanged;
+                shotInput.OnAccuracyValueChanged -= HandleAccuracyValueChanged;
+                shotInput.OnPowerLocked -= HandlePowerLocked;
+            }
+        }
+
+        private void HandlePhaseChanged(ShotInput.MeterPhase phase)
+        {
+            switch (phase)
+            {
+                case ShotInput.MeterPhase.Idle:
+                    SetMeterVisible(false);
+                    break;
+                case ShotInput.MeterPhase.Power:
+                    SetMeterVisible(true);
+                    ShowPowerMode();
+                    break;
+                case ShotInput.MeterPhase.Accuracy:
+                    ShowAccuracyMode();
+                    break;
+            }
+        }
+
+        private void HandleMeterValueChanged(float value)
+        {
+            if (meterFill != null)
+            {
+                meterFill.style.width = Length.Percent(value * 100f);
+            }
+
+            if (meterMarker != null)
+            {
+                meterMarker.style.left = Length.Percent(value * 100f);
+            }
+
+            if (powerReadout != null)
+            {
+                powerReadout.text = $"{Mathf.RoundToInt(value * 100)}%";
+            }
+
+            // Color transition: green -> yellow -> red
+            if (meterFill != null)
+            {
+                Color barColor;
+                if (value < 0.5f)
+                {
+                    barColor = Color.Lerp(
+                        new Color(0.3f, 0.8f, 0.3f),
+                        new Color(1f, 0.84f, 0f),
+                        value * 2f);
+                }
+                else
+                {
+                    barColor = Color.Lerp(
+                        new Color(1f, 0.84f, 0f),
+                        new Color(0.85f, 0.26f, 0.21f),
+                        (value - 0.5f) * 2f);
+                }
+                meterFill.style.backgroundColor = barColor;
+            }
+        }
+
+        private void HandleAccuracyValueChanged(float value)
+        {
+            if (accuracyMarker != null)
+            {
+                // Map -1..1 to 0%..100%
+                float pct = (value + 1f) * 0.5f * 100f;
+                accuracyMarker.style.left = Length.Percent(pct);
+            }
+        }
+
+        private void HandlePowerLocked(float power)
+        {
+            if (powerReadout != null)
+            {
+                powerReadout.text = $"{Mathf.RoundToInt(power * 100)}%";
+            }
+        }
+
+        private void ShowPowerMode()
+        {
+            if (meterLabel != null)
+            {
+                meterLabel.text = "POWER";
+            }
+
+            if (accuracyZone != null)
+            {
+                accuracyZone.style.display = DisplayStyle.None;
+            }
+
+            if (accuracyMarker != null)
+            {
+                accuracyMarker.style.display = DisplayStyle.None;
+            }
+
+            if (meterFill != null)
+            {
+                meterFill.style.display = DisplayStyle.Flex;
+                meterFill.style.width = Length.Percent(0f);
+            }
+
+            if (meterMarker != null)
+            {
+                meterMarker.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        private void ShowAccuracyMode()
+        {
+            if (meterLabel != null)
+            {
+                meterLabel.text = "ACCURACY";
+            }
+
+            // Hide power fill, show accuracy zone + marker
+            if (meterFill != null)
+            {
+                meterFill.style.display = DisplayStyle.None;
+            }
+
+            if (meterMarker != null)
+            {
+                meterMarker.style.display = DisplayStyle.None;
+            }
+
+            if (accuracyZone != null)
+            {
+                accuracyZone.style.display = DisplayStyle.Flex;
+            }
+
+            if (accuracyMarker != null)
+            {
+                accuracyMarker.style.display = DisplayStyle.Flex;
+                accuracyMarker.style.left = Length.Percent(50f);
+            }
+        }
+
+        private void SetMeterVisible(bool visible)
+        {
+            if (meterContainer != null)
+            {
+                meterContainer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+    }
+}
