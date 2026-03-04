@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace GolfGame.Multiplayer
 {
     /// <summary>
@@ -7,6 +9,9 @@ namespace GolfGame.Multiplayer
     public class MockAuthService : IAuthService
     {
         private readonly PlayerInfo playerInfo;
+
+        public bool IsSignedIn => true;
+        public string PlayerId => playerInfo.PlayerId;
 
         public MockAuthService()
         {
@@ -28,14 +33,14 @@ namespace GolfGame.Multiplayer
             };
         }
 
-        public string GetPlayerToken()
+        public Task<string> GetPlayerTokenAsync()
         {
-            return playerInfo.Token;
+            return Task.FromResult(playerInfo.Token);
         }
 
-        public PlayerInfo GetPlayerInfo()
+        public Task<PlayerInfo> GetPlayerInfoAsync()
         {
-            return playerInfo;
+            return Task.FromResult(playerInfo);
         }
     }
 }

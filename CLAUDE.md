@@ -6,18 +6,19 @@
 - **Language:** C# (.NET Standard 2.1)
 - **UI:** UI Toolkit (screen-space); UGUI World Space Canvas for in-world 3D UI only
 - **Camera:** Cinemachine 3.x
-- **Multiplayer:** Server-authoritative scoring (external API)
+- **Multiplayer:** Server-authoritative scoring (UGS Authentication, Leaderboards, Cloud Code)
 - **Physics:** Unity built-in physics (Rigidbody, colliders)
 
 ## Project Structure
 ```
 Assets/
+  CloudCode/       # Cloud Code JS scripts (server-side validation)
   Scripts/
     Core/          # Game managers, state machine, config
     Golf/          # Ball physics, shot mechanics, scoring
     Camera/        # Cinemachine setup, camera transitions
     UI/            # UI Toolkit documents, controllers
-    Multiplayer/   # Leaderboard API, player auth
+    Multiplayer/   # Leaderboard API, player auth, UGS services
     Environment/   # Course generation, placeholder geometry
   Scenes/
     MainMenu.unity
@@ -40,6 +41,7 @@ Packages/
 
 ## Test Commands
 - Unity test runner: Window > General > Test Runner (requires Unity Editor)
+- Cloud Code JS tests: `node --test Assets/CloudCode/validate-and-post-score.test.js`
 - CI: GameCI unity-builder action (requires Unity license secret)
 - Manual: Open project in Unity 6, run Play mode in Gameplay scene
 
@@ -47,8 +49,8 @@ Packages/
 - Closest-to-the-pin format: 6 shots, 125 yards, lowest distance wins
 - No player/club models — ball + environment + pin only
 - Placeholder geometry (cubes, cylinders, planes) for 3D environment
-- External leaderboard API (mocked interface for now)
-- External auth API (token-based, mocked interface for now)
+- UGS-backed leaderboard and auth (anonymous sign-in, Cloud Code validation)
+- Mock services as fallback in editor and when UGS init fails
 
 ## Reference Docs
 
@@ -85,6 +87,11 @@ Read these before working on specific areas:
 - UI Toolkit for screen-space UI; UGUI only for world-space 3D elements
 - Test layouts with shortest and longest expected content
 - Verify at target mobile resolution
+
+### Async Services
+- Service interfaces (`IAuthService`, `ILeaderboardService`) are async (`Task<T>`) — no `Task.Run` or threads in WebGL
+- `Bootstrap.Awake()` is `async void` — mocks register synchronously before the first `await` so other components can resolve services immediately in their `Start()`
+- Fire-and-forget async calls in `Update()` use `_ = MethodAsync()` — exceptions are caught inside the method, not at the call site
 
 ### Process
 - Read relevant docs BEFORE making changes

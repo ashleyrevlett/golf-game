@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using GolfGame.Core;
 using GolfGame.Environment;
@@ -21,9 +23,15 @@ namespace GolfGame.Multiplayer
 
         private IAuthService authService;
         private ILeaderboardService leaderboardService;
-        private PlayerInfo playerInfo;
+        private string playerId;
         private float pollTimer;
         private bool isPolling;
+
+        // Retry queue for failed score posts
+        private readonly Queue<(string playerId, float distance)> retryQueue
+            = new Queue<(string, float)>();
+        private float retryTimer;
+        private const float RetryInterval = 10f;
 
         /// <summary>
         /// Current leaderboard entries.
@@ -41,7 +49,7 @@ namespace GolfGame.Multiplayer
         /// </summary>
         public event Action<LeaderboardEntry[], int> OnLeaderboardUpdated;
 
-        private void Start()
+        private async void Start()
         {
             authService = ServiceLocator.Get<IAuthService>();
             leaderboardService = ServiceLocator.Get<ILeaderboardService>();
@@ -58,7 +66,7 @@ namespace GolfGame.Multiplayer
                 return;
             }
 
-            playerInfo = authService.GetPlayerInfo();
+            playerId = authService.PlayerId;
 
             if (scoringManager != null)
             {
@@ -72,7 +80,7 @@ namespace GolfGame.Multiplayer
             }
 
             // Initial poll
-            PollLeaderboard();
+            await PollLeaderboardAsync();
         }
 
         private void OnDestroy()
@@ -91,13 +99,26 @@ namespace GolfGame.Multiplayer
 
         private void Update()
         {
-            if (!isPolling || leaderboardService == null) return;
-
-            pollTimer += Time.deltaTime;
-            if (pollTimer >= pollInterval)
+            // Existing poll logic (now calls async)
+            if (isPolling && leaderboardService != null)
             {
-                pollTimer = 0f;
-                PollLeaderboard();
+                pollTimer += Time.deltaTime;
+                if (pollTimer >= pollInterval)
+                {
+                    pollTimer = 0f;
+                    _ = PollLeaderboardAsync();
+                }
+            }
+
+            // Retry failed posts
+            if (retryQueue.Count > 0)
+            {
+                retryTimer += Time.deltaTime;
+                if (retryTimer >= RetryInterval)
+                {
+                    retryTimer = 0f;
+                    _ = ProcessRetryQueueAsync();
+                }
             }
         }
 
@@ -106,28 +127,66 @@ namespace GolfGame.Multiplayer
             isPolling = state == ShotState.Ready || state == ShotState.Landed;
         }
 
-        private void HandleBestDistanceUpdated(float distance)
+        private async void HandleBestDistanceUpdated(float distance)
         {
             if (leaderboardService == null) return;
-
-            leaderboardService.PostScore(playerInfo.PlayerId, distance);
-            PollLeaderboard();
+            await PostScoreWithRetryAsync(playerId, distance);
+            await PollLeaderboardAsync();
         }
 
-        private void HandleGameOver(int shots, bool isNewBest)
+        private async void HandleGameOver(int shots, bool isNewBest)
         {
             isPolling = false;
-            PollLeaderboard();
+            await PollLeaderboardAsync();
         }
 
-        private void PollLeaderboard()
+        internal async Task PostScoreWithRetryAsync(string id, float dist)
+        {
+            try
+            {
+                await leaderboardService.PostScoreAsync(id, dist);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[LeaderboardManager] Post failed, queuing retry: {ex.Message}");
+                retryQueue.Enqueue((id, dist));
+            }
+        }
+
+        internal async Task ProcessRetryQueueAsync()
+        {
+            if (retryQueue.Count == 0) return;
+            var (id, dist) = retryQueue.Peek();
+            try
+            {
+                await leaderboardService.PostScoreAsync(id, dist);
+                retryQueue.Dequeue(); // only dequeue on success
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[LeaderboardManager] Retry failed: {ex.Message}");
+            }
+        }
+
+        internal async Task PollLeaderboardAsync()
         {
             if (leaderboardService == null) return;
-
-            CurrentEntries = leaderboardService.GetLeaderboard(leaderboardSize);
-            PlayerRank = leaderboardService.GetPlayerRank(playerInfo.PlayerId);
-
+            try
+            {
+                CurrentEntries = await leaderboardService.GetLeaderboardAsync(leaderboardSize);
+                PlayerRank = await leaderboardService.GetPlayerRankAsync(playerId);
+            }
+            catch (Exception ex)
+            {
+                // Stale cache: CurrentEntries and PlayerRank keep their last values
+                Debug.LogWarning($"[LeaderboardManager] Poll failed, using cached data: {ex.Message}");
+            }
             OnLeaderboardUpdated?.Invoke(CurrentEntries, PlayerRank);
         }
+
+        /// <summary>
+        /// Number of items in the retry queue. Exposed for testing.
+        /// </summary>
+        internal int RetryQueueCount => retryQueue.Count;
     }
 }

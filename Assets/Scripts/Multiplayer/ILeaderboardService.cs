@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace GolfGame.Multiplayer
 {
     /// <summary>
@@ -9,16 +11,16 @@ namespace GolfGame.Multiplayer
         /// <summary>
         /// Post or update a player's best score.
         /// </summary>
-        void PostScore(string playerId, float distance);
+        Task PostScoreAsync(string playerId, float distance);
 
         /// <summary>
         /// Get the top N leaderboard entries, sorted by distance ascending.
         /// </summary>
-        LeaderboardEntry[] GetLeaderboard(int count);
+        Task<LeaderboardEntry[]> GetLeaderboardAsync(int count);
 
         /// <summary>
         /// Get a player's current rank (1-based). Returns -1 if not found.
         /// </summary>
-        int GetPlayerRank(string playerId);
+        Task<int> GetPlayerRankAsync(string playerId);
     }
 }

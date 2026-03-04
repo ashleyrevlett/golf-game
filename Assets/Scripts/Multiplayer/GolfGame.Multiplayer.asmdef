@@ -3,7 +3,11 @@
     "rootNamespace": "GolfGame.Multiplayer",
     "references": [
         "GolfGame.Core",
-        "GolfGame.Environment"
+        "GolfGame.Environment",
+        "Unity.Services.Core",
+        "Unity.Services.Authentication",
+        "Unity.Services.CloudCode",
+        "Unity.Services.Leaderboards"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

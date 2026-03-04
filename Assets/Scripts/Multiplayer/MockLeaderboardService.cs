@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GolfGame.Multiplayer
 {
     /// <summary>
     /// In-memory mock leaderboard pre-populated with simulated players.
-    /// Maintains sorted order by distance (ascending — closest wins).
+    /// Maintains sorted order by distance (ascending -- closest wins).
     /// </summary>
     public class MockLeaderboardService : ILeaderboardService
     {
@@ -39,7 +40,7 @@ namespace GolfGame.Multiplayer
             SortAndRank();
         }
 
-        public void PostScore(string playerId, float distance)
+        public Task PostScoreAsync(string playerId, float distance)
         {
             // Find existing entry
             for (int i = 0; i < entries.Count; i++)
@@ -54,7 +55,7 @@ namespace GolfGame.Multiplayer
                         entries[i] = entry;
                     }
                     SortAndRank();
-                    return;
+                    return Task.CompletedTask;
                 }
             }
 
@@ -67,9 +68,10 @@ namespace GolfGame.Multiplayer
             });
 
             SortAndRank();
+            return Task.CompletedTask;
         }
 
-        public LeaderboardEntry[] GetLeaderboard(int count)
+        public Task<LeaderboardEntry[]> GetLeaderboardAsync(int count)
         {
             int take = Math.Min(count, entries.Count);
             var result = new LeaderboardEntry[take];
@@ -77,19 +79,19 @@ namespace GolfGame.Multiplayer
             {
                 result[i] = entries[i];
             }
-            return result;
+            return Task.FromResult(result);
         }
 
-        public int GetPlayerRank(string playerId)
+        public Task<int> GetPlayerRankAsync(string playerId)
         {
             for (int i = 0; i < entries.Count; i++)
             {
                 if (entries[i].PlayerId == playerId)
                 {
-                    return entries[i].Rank;
+                    return Task.FromResult(entries[i].Rank);
                 }
             }
-            return -1;
+            return Task.FromResult(-1);
         }
 
         /// <summary>
