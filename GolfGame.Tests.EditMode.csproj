@@ -71,7 +71,6 @@
     <Compile Include="Assets/Tests/EditMode/GameStateTests.cs" />
     <Compile Include="Assets/Tests/EditMode/WindSystemTests.cs" />
     <Compile Include="Assets/Tests/EditMode/BallControllerTests.cs" />
-    <Compile Include="Assets/Tests/EditMode/BallPhysicsTests.cs" />
     <Compile Include="Assets/Tests/EditMode/LeaderboardManagerRetryTests.cs" />
     <Compile Include="Assets/Tests/EditMode/CameraControllerTests.cs" />
     <Compile Include="Assets/Tests/EditMode/AudioTests.cs" />

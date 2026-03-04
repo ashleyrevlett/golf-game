@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 675772689}
   m_Layer: 0
   m_Name: FlightCamera
-  m_TagString: Untagged
+  m_TagString: FlightCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -811,7 +811,7 @@ GameObject:
   - component: {fileID: 860461649}
   m_Layer: 0
   m_Name: TeeCamera
-  m_TagString: Untagged
+  m_TagString: TeeCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -978,7 +978,7 @@ GameObject:
   - component: {fileID: 1633251695}
   m_Layer: 0
   m_Name: LandingCamera
-  m_TagString: Untagged
+  m_TagString: LandingCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

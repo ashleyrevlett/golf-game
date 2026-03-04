@@ -69,7 +69,6 @@
     <Compile Include="Assets/Scripts/Golf/BallPhysicsConfig.cs" />
     <Compile Include="Assets/Scripts/Golf/WindSystem.cs" />
     <Compile Include="Assets/Scripts/Golf/ShotParameters.cs" />
-    <Compile Include="Assets/Scripts/Golf/BallPhysics.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/Scripts/Golf/GolfGame.Golf.asmdef" />

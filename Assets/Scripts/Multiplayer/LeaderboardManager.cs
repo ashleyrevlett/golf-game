@@ -23,13 +23,11 @@ namespace GolfGame.Multiplayer
         private IAuthService authService;
         private ILeaderboardService leaderboardService;
         private string playerId;
-        private float pollTimer;
         private bool isPolling;
 
         // Retry queue for failed score posts
         private readonly Queue<(string playerId, float distance)> retryQueue
             = new Queue<(string, float)>();
-        private float retryTimer;
         private const float RetryInterval = 10f;
 
         /// <summary>
@@ -99,34 +97,35 @@ namespace GolfGame.Multiplayer
             }
         }
 
-        private void Update()
+        private System.Collections.IEnumerator PollLoop()
         {
-            // Existing poll logic (now calls async)
-            if (isPolling && leaderboardService != null)
+            while (isPolling && leaderboardService != null)
             {
-                pollTimer += Time.deltaTime;
-                if (pollTimer >= pollInterval)
-                {
-                    pollTimer = 0f;
-                    _ = PollLeaderboardAsync();
-                }
+                yield return new WaitForSeconds(pollInterval);
+                if (isPolling) _ = PollLeaderboardAsync();
             }
+        }
 
-            // Retry failed posts
-            if (retryQueue.Count > 0)
+        private System.Collections.IEnumerator RetryLoop()
+        {
+            while (retryQueue.Count > 0)
             {
-                retryTimer += Time.deltaTime;
-                if (retryTimer >= RetryInterval)
-                {
-                    retryTimer = 0f;
-                    _ = ProcessRetryQueueAsync();
-                }
+                yield return new WaitForSeconds(RetryInterval);
+                if (retryQueue.Count > 0) _ = ProcessRetryQueueAsync();
             }
         }
 
         private void HandleShotStateChanged(ShotState state)
         {
+            bool wasPolling = isPolling;
             isPolling = state == ShotState.Ready || state == ShotState.Landed;
+            if (isPolling && !wasPolling)
+                StartCoroutine(PollLoop());
+        }
+
+        private void StartRetryIfNeeded()
+        {
+            StartCoroutine(RetryLoop());
         }
 
         private async void HandleBestDistanceUpdated(float distance)

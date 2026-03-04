@@ -37,9 +37,9 @@ namespace GolfGame.Camera
             gameManager = FindFirstObjectByType<GameManager>();
             ballController = FindFirstObjectByType<BallController>();
 
-            teeCamera = GameObject.Find("TeeCamera")?.GetComponent<CinemachineCamera>();
-            flightCamera = GameObject.Find("FlightCamera")?.GetComponent<CinemachineCamera>();
-            landingCamera = GameObject.Find("LandingCamera")?.GetComponent<CinemachineCamera>();
+            teeCamera = GameObject.FindWithTag("TeeCamera")?.GetComponent<CinemachineCamera>();
+            flightCamera = GameObject.FindWithTag("FlightCamera")?.GetComponent<CinemachineCamera>();
+            landingCamera = GameObject.FindWithTag("LandingCamera")?.GetComponent<CinemachineCamera>();
 
             if (gameManager != null)
             {
