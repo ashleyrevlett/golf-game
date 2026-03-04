@@ -158,3 +158,23 @@ After making changes that trigger recompilation or generate `.meta` files (new s
    ```
 
 Never commit code changes without also committing the resulting `.meta` files — missing metas cause broken references for other contributors.
+
+## Compiler Errors — Hard Rule
+
+**Never commit if there are compiler errors. Always check before committing.**
+
+```bash
+# Check for compiler errors via Unity MCP before any commit
+mcporter call UnityMCP.read_console
+# Look for "error CS" lines — if any exist, fix them first
+```
+
+C# compiler errors cause the entire project to fail to build — every other script stops working too. A single error breaks everyone. There is no acceptable reason to commit broken code.
+
+**Workflow:**
+1. Make changes
+2. `mcporter call UnityMCP.refresh_unity`
+3. `mcporter call UnityMCP.read_console` — scan for `error CS`
+4. Fix any errors
+5. Re-check console is clean
+6. Only then: `git add -A && git commit -m "..." && git push`
