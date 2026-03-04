@@ -136,3 +136,25 @@ private void Awake()
 - `AudioManager`
 
 Reserve `[SerializeField]` only for assets (ScriptableObjects, Prefabs, AudioClips) that have no runtime equivalent.
+
+## Unity MCP Workflow
+
+After making changes that trigger recompilation or generate `.meta` files (new scripts, moved assets, package changes):
+
+1. **Refresh Unity:**
+   ```
+   mcporter call UnityMCP.refresh_unity
+   ```
+
+2. **Check console for errors:**
+   ```
+   mcporter call UnityMCP.read_console
+   ```
+   Fix any errors before proceeding.
+
+3. **Commit refreshed assets** — Unity may generate or update `.meta` files after import. Always commit these alongside the triggering change:
+   ```bash
+   git add -A && git commit -m "..." && git push
+   ```
+
+Never commit code changes without also committing the resulting `.meta` files — missing metas cause broken references for other contributors.
