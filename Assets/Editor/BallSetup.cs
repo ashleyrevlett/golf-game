@@ -37,3 +37,6 @@ namespace GolfGame.Editor
         }
     }
 }
+
+    // Add this to BallSetup class
+    public partial class BallSetupExtra { } // placeholder
