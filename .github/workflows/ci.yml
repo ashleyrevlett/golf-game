@@ -11,24 +11,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check C# syntax
-        run: |
-          # Find all C# files and check for basic syntax issues
-          find . -name "*.cs" -type f | head -5
-          echo "C# files found — Unity compilation requires Unity Editor"
-
       - name: Validate project structure
         run: |
           test -d Assets || (echo "Missing Assets directory" && exit 1)
           test -d ProjectSettings || (echo "Missing ProjectSettings directory" && exit 1)
           echo "Unity project structure valid"
 
-  # Unity build requires GameCI — enable when Unity license is configured
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: game-ci/unity-builder@v4
-  #       with:
-  #         targetPlatform: WebGL
-  #         unityVersion: 6000.0.23f1
+  cloud-code-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Cloud Code tests
+        run: node --test Assets/CloudCode/validate-and-post-score.test.js
+
+  unity-tests:
+    runs-on: ubuntu-latest
+    if: ${{ vars.UNITY_LICENSE != '' || secrets.UNITY_LICENSE != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          testMode: EditMode
+          unityVersion: 6000.0.23f1
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
