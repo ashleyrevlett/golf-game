@@ -105,3 +105,34 @@ Read these before working on specific areas:
 - [ ] Updated relevant docs if behavior/APIs changed
 - [ ] No unintended scale or position changes
 - [ ] All `.meta` files for new assets included
+
+## Reference Wiring
+
+Avoid `[SerializeField]` drag-and-drop wiring in the Inspector. Use code-based reference resolution instead:
+
+- **Same GameObject:** `GetComponent<T>()` in `Awake()`
+- **Tagged objects:** `GameObject.FindWithTag("TagName")` — use for singletons like `GameManager`, `BallController`
+- **Simple lookups (no tag warranted):** `GameObject.Find("Name")` — cache result in `Awake()`, never call in `Update()`
+- **Children:** `GetComponentInChildren<T>()`
+- **Scene-wide search by type:** `Object.FindFirstObjectByType<T>()` (Unity 6 preferred over `FindObjectOfType`)
+
+### Preferred Pattern
+```csharp
+private GameManager gameManager;
+
+private void Awake()
+{
+    gameManager = GameObject.FindWithTag("GameManager")?.GetComponent<GameManager>();
+    // or for same-object components:
+    ballController = GetComponent<BallController>();
+}
+```
+
+### Tags to Define
+- `GameManager`
+- `BallController`
+- `ScoringManager`
+- `WindSystem`
+- `AudioManager`
+
+Reserve `[SerializeField]` only for assets (ScriptableObjects, Prefabs, AudioClips) that have no runtime equivalent.
