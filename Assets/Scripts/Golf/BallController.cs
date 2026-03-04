@@ -34,6 +34,8 @@ namespace GolfGame.Golf
         private void Start()
         {
             gameManager = FindFirstObjectByType<GameManager>();
+            if (gameManager != null)
+                gameManager.OnResetToTee += ResetToTee;
             initialTeePosition = transform.position;
             ResetToTee();
         }
@@ -102,6 +104,12 @@ namespace GolfGame.Golf
         {
             initialTeePosition = position;
             transform.position = position;
+        }
+
+        private void OnDestroy()
+        {
+            if (gameManager != null)
+                gameManager.OnResetToTee -= ResetToTee;
         }
 
         private void OnCollisionEnter(Collision collision)

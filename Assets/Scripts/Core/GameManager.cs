@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using GolfGame.Golf;
 
 namespace GolfGame.Core
 {
@@ -40,6 +39,7 @@ namespace GolfGame.Core
         /// Fires when the shot state changes. Payload is the new state.
         /// </summary>
         public event Action<ShotState> OnShotStateChanged;
+        public event Action OnResetToTee;
 
         /// <summary>
         /// Fires when the game ends. Payload: (shotCount, isNewBest).
@@ -164,11 +164,7 @@ namespace GolfGame.Core
         private System.Collections.IEnumerator ResetAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-
-            // Reset ball to tee
-            var ball = FindFirstObjectByType<BallController>();
-            ball?.ResetToTee();
-
+            OnResetToTee?.Invoke();
             SetShotState(ShotState.Ready);
         }
 

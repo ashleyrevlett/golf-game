@@ -2,8 +2,7 @@
     "name": "GolfGame.Core",
     "rootNamespace": "GolfGame.Core",
     "references": [
-        "Unity.InputSystem",
-        "GolfGame.Golf"
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
