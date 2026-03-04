@@ -1120,8 +1120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f430e7fae1c4747af5f16972762b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GolfGame.Golf::GolfGame.Golf.BallController
-  launchForce: 3.2
-  loftAngle: 25
+  launchForce: 5
+  loftAngle: 29
 --- !u!4 &1985423959
 Transform:
   m_ObjectHideFlags: 0
