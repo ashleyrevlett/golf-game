@@ -80,20 +80,27 @@ namespace GolfGame.Core
 
         private async void HandleStateTransition(AppState newState)
         {
-            switch (newState)
+            try
             {
-                case AppState.TransitionToGame:
-                    await SceneLoader.LoadSceneAsync(SceneLoader.GameplayScene);
-                    SetState(AppState.Playing);
-                    break;
+                switch (newState)
+                {
+                    case AppState.TransitionToGame:
+                        await SceneLoader.LoadSceneAsync(SceneLoader.GameplayScene);
+                        SetState(AppState.Playing);
+                        break;
 
-                case AppState.Title:
-                case AppState.Leaderboard:
-                    if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != SceneLoader.MainMenuScene)
-                    {
-                        await SceneLoader.LoadSceneAsync(SceneLoader.MainMenuScene);
-                    }
-                    break;
+                    case AppState.Title:
+                    case AppState.Leaderboard:
+                        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != SceneLoader.MainMenuScene)
+                        {
+                            await SceneLoader.LoadSceneAsync(SceneLoader.MainMenuScene);
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AppManager] Scene transition to {newState} failed: {ex.Message}");
             }
         }
 
