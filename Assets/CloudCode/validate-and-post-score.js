@@ -1,5 +1,5 @@
-const { LeaderboardsApi } = require("@unity-services/leaderboards-1.2");
-const { DataApi } = require("@unity-services/cloud-save-1.3");
+const { LeaderboardsApi } = require("@unity-services/leaderboards-1.0");
+const { DataApi } = require("@unity-services/cloud-save-1.4");
 
 const LEADERBOARD_ID = "closest-to-pin";
 const MAX_DISTANCE = 115; // meters
