@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using GolfGame.Golf;
 
 namespace GolfGame.Core
 {
@@ -165,7 +166,7 @@ namespace GolfGame.Core
             yield return new WaitForSeconds(delay);
 
             // Reset ball to tee
-            var ball = FindFirstObjectByType<GolfGame.Golf.BallController>();
+            var ball = FindFirstObjectByType<BallController>();
             ball?.ResetToTee();
 
             SetShotState(ShotState.Ready);
