@@ -57,14 +57,12 @@ namespace GolfGame.Core
                     Activate();
                 }
             }
-#if UNITY_EDITOR
             else
             {
                 // Auto-activate when no AppManager (WebGL direct load, debug builds)
                 Debug.Log("[GameManager] Auto-activating without AppManager");
                 Activate();
             }
-#endif
         }
 
         private void OnDestroy()

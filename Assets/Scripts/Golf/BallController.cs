@@ -216,9 +216,10 @@ namespace GolfGame.Golf
             currentBackspinRpm = 0f;
             currentSidespinRpm = 0f;
 
-            rb.isKinematic = true;
+            rb.isKinematic = false;
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
             transform.position = initialTeePosition;
         }
 

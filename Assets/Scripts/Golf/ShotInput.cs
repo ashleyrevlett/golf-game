@@ -57,7 +57,15 @@ namespace GolfGame.Golf
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;
+                Debug.Log($"[ShotInput] Found GameManager, current state: {gameManager.CurrentShotState}, isActive: {gameManager.IsActive}");
             }
+            else
+            {
+                Debug.LogWarning("[ShotInput] GameManager NOT FOUND");
+            }
+
+            if (ballController == null)
+                Debug.LogWarning("[ShotInput] BallController NOT FOUND");
 
             SetInputActive(false);
         }
@@ -77,6 +85,7 @@ namespace GolfGame.Golf
 
         private void SetInputActive(bool active)
         {
+            Debug.Log($"[ShotInput] SetInputActive: {active}");
             isActive = active;
             inputState = InputState.Idle;
             currentPower = 0f;
@@ -116,6 +125,8 @@ namespace GolfGame.Golf
         private void HandleIdleInput()
         {
             // Debug: spacebar fires with center aim + mid power
+            if (Input.GetKeyDown(KeyCode.Space))
+                Debug.Log("[ShotInput] Spacebar detected in idle");
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 currentAimAngle = 0f;
