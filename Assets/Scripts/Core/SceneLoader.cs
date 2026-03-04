@@ -28,6 +28,15 @@ namespace GolfGame.Core
         /// </summary>
         public static async Task LoadSceneAsync(string sceneName)
         {
+            // Skip reload if already in this scene
+            if (SceneManager.GetActiveScene().name == sceneName)
+            {
+                Debug.Log($"[SceneLoader] Already in scene '{sceneName}', skipping reload.");
+                OnLoadProgress?.Invoke(1f);
+                OnSceneLoaded?.Invoke(sceneName);
+                return;
+            }
+
             var operation = SceneManager.LoadSceneAsync(sceneName);
             if (operation == null)
             {
