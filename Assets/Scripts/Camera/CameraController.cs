@@ -132,34 +132,6 @@ namespace GolfGame.Camera
             Debug.Log("[CameraController] Landing camera active");
         }
 
-        private void LateUpdate()
-        {
-            // Keep all cameras at least 1m above ground
-            EnforceMinHeight(teeCamera);
-            EnforceMinHeight(flightCamera);
-            EnforceMinHeight(landingCamera);
-        }
-
-        private void EnforceMinHeight(CinemachineCamera cam)
-        {
-            if (cam == null) return;
-
-            var t = cam.transform;
-            float groundY = 0f;
-
-            // Raycast down to find actual ground
-            if (Physics.Raycast(t.position, Vector3.down, out RaycastHit hit, 100f))
-            {
-                groundY = hit.point.y;
-            }
-
-            float minY = groundY + 1f;
-            if (t.position.y < minY)
-            {
-                t.position = new Vector3(t.position.x, minY, t.position.z);
-            }
-        }
-
         private void SetCameraPriorities(int tee, int flight, int landing)
         {
             if (teeCamera != null) teeCamera.Priority = tee;
