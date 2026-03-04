@@ -178,3 +178,14 @@ C# compiler errors cause the entire project to fail to build — every other scr
 4. Fix any errors
 5. Re-check console is clean
 6. Only then: `git add -A && git commit -m "..." && git push`
+
+## Starting Unity MCP Server
+
+If UnityMCP is not running (mcporter returns no_unity_session):
+
+1. In Unity Editor: **Window > MCP for Unity > Toggle MCP Window**
+2. In the MCP window: click **Start Server**
+3. Click **Start Session**
+4. Accept any dialog that appears after Start Server
+
+Can be automated via computer-control MCP to click menus.
