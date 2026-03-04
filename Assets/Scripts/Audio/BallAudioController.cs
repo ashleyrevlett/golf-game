@@ -10,14 +10,17 @@ namespace GolfGame.Audio
     /// </summary>
     public class BallAudioController : MonoBehaviour
     {
-        [SerializeField] private BallController ballController;
-        [SerializeField] private GameManager gameManager;
+        private BallController ballController;
+        private GameManager gameManager;
 
         private AudioSource rollSource;
         private float lastLaunchPower;
 
         private void Start()
         {
+            ballController = FindFirstObjectByType<BallController>();
+            gameManager = FindFirstObjectByType<GameManager>();
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;

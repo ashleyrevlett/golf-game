@@ -9,8 +9,7 @@ namespace GolfGame.Environment
     /// </summary>
     public class WindIndicator : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private WindSystem windSystem;
+        private WindSystem windSystem;
 
         [Header("Settings")]
         [SerializeField] private float baseLength = 1f;
@@ -23,6 +22,8 @@ namespace GolfGame.Environment
 
         private void Start()
         {
+            windSystem = FindFirstObjectByType<WindSystem>();
+
             CreateArrow();
 
             if (windSystem != null)

@@ -13,9 +13,8 @@ namespace GolfGame.Multiplayer
     /// </summary>
     public class LeaderboardManager : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private ScoringManager scoringManager;
-        [SerializeField] private GameManager gameManager;
+        private ScoringManager scoringManager;
+        private GameManager gameManager;
 
         [Header("Settings")]
         [SerializeField] private float pollInterval = 5f;
@@ -51,6 +50,9 @@ namespace GolfGame.Multiplayer
 
         private async void Start()
         {
+            scoringManager = FindFirstObjectByType<ScoringManager>();
+            gameManager = FindFirstObjectByType<GameManager>();
+
             authService = ServiceLocator.Get<IAuthService>();
             leaderboardService = ServiceLocator.Get<ILeaderboardService>();
 

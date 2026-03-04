@@ -12,10 +12,9 @@ namespace GolfGame.Environment
     /// </summary>
     public class ScoringManager : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private GameManager gameManager;
-        [SerializeField] private BallController ballController;
-        [SerializeField] private PinController pinController;
+        private GameManager gameManager;
+        private BallController ballController;
+        private PinController pinController;
 
         private readonly List<ShotResult> results = new List<ShotResult>();
         private float bestDistance = float.MaxValue;
@@ -52,6 +51,10 @@ namespace GolfGame.Environment
 
         private void Start()
         {
+            gameManager = FindFirstObjectByType<GameManager>();
+            ballController = FindFirstObjectByType<BallController>();
+            pinController = FindFirstObjectByType<PinController>();
+
             if (ballController != null)
             {
                 ballController.OnBallLanded += HandleBallLanded;

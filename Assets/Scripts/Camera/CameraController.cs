@@ -17,15 +17,13 @@ namespace GolfGame.Camera
         private const int ActivePriority = 10;
         private const int InactivePriority = 0;
 
-        [Header("References")]
-        [SerializeField] private GameManager gameManager;
-        [SerializeField] private BallController ballController;
+        private GameManager gameManager;
+        private BallController ballController;
 
 #if CINEMACHINE_3
-        [Header("Cinemachine Cameras")]
-        [SerializeField] private CinemachineCamera teeCamera;
-        [SerializeField] private CinemachineCamera flightCamera;
-        [SerializeField] private CinemachineCamera landingCamera;
+        private CinemachineCamera teeCamera;
+        private CinemachineCamera flightCamera;
+        private CinemachineCamera landingCamera;
 #endif
 
         [Header("Config")]
@@ -40,6 +38,15 @@ namespace GolfGame.Camera
 
         private void Start()
         {
+            gameManager = FindFirstObjectByType<GameManager>();
+            ballController = FindFirstObjectByType<BallController>();
+
+#if CINEMACHINE_3
+            teeCamera = GameObject.Find("TeeCamera")?.GetComponent<CinemachineCamera>();
+            flightCamera = GameObject.Find("FlightCamera")?.GetComponent<CinemachineCamera>();
+            landingCamera = GameObject.Find("LandingCamera")?.GetComponent<CinemachineCamera>();
+#endif
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;

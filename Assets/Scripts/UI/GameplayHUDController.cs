@@ -13,9 +13,9 @@ namespace GolfGame.UI
     public class GameplayHUDController : MonoBehaviour
     {
         [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private GameManager gameManager;
-        [SerializeField] private ScoringManager scoringManager;
-        [SerializeField] private WindSystem windSystem;
+        private GameManager gameManager;
+        private ScoringManager scoringManager;
+        private WindSystem windSystem;
 
         private VisualElement root;
         private Label shotCounter;
@@ -38,6 +38,10 @@ namespace GolfGame.UI
 
         private void Start()
         {
+            gameManager = FindFirstObjectByType<GameManager>();
+            scoringManager = FindFirstObjectByType<ScoringManager>();
+            windSystem = FindFirstObjectByType<WindSystem>();
+
             root = uiDocument.rootVisualElement;
 
             shotCounter = root.Q<Label>("shot-counter");

@@ -11,14 +11,18 @@ namespace GolfGame.Audio
     /// </summary>
     public class AmbientAudioController : MonoBehaviour
     {
-        [SerializeField] private WindSystem windSystem;
-        [SerializeField] private ScoringManager scoringManager;
-        [SerializeField] private GameManager gameManager;
+        private WindSystem windSystem;
+        private ScoringManager scoringManager;
+        private GameManager gameManager;
 
         private AudioSource windSource;
 
         private void Start()
         {
+            windSystem = FindFirstObjectByType<WindSystem>();
+            scoringManager = FindFirstObjectByType<ScoringManager>();
+            gameManager = FindFirstObjectByType<GameManager>();
+
             if (windSystem != null)
             {
                 windSystem.OnWindChanged += HandleWindChanged;

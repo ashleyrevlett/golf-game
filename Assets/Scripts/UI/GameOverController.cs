@@ -12,7 +12,7 @@ namespace GolfGame.UI
     public class GameOverController : MonoBehaviour
     {
         [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private ScoringManager scoringManager;
+        private ScoringManager scoringManager;
 
         private VisualElement root;
         private Label finalDistance;
@@ -29,6 +29,8 @@ namespace GolfGame.UI
 
         private void Start()
         {
+            scoringManager = FindFirstObjectByType<ScoringManager>();
+
             root = uiDocument.rootVisualElement;
 
             finalDistance = root.Q<Label>("final-distance");

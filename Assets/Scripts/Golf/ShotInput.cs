@@ -16,10 +16,9 @@ namespace GolfGame.Golf
         [SerializeField] private float chargeSpeed = 0.5f;
         [SerializeField] private float defaultBackspinRpm = 3000f;
 
-        [Header("References")]
-        [SerializeField] private GameManager gameManager;
-        [SerializeField] private BallController ballController;
-        [SerializeField] private LineRenderer aimLine;
+        private GameManager gameManager;
+        private BallController ballController;
+        private LineRenderer aimLine;
 
         private enum InputState { Idle, Aiming, Charging }
 
@@ -51,6 +50,10 @@ namespace GolfGame.Golf
 
         private void Start()
         {
+            gameManager = FindFirstObjectByType<GameManager>();
+            ballController = FindFirstObjectByType<BallController>();
+            aimLine = GetComponent<LineRenderer>();
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;

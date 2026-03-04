@@ -13,7 +13,7 @@ namespace GolfGame.UI
         private const string QualityKey = "HighQuality";
 
         [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private MainMenuController mainMenuController;
+        private MainMenuController mainMenuController;
 
         private VisualElement root;
         private Slider volumeSlider;
@@ -30,6 +30,8 @@ namespace GolfGame.UI
 
         private void Start()
         {
+            mainMenuController = FindFirstObjectByType<MainMenuController>();
+
             root = uiDocument.rootVisualElement;
 
             volumeSlider = root.Q<Slider>("volume-slider");

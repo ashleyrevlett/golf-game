@@ -11,7 +11,7 @@ namespace GolfGame.UI
     public class MainMenuController : MonoBehaviour
     {
         [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private SettingsController settingsController;
+        private SettingsController settingsController;
 
         private VisualElement root;
         private Button playButton;
@@ -27,6 +27,8 @@ namespace GolfGame.UI
 
         private void Start()
         {
+            settingsController = FindFirstObjectByType<SettingsController>();
+
             root = uiDocument.rootVisualElement;
 
             playButton = root.Q<Button>("play-button");

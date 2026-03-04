@@ -12,8 +12,7 @@ namespace GolfGame.Environment
         [Header("Config")]
         [SerializeField] private CourseConfig config;
 
-        [Header("Output")]
-        [SerializeField] private PinController pinController;
+        private PinController pinController;
 
         private Material matTee;
         private Material matFairway;
@@ -107,14 +106,7 @@ namespace GolfGame.Environment
                 pinH, pinD, flagW, flagH);
 
             // Assign pin controller
-            if (pinController == null)
-            {
-                pinController = pinObj.AddComponent<PinController>();
-            }
-            else
-            {
-                pinController.transform.position = new Vector3(0f, 0f, length);
-            }
+            pinController = pinObj.AddComponent<PinController>();
 
             // OB markers along both sides
             float obX = (fwWidth / 2f) + rWidth + obBeyond;

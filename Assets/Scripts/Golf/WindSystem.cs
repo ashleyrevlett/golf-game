@@ -13,8 +13,7 @@ namespace GolfGame.Golf
         [Header("Config")]
         [SerializeField] private BallPhysicsConfig config;
 
-        [Header("References")]
-        [SerializeField] private GameManager gameManager;
+        private GameManager gameManager;
 
         private Vector3 currentWind;
 
@@ -47,6 +46,8 @@ namespace GolfGame.Golf
 
         private void Start()
         {
+            gameManager = FindFirstObjectByType<GameManager>();
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;

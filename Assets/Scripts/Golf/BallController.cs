@@ -13,12 +13,9 @@ namespace GolfGame.Golf
         [Header("Config")]
         [SerializeField] private BallPhysicsConfig config;
 
-        [Header("References")]
-        [SerializeField] private WindSystem windSystem;
-        [SerializeField] private GameManager gameManager;
-
-        [Header("State")]
-        [SerializeField] private Transform teePosition;
+        private WindSystem windSystem;
+        private GameManager gameManager;
+        private Transform teePosition;
 
         private Rigidbody rb;
         private bool isFlying;
@@ -57,6 +54,10 @@ namespace GolfGame.Golf
 
         private void Start()
         {
+            windSystem = FindFirstObjectByType<WindSystem>();
+            gameManager = FindFirstObjectByType<GameManager>();
+            teePosition = GameObject.Find("TeeBox")?.transform;
+
             initialTeePosition = teePosition != null ? teePosition.position : transform.position;
             ResetToTee();
         }
