@@ -6,9 +6,8 @@ namespace GolfGame.Golf
 {
     public class BallController : MonoBehaviour
     {
-        [Header("Launch Settings")]
-        [SerializeField] private float launchForce = 15f;  // Newtons*seconds impulse
-        [SerializeField] private float loftAngle = 25f;
+        [Header("Physics Config")]
+        [SerializeField] private BallPhysicsConfig physicsConfig;
 
         private GameManager gameManager;
         private Rigidbody rb;
@@ -21,12 +20,27 @@ namespace GolfGame.Golf
         public event Action OnBallLaunched;
         public bool IsFlying => isFlying;
 
+        private float LaunchForce => physicsConfig != null
+            ? physicsConfig.MaxPowerMph * physicsConfig.MphToForceMultiplier
+            : 15f;
+
+        private float LoftAngle => physicsConfig != null
+            ? physicsConfig.DefaultLoftAngle
+            : 25f;
+
         private void Awake()
         {
+            if (physicsConfig == null)
+            {
+                physicsConfig = Resources.Load<BallPhysicsConfig>("BallPhysicsConfig");
+                if (physicsConfig == null)
+                    Debug.LogWarning("[BallController] No BallPhysicsConfig found — using defaults");
+            }
+
             rb = GetComponent<Rigidbody>();
             if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
 
-            rb.mass = 0.046f;
+            rb.mass = physicsConfig != null ? physicsConfig.BallMass : 0.046f;
             rb.useGravity = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
@@ -51,10 +65,10 @@ namespace GolfGame.Golf
 
             // Apply loft upward: rotate around the right axis (positive = up)
             var rightAxis = Vector3.Cross(Vector3.up, aimed).normalized;
-            var loftRotation = Quaternion.AngleAxis(loftAngle, rightAxis);
+            var loftRotation = Quaternion.AngleAxis(LoftAngle, rightAxis);
             var launchDir = loftRotation * aimed;
 
-            float force = launchForce * shot.PowerNormalized;
+            float force = LaunchForce * shot.PowerNormalized;
 
             flightTimer = 0f;
             isFlying = true;
