@@ -104,6 +104,7 @@ namespace GolfGame.Golf
             rb.isKinematic = false;
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+            Debug.Log($"[BallController] Launching: power={shot.PowerNormalized} aim={shot.AimAngleDegrees} velocity={launchVelocity} mag={launchVelocity.magnitude}");
             rb.AddForce(launchVelocity, ForceMode.VelocityChange);
         }
 
