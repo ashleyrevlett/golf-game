@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets/Scripts/Multiplayer/ServiceLocator.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/UgsAuthService.cs" />
+    <Compile Include="Assets/Scripts/Multiplayer/AssemblyInfo.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/LeaderboardManager.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/MockLeaderboardService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/PlayerInfo.cs" />
@@ -222,6 +223,10 @@
     </Reference>
     <Reference Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.ShaderRuntimeModule">
