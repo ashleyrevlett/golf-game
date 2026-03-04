@@ -40,23 +40,28 @@ Spin decay: 0.98/frame in air, 0.6 on bounce.
 ## Key Data Types
 
 ```csharp
+// GolfGame.Golf.ShotParameters — created by ShotInput, consumed by BallController
 public class ShotParameters
 {
-    public float powerMph;           // 0–200
-    public float launchAngleDegrees; // 0–60
-    public float sideAngleDegrees;   // -45 to 45
-    public float backspinRpm;        // 0–10000
-    public float sidespinRpm;        // -5000 to 5000
+    public float PowerNormalized;    // 0–1 from power meter
+    public float AimAngleDegrees;   // -45 to 45 (horizontal aim offset)
+    public float BackspinRpm;       // higher = more lift, less roll
+    public float SidespinRpm;       // negative = draw, positive = fade
+    public float PowerMph(float maxMph); // computed from PowerNormalized
 }
 
+// GolfGame.Environment.ShotResult — per-shot statistics
 public struct ShotResult
 {
-    public int shotNumber;  // 1–6
-    public int shotScore;   // Points this shot
-    public int totalScore;  // Cumulative
+    public int ShotNumber;          // 1-based
+    public float DistanceToPin;     // meters from landing to pin
+    public float CarryDistance;     // tee to first bounce (meters)
+    public float TotalDistance;     // tee to final rest (meters)
+    public float LateralDeviation;  // positive = right (meters)
+    public float BallSpeed;        // launch speed (m/s)
 }
 ```
 
 ## Bounce SFX
 
-`OnGroundHit` fires on first contact and final landing. Intermediate bounces only fire if scaled apex exceeds `ballVisualRadius * 1.5` — prevents audible SFX for imperceptible bounces.
+`OnBallBounced(position, speed)` fires on each bounce. `OnBallLanded(position)` fires when the ball comes to rest. Bounce sound volume scales with impact speed; roll loop starts on first bounce and stops on landing.

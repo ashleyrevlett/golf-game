@@ -42,6 +42,17 @@ Use `System.Action<T>` for all events. Never use `SendMessage`.
 ```csharp
 public event Action<GameState> OnStateChanged;
 public event Action<int, bool> OnGameOver;
+
+// ScoringManager events
+public event Action<ShotResult> OnShotScored;
+public event Action<float> OnShotRecorded;        // per-shot distance to pin
+public event Action<float> OnBestDistanceUpdated;  // new best distance
+public event Action<float> OnAllShotsComplete;     // total CTP distance (end of game)
+
+// BallController events
+public event Action<Vector3> OnBallLanded;
+public event Action<Vector3, float> OnBallBounced;
+public event Action OnBallLaunched;                // fires on each launch
 ```
 
 ### Firing
@@ -71,9 +82,10 @@ private void OnDestroy()
 ## Component Wiring
 
 - Managers fire events, UI controllers subscribe
-- Use `[SerializeField]` references wired in Inspector for stable references
-- Use `FindFirstObjectByType<T>()` sparingly, cache results in `Awake()`
-- Never use `GetComponent<T>()` in `Update()` — cache in `Start()`
+- Use `FindFirstObjectByType<T>()` for cross-object references, cache in `Start()` or `Awake()`
+- Use `GetComponent<T>()` for same-GameObject components, cache in `Awake()`
+- Reserve `[SerializeField]` for assets only (ScriptableObjects, Prefabs, AudioClips)
+- Never call `GetComponent<T>()` or `FindFirstObjectByType<T>()` in `Update()`
 
 ## Data Flow Examples
 
@@ -87,16 +99,40 @@ GameManager.TakeShot()
 BallController.Launch()
 ```
 
-### Ball Stop → Score
+### Shot Launch → Ball Flight
+
+```
+ShotTester / UI Controller
+    ↓ ShotParameters
+GameManager.LaunchShot()
+    ↓
+BallController.Launch()
+    ↓ OnBallLaunched
+BallVisualEffects.HandleLaunched()  (trail starts)
+```
+
+### Ball Stop → Score → CTP
 
 ```
 BallController detects velocity < threshold
-    ↓ OnLanded(position)
-GameManager.HandleBallLanded()
-    ↓ CalculateScoreAtPosition()
-Target.GetScoreForPosition()
-    ↓ ShotResult
-OnShotComplete event
+    ↓ OnBallLanded(position)
+ScoringManager.HandleBallLanded()
+    ↓ calculates distance to pin
+    ↓ accumulates TotalCtpDistance
+    ├─ OnShotRecorded(distanceToPin)       → HUD updates score pod
+    ├─ OnShotScored(ShotResult)            → HUD updates shots remaining
+    ├─ OnBestDistanceUpdated(best)         → (if new best)
+    └─ ShotPopup.Create()                  → floating distance text
+```
+
+### Final Shot → Game Over
+
+```
+GameManager fires OnGameOver
     ↓
-UI updates
+ScoringManager.HandleGameOver()
+    ├─ OnGameComplete(results, bestDistance)
+    └─ OnAllShotsComplete(totalCtpDistance) → GameOverController shows overlay
+        ↓ async
+        IBestScoreService comparison        → "NEW BEST!" or previous best display
 ```
