@@ -19,6 +19,15 @@
     --radius-panel: 12px;
     --radius-button: 8px;
     --min-tap-target: 44px;
+
+    /* Scoring & HUD tokens */
+    --color-score: rgb(255, 215, 0);
+    --color-overlay: rgba(0, 0, 0, 0.82);
+    --color-popup-bg: rgba(0, 0, 0, 0.55);
+    --font-size-hud-value: 36px;
+    --font-size-hud-label: 14px;
+    --font-size-popup: 28px;
+    --spacing-hud-inset: 12px;
 }
 
 .screen-root {
@@ -102,4 +111,48 @@
 
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* HUD pod styles */
+.hud-pod {
+    background-color: var(--color-bg-panel);
+    border-radius: var(--radius-panel);
+    padding: var(--spacing-sm) var(--spacing-md);
+    align-items: center;
+}
+
+.hud-label {
+    font-size: var(--font-size-hud-label);
+    color: var(--color-text-secondary);
+    -unity-text-align: middle-center;
+}
+
+.hud-value {
+    font-size: var(--font-size-hud-value);
+    color: var(--color-text-primary);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    transition: scale 0.15s ease-in-out;
+}
+
+.hud-value-warning {
+    color: var(--color-accent);
+}
+
+/* Game over overlay */
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-overlay);
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* Score punch animation */
+.score-punch {
+    scale: 1.15 1.15;
 }

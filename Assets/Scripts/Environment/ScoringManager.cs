@@ -7,7 +7,7 @@ using GolfGame.Golf;
 namespace GolfGame.Environment
 {
     /// <summary>
-    /// Tracks shot statistics and best distance across the 6-shot game.
+    /// Tracks shot statistics, CTP running total, and best distance across the 6-shot game.
     /// Subscribes to BallController.OnBallLanded and BallController.OnBallBounced.
     /// </summary>
     public class ScoringManager : MonoBehaviour
@@ -18,6 +18,7 @@ namespace GolfGame.Environment
 
         private readonly List<ShotResult> results = new List<ShotResult>();
         private float bestDistance = float.MaxValue;
+        private float totalCtpDistance;
         private Vector3 teePosition;
         private Vector3 firstBouncePosition;
         private bool hasRecordedBounce;
@@ -30,6 +31,11 @@ namespace GolfGame.Environment
         public float BestDistance => bestDistance;
 
         /// <summary>
+        /// Running total of CTP distances across all shots this game.
+        /// </summary>
+        public float TotalCtpDistance => totalCtpDistance;
+
+        /// <summary>
         /// All completed shot results.
         /// </summary>
         public IReadOnlyList<ShotResult> Results => results;
@@ -40,6 +46,11 @@ namespace GolfGame.Environment
         public event Action<ShotResult> OnShotScored;
 
         /// <summary>
+        /// Fires when a shot is recorded. Payload is this shot's distance to pin.
+        /// </summary>
+        public event Action<float> OnShotRecorded;
+
+        /// <summary>
         /// Fires when best distance improves. Payload is the new best distance.
         /// </summary>
         public event Action<float> OnBestDistanceUpdated;
@@ -48,6 +59,11 @@ namespace GolfGame.Environment
         /// Fires when the game completes. Payload: (all results, best distance).
         /// </summary>
         public event Action<IReadOnlyList<ShotResult>, float> OnGameComplete;
+
+        /// <summary>
+        /// Fires when all shots are complete. Payload is the total CTP distance.
+        /// </summary>
+        public event Action<float> OnAllShotsComplete;
 
         private void Start()
         {
@@ -91,6 +107,7 @@ namespace GolfGame.Environment
         {
             results.Clear();
             bestDistance = float.MaxValue;
+            totalCtpDistance = 0f;
             hasRecordedBounce = false;
             launchSpeed = 0f;
         }
@@ -152,18 +169,25 @@ namespace GolfGame.Environment
             };
 
             results.Add(result);
+            totalCtpDistance += distanceToPin;
+
             OnShotScored?.Invoke(result);
+            OnShotRecorded?.Invoke(distanceToPin);
 
             if (distanceToPin < bestDistance)
             {
                 bestDistance = distanceToPin;
                 OnBestDistanceUpdated?.Invoke(bestDistance);
             }
+
+            // Spawn post-shot popup
+            ShotPopup.Create(landPosition + Vector3.up * 1.5f, distanceToPin, Camera.main);
         }
 
         private void HandleGameOver(int shots, bool isNewBest)
         {
             OnGameComplete?.Invoke(results, bestDistance);
+            OnAllShotsComplete?.Invoke(totalCtpDistance);
         }
 
         private static float FlatDistance(Vector3 a, Vector3 b)

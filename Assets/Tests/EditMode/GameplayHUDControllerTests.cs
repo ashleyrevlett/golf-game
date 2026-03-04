@@ -6,52 +6,40 @@ using GolfGame.Environment;
 namespace GolfGame.Tests.EditMode
 {
     /// <summary>
-    /// EditMode tests for GameplayHUDController logic.
-    /// Tests cardinal direction helper and distance formatting.
+    /// EditMode tests for GameplayHUDController formatting logic.
+    /// Tests score display, shots remaining, and wind direction.
     /// UI element tests require PlayMode with UIDocument.
     /// </summary>
     public class GameplayHUDControllerTests
     {
         [Test]
-        public void BestDistance_MaxValue_DisplaysPlaceholder()
+        public void ScoreValue_FormatsOneDecimal()
         {
-            // When best distance is float.MaxValue, display should show "--"
-            float distance = float.MaxValue;
-            bool isMaxValue = distance >= float.MaxValue / 2f;
-            Assert.IsTrue(isMaxValue);
+            float score = 42.7f;
+            string formatted = score.ToString("F1");
+            Assert.AreEqual("42.7", formatted);
         }
 
         [Test]
-        public void BestDistance_ValidValue_Formats()
+        public void ScoreValue_ZeroFormatsCorrectly()
         {
-            float distance = 2.45f;
-            string formatted = $"Best: {distance:F1}m";
-            Assert.AreEqual("Best: 2.4m", formatted);
+            float score = 0f;
+            string formatted = score.ToString("F1");
+            Assert.AreEqual("0.0", formatted);
         }
 
         [Test]
-        public void ShotCounter_Formats()
+        public void ShotsRemaining_ComputesFromMaxMinusCurrent()
         {
-            int shot = 3;
-            string formatted = $"Shot {shot}/{GameManager.MaxShots}";
-            Assert.AreEqual("Shot 3/6", formatted);
+            int remaining = GameManager.MaxShots - 3;
+            Assert.AreEqual(3, remaining);
         }
 
         [Test]
-        public void ShotResult_DistanceFormats()
+        public void ShotsRemaining_ZeroAtMaxShots()
         {
-            var result = new ShotResult
-            {
-                DistanceToPin = 4.23f,
-                CarryDistance = 110.5f,
-                BallSpeed = 42.7f,
-                LateralDeviation = -1.3f
-            };
-
-            Assert.AreEqual("4.2", result.DistanceToPin.ToString("F1"));
-            Assert.AreEqual("110.5", result.CarryDistance.ToString("F1"));
-            Assert.AreEqual("42.7", result.BallSpeed.ToString("F1"));
-            Assert.AreEqual("-1.3", result.LateralDeviation.ToString("F1"));
+            int remaining = GameManager.MaxShots - GameManager.MaxShots;
+            Assert.AreEqual(0, remaining);
         }
 
         [Test]

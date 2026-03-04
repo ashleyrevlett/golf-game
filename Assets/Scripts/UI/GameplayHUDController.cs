@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using GolfGame.Core;
@@ -7,8 +8,8 @@ using GolfGame.Environment;
 namespace GolfGame.UI
 {
     /// <summary>
-    /// Controls the gameplay HUD. Shows shot counter, best distance,
-    /// wind display, ready message, and per-shot statistics.
+    /// Controls the gameplay HUD. Shows CTP running total score,
+    /// shots remaining, and wind display in separated pods.
     /// </summary>
     public class GameplayHUDController : MonoBehaviour
     {
@@ -18,15 +19,9 @@ namespace GolfGame.UI
         private WindSystem windSystem;
 
         private VisualElement root;
-        private Label shotCounter;
-        private Label bestDistance;
+        private Label scoreValue;
+        private Label shotsValue;
         private Label windDisplay;
-        private Label readyMessage;
-        private VisualElement statsPanel;
-        private Label statDistance;
-        private Label statCarry;
-        private Label statSpeed;
-        private Label statCurve;
 
         private void Awake()
         {
@@ -44,15 +39,9 @@ namespace GolfGame.UI
 
             root = uiDocument.rootVisualElement;
 
-            shotCounter = root.Q<Label>("shot-counter");
-            bestDistance = root.Q<Label>("best-distance");
+            scoreValue = root.Q<Label>("score-value");
+            shotsValue = root.Q<Label>("shots-value");
             windDisplay = root.Q<Label>("wind-display");
-            readyMessage = root.Q<Label>("ready-message");
-            statsPanel = root.Q("stats-panel");
-            statDistance = root.Q<Label>("stat-distance");
-            statCarry = root.Q<Label>("stat-carry");
-            statSpeed = root.Q<Label>("stat-speed");
-            statCurve = root.Q<Label>("stat-curve");
 
             if (AppManager.Instance != null)
             {
@@ -67,8 +56,7 @@ namespace GolfGame.UI
 
             if (scoringManager != null)
             {
-                scoringManager.OnShotScored += HandleShotScored;
-                scoringManager.OnBestDistanceUpdated += HandleBestDistanceUpdated;
+                scoringManager.OnShotRecorded += HandleShotRecorded;
             }
 
             if (windSystem != null)
@@ -76,8 +64,8 @@ namespace GolfGame.UI
                 windSystem.OnWindChanged += HandleWindChanged;
             }
 
-            UpdateShotCounter(0);
-            UpdateBestDistance(float.MaxValue);
+            UpdateScoreDisplay(0f);
+            UpdateShotsRemaining(GameManager.MaxShots);
         }
 
         private void OnDestroy()
@@ -94,8 +82,7 @@ namespace GolfGame.UI
 
             if (scoringManager != null)
             {
-                scoringManager.OnShotScored -= HandleShotScored;
-                scoringManager.OnBestDistanceUpdated -= HandleBestDistanceUpdated;
+                scoringManager.OnShotRecorded -= HandleShotRecorded;
             }
 
             if (windSystem != null)
@@ -111,53 +98,38 @@ namespace GolfGame.UI
 
         private void HandleShotStateChanged(ShotState state)
         {
-            int shotNum = gameManager != null ? gameManager.CurrentShot : 0;
-            UpdateShotCounter(shotNum);
+            int shotsRemaining = gameManager != null
+                ? GameManager.MaxShots - gameManager.CurrentShot
+                : 0;
+            UpdateShotsRemaining(shotsRemaining);
+        }
 
-            bool isReady = state == ShotState.Ready;
-            if (readyMessage != null)
+        private void HandleShotRecorded(float distanceToPin)
+        {
+            if (scoringManager != null)
             {
-                readyMessage.style.display = isReady ? DisplayStyle.Flex : DisplayStyle.None;
+                UpdateScoreDisplay(scoringManager.TotalCtpDistance);
             }
 
-            // Hide stats panel when starting a new shot
-            if (state == ShotState.Flying && statsPanel != null)
+            // Punch animation on score update
+            if (scoreValue != null)
             {
-                statsPanel.style.display = DisplayStyle.None;
+                scoreValue.AddToClassList("score-punch");
+                StartCoroutine(RemoveClassAfterDelay(scoreValue, "score-punch", 0.15f));
+            }
+
+            // Also punch shots value
+            if (shotsValue != null)
+            {
+                shotsValue.AddToClassList("score-punch");
+                StartCoroutine(RemoveClassAfterDelay(shotsValue, "score-punch", 0.15f));
             }
         }
 
-        private void HandleShotScored(ShotResult result)
+        private IEnumerator RemoveClassAfterDelay(VisualElement element, string className, float delay)
         {
-            if (statsPanel != null)
-            {
-                statsPanel.style.display = DisplayStyle.Flex;
-            }
-
-            if (statDistance != null)
-            {
-                statDistance.text = $"Distance: {result.DistanceToPin:F1}m from pin";
-            }
-
-            if (statCarry != null)
-            {
-                statCarry.text = $"Carry: {result.CarryDistance:F1}m";
-            }
-
-            if (statSpeed != null)
-            {
-                statSpeed.text = $"Speed: {result.BallSpeed:F1} m/s";
-            }
-
-            if (statCurve != null)
-            {
-                statCurve.text = $"Curve: {result.LateralDeviation:F1}m";
-            }
-        }
-
-        private void HandleBestDistanceUpdated(float distance)
-        {
-            UpdateBestDistance(distance);
+            yield return new WaitForSeconds(delay);
+            element.RemoveFromClassList(className);
         }
 
         private void HandleWindChanged(Vector3 wind)
@@ -170,21 +142,27 @@ namespace GolfGame.UI
             }
         }
 
-        private void UpdateShotCounter(int shotNum)
+        private void UpdateScoreDisplay(float totalCtp)
         {
-            if (shotCounter != null)
+            if (scoreValue != null)
             {
-                shotCounter.text = $"Shot {shotNum}/{GameManager.MaxShots}";
+                scoreValue.text = totalCtp.ToString("F1");
             }
         }
 
-        private void UpdateBestDistance(float distance)
+        private void UpdateShotsRemaining(int remaining)
         {
-            if (bestDistance != null)
+            if (shotsValue != null)
             {
-                bestDistance.text = distance >= float.MaxValue / 2f
-                    ? "Best: --"
-                    : $"Best: {distance:F1}m";
+                shotsValue.text = remaining.ToString();
+                if (remaining <= 0)
+                {
+                    shotsValue.AddToClassList("hud-value-warning");
+                }
+                else
+                {
+                    shotsValue.RemoveFromClassList("hud-value-warning");
+                }
             }
         }
 

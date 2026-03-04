@@ -32,6 +32,7 @@ namespace GolfGame.Multiplayer
             // Always register mocks first as fallback
             ServiceLocator.Register<IAuthService>(new MockAuthService());
             ServiceLocator.Register<ILeaderboardService>(new MockLeaderboardService());
+            ServiceLocator.Register<IBestScoreService>(new PlayerPrefsBestScoreService());
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             try

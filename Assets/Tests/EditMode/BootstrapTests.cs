@@ -95,6 +95,19 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
+        public void Bootstrap_RegistersBestScoreService()
+        {
+            var obj = new GameObject("Bootstrap");
+            obj.AddComponent<Bootstrap>();
+
+            var bestScore = ServiceLocator.Get<IBestScoreService>();
+            Assert.IsNotNull(bestScore);
+            Assert.IsInstanceOf<PlayerPrefsBestScoreService>(bestScore);
+
+            Object.DestroyImmediate(obj);
+        }
+
+        [Test]
         public void Bootstrap_AfterReset_CanReinitialize()
         {
             var obj1 = new GameObject("Bootstrap1");

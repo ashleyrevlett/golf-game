@@ -1,25 +1,21 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
     <ui:VisualElement name="hud-root" style="flex-grow: 1;">
-        <!-- Top bar -->
-        <ui:VisualElement name="top-bar" class="panel" style="flex-direction: row; justify-content: space-between; padding: 8px 16px; margin: 8px;">
-            <ui:Label name="shot-counter" text="Shot 0/6" class="text-body" />
-            <ui:Label name="wind-display" text="Wind: -- m/s" class="text-body" />
-            <ui:Label name="best-distance" text="Best: --" class="text-body text-gold" />
+        <!-- Score pod: top-left -->
+        <ui:VisualElement name="score-pod" class="hud-pod" style="position: absolute; left: 12px; top: 12px;">
+            <ui:Label name="score-label" text="SCORE" class="hud-label" />
+            <ui:Label name="score-value" text="0.0" class="hud-value text-gold" />
         </ui:VisualElement>
 
-        <!-- Ready message (center) -->
-        <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center;">
-            <ui:Label name="ready-message" text="Ready!" class="text-heading" style="display: none;" />
+        <!-- Shots pod: top-right -->
+        <ui:VisualElement name="shots-pod" class="hud-pod" style="position: absolute; right: 12px; top: 12px;">
+            <ui:Label name="shots-label" text="SHOTS LEFT" class="hud-label" />
+            <ui:Label name="shots-value" text="6" class="hud-value" />
         </ui:VisualElement>
 
-        <!-- Stats panel (bottom) -->
-        <ui:VisualElement name="stats-panel" class="panel" style="margin: 8px; padding: 12px 16px; display: none;">
-            <ui:Label text="Last Shot" class="text-body" style="-unity-font-style: bold; margin-bottom: 4px;" />
-            <ui:Label name="stat-distance" text="Distance: --" class="text-stat" />
-            <ui:Label name="stat-carry" text="Carry: --" class="text-stat" />
-            <ui:Label name="stat-speed" text="Speed: --" class="text-stat" />
-            <ui:Label name="stat-curve" text="Curve: --" class="text-stat" />
+        <!-- Wind: bottom-left -->
+        <ui:VisualElement name="wind-pod" class="hud-pod" style="position: absolute; left: 12px; bottom: 12px;">
+            <ui:Label name="wind-display" text="Wind: --" class="text-stat" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

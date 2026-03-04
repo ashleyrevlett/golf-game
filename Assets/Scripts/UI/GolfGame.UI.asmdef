@@ -5,6 +5,7 @@
         "GolfGame.Core",
         "GolfGame.Golf",
         "GolfGame.Environment",
+        "GolfGame.Multiplayer",
         "Unity.UIElements"
     ],
     "includePlatforms": [],

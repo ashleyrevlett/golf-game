@@ -3,7 +3,8 @@
     "rootNamespace": "GolfGame.Environment",
     "references": [
         "GolfGame.Core",
-        "GolfGame.Golf"
+        "GolfGame.Golf",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

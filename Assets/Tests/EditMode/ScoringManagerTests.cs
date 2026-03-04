@@ -8,7 +8,8 @@ using GolfGame.Environment;
 namespace GolfGame.Tests.EditMode
 {
     /// <summary>
-    /// EditMode tests for ScoringManager statistics and best distance tracking.
+    /// EditMode tests for ScoringManager statistics, best distance tracking,
+    /// and CTP accumulation.
     /// </summary>
     public class ScoringManagerTests
     {
@@ -242,6 +243,163 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual(0f, noPinScoring.Results[0].DistanceToPin);
 
             Object.DestroyImmediate(noPinObj);
+        }
+
+        // --- New CTP tests ---
+
+        [Test]
+        public void TotalCtpDistance_StartsAtZero()
+        {
+            Assert.AreEqual(0f, scoringManager.TotalCtpDistance);
+        }
+
+        [Test]
+        public void TotalCtpDistance_AccumulatesAcrossShots()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            // Shot 1: lands at (0,0,110) -> 4 yds from pin
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(0f, 0f, 110f));
+            gameManager.BallLanded();
+
+            float dist1 = pinController.CalculateDistance(new Vector3(0f, 0f, 110f));
+
+            // Shot 2: lands at (0,0,100) -> 14 yds from pin
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(0f, 0f, 100f));
+            gameManager.BallLanded();
+
+            float dist2 = pinController.CalculateDistance(new Vector3(0f, 0f, 100f));
+
+            // Shot 3: lands at (2,0,112) -> ~2.8 yds from pin
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(2f, 0f, 112f));
+            gameManager.BallLanded();
+
+            float dist3 = pinController.CalculateDistance(new Vector3(2f, 0f, 112f));
+
+            Assert.AreEqual(dist1 + dist2 + dist3, scoringManager.TotalCtpDistance, 0.01f);
+        }
+
+        [Test]
+        public void OnShotRecorded_FiresWithDistanceToPin()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            float receivedDistance = -1f;
+            scoringManager.OnShotRecorded += d => receivedDistance = d;
+
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(0f, 0f, 110f));
+            gameManager.BallLanded();
+
+            float expectedDistance = pinController.CalculateDistance(new Vector3(0f, 0f, 110f));
+            Assert.AreEqual(expectedDistance, receivedDistance, 0.01f);
+        }
+
+        [Test]
+        public void OnShotRecorded_FiresOnEachShot()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            var distances = new List<float>();
+            scoringManager.OnShotRecorded += d => distances.Add(d);
+
+            for (int i = 0; i < 3; i++)
+            {
+                gameManager.LaunchShot();
+                SimulateBallLand(new Vector3(0f, 0f, 100f + i * 5));
+                gameManager.BallLanded();
+            }
+
+            Assert.AreEqual(3, distances.Count);
+            // Each distance should be distinct
+            Assert.AreNotEqual(distances[0], distances[1]);
+            Assert.AreNotEqual(distances[1], distances[2]);
+        }
+
+        [Test]
+        public void OnAllShotsComplete_FiresAfterMaxShots()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            float receivedTotal = -1f;
+            scoringManager.OnAllShotsComplete += t => receivedTotal = t;
+
+            for (int i = 0; i < GameManager.MaxShots; i++)
+            {
+                gameManager.LaunchShot();
+                SimulateBallLand(new Vector3(0f, 0f, 110f));
+                gameManager.BallLanded();
+            }
+
+            Assert.AreEqual(scoringManager.TotalCtpDistance, receivedTotal, 0.01f);
+        }
+
+        [Test]
+        public void OnAllShotsComplete_DoesNotFireBeforeMaxShots()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            bool fired = false;
+            scoringManager.OnAllShotsComplete += _ => fired = true;
+
+            for (int i = 0; i < GameManager.MaxShots - 1; i++)
+            {
+                gameManager.LaunchShot();
+                SimulateBallLand(new Vector3(0f, 0f, 110f));
+                gameManager.BallLanded();
+            }
+
+            Assert.IsFalse(fired);
+        }
+
+        [Test]
+        public void Reset_ClearsTotalCtpDistance()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(0f, 0f, 110f));
+            gameManager.BallLanded();
+
+            Assert.Greater(scoringManager.TotalCtpDistance, 0f);
+
+            scoringManager.Reset();
+
+            Assert.AreEqual(0f, scoringManager.TotalCtpDistance);
+        }
+
+        [Test]
+        public void BallLandsOnPin_RecordsZeroDistance()
+        {
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            gameManager.Activate();
+
+            float receivedDistance = -1f;
+            scoringManager.OnShotRecorded += d => receivedDistance = d;
+
+            // Land at exact pin position
+            gameManager.LaunchShot();
+            SimulateBallLand(new Vector3(0f, 0f, 114f));
+            gameManager.BallLanded();
+
+            Assert.AreEqual(0f, receivedDistance, 0.01f);
+            Assert.AreEqual(0f, scoringManager.TotalCtpDistance, 0.01f);
+        }
+
+        [Test]
+        public void VeryLargeDistance_FormatsCorrectly()
+        {
+            // Pure formatting test
+            Assert.AreEqual("138.2", 138.2f.ToString("F1"));
         }
 
         private void SimulateBallLand(Vector3 position)

@@ -18,6 +18,7 @@ namespace GolfGame.Golf
 
         public event Action<Vector3> OnBallLanded;
         public event Action<Vector3, float> OnBallBounced;
+        public event Action OnBallLaunched;
         public bool IsFlying => isFlying;
 
         private void Awake()
@@ -61,6 +62,7 @@ namespace GolfGame.Golf
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.AddForce(launchDir.normalized * force, ForceMode.Impulse);
+            OnBallLaunched?.Invoke();
 
             Debug.Log($"[BallController] Launched: force={force:F1} dir={launchDir}");
         }

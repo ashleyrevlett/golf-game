@@ -8,7 +8,8 @@
         "GolfGame.UI",
         "GolfGame.Multiplayer",
         "GolfGame.Environment",
-        "GolfGame.Audio"
+        "GolfGame.Audio",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"

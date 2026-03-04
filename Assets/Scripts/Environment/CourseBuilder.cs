@@ -116,6 +116,9 @@ namespace GolfGame.Environment
                 CreateOBMarker(root.transform, new Vector3(obX, 0f, z), obHeight);
             }
 
+            // Yardage markers and lines
+            YardageMarkerBuilder.Build(root.transform, fwWidth, length);
+
             // Static batching
             StaticBatchingUtility.Combine(root);
         }
