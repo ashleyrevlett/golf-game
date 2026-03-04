@@ -156,8 +156,19 @@ namespace GolfGame.Core
             }
             else
             {
-                SetShotState(ShotState.Ready);
+                StartCoroutine(ResetAfterDelay(3f));
             }
+        }
+
+        private System.Collections.IEnumerator ResetAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            // Reset ball to tee
+            var ball = FindFirstObjectByType<GolfGame.Golf.BallController>();
+            ball?.ResetToTee();
+
+            SetShotState(ShotState.Ready);
         }
 
         private void EndGame()
