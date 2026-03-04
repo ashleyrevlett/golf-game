@@ -211,5 +211,11 @@ namespace GolfGame.UI
                 }
             }
         }
-    }
+    
+
+public static bool HasBestScore(float bestScore) { return bestScore < float.MaxValue; }
+
+
+public static bool IsNewBestScore(float newScore, float previousBest) { return newScore < previousBest; }
+}
 }
