@@ -15,8 +15,16 @@ namespace GolfGame.Multiplayer
 
         public async Task<string> GetPlayerTokenAsync()
         {
-            if (!IsSignedIn) await SignInAsync();
-            return AuthenticationService.Instance.AccessToken;
+            try
+            {
+                if (!IsSignedIn) await SignInAsync();
+                return AuthenticationService.Instance.AccessToken;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[UgsAuth] Failed to get player token: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<PlayerInfo> GetPlayerInfoAsync()
