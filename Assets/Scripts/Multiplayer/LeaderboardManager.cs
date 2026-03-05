@@ -49,39 +49,46 @@ namespace GolfGame.Multiplayer
 
         private async void Start()
         {
-            scoringManager = FindFirstObjectByType<ScoringManager>();
-            gameManager = FindFirstObjectByType<GameManager>();
-
-            authService = ServiceLocator.Get<IAuthService>();
-            leaderboardService = ServiceLocator.Get<ILeaderboardService>();
-
-            if (authService == null)
+            try
             {
-                Debug.LogWarning("[LeaderboardManager] No IAuthService registered");
-                return;
-            }
+                scoringManager = FindFirstObjectByType<ScoringManager>();
+                gameManager = FindFirstObjectByType<GameManager>();
 
-            if (leaderboardService == null)
+                authService = ServiceLocator.Get<IAuthService>();
+                leaderboardService = ServiceLocator.Get<ILeaderboardService>();
+
+                if (authService == null)
+                {
+                    Debug.LogWarning("[LeaderboardManager] No IAuthService registered");
+                    return;
+                }
+
+                if (leaderboardService == null)
+                {
+                    Debug.LogWarning("[LeaderboardManager] No ILeaderboardService registered");
+                    return;
+                }
+
+                playerId = authService.PlayerId;
+
+                if (scoringManager != null)
+                {
+                    scoringManager.OnBestDistanceUpdated += HandleBestDistanceUpdated;
+                }
+
+                if (gameManager != null)
+                {
+                    gameManager.OnShotStateChanged += HandleShotStateChanged;
+                    gameManager.OnGameOver += HandleGameOver;
+                }
+
+                // Initial poll
+                await PollLeaderboardAsync();
+            }
+            catch (Exception ex)
             {
-                Debug.LogWarning("[LeaderboardManager] No ILeaderboardService registered");
-                return;
+                Debug.LogError($"[LeaderboardManager] Start failed: {ex}");
             }
-
-            playerId = authService.PlayerId;
-
-            if (scoringManager != null)
-            {
-                scoringManager.OnBestDistanceUpdated += HandleBestDistanceUpdated;
-            }
-
-            if (gameManager != null)
-            {
-                gameManager.OnShotStateChanged += HandleShotStateChanged;
-                gameManager.OnGameOver += HandleGameOver;
-            }
-
-            // Initial poll
-            await PollLeaderboardAsync();
         }
 
         private void OnDestroy()
@@ -134,15 +141,29 @@ namespace GolfGame.Multiplayer
 
         private async void HandleBestDistanceUpdated(float distance)
         {
-            if (leaderboardService == null) return;
-            await PostScoreWithRetryAsync(playerId, distance);
-            await PollLeaderboardAsync();
+            try
+            {
+                if (leaderboardService == null) return;
+                await PostScoreWithRetryAsync(playerId, distance);
+                await PollLeaderboardAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[LeaderboardManager] HandleBestDistanceUpdated failed: {ex}");
+            }
         }
 
         private async void HandleGameOver(int shots)
         {
-            isPolling = false;
-            await PollLeaderboardAsync();
+            try
+            {
+                isPolling = false;
+                await PollLeaderboardAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[LeaderboardManager] HandleGameOver failed: {ex}");
+            }
         }
 
         internal async Task PostScoreWithRetryAsync(string id, float dist)

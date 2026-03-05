@@ -22,10 +22,16 @@ namespace GolfGame.Multiplayer
             if (initialized) return;
             initialized = true;
 
-            await RegisterServicesAsync();
-            ConfigurePlatform();
-
-            Debug.Log("[Bootstrap] Initialization complete");
+            try
+            {
+                await RegisterServicesAsync();
+                ConfigurePlatform();
+                Debug.Log("[Bootstrap] Initialization complete");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[Bootstrap] Initialization failed: {ex}");
+            }
         }
 
         private static async Task RegisterServicesAsync()
