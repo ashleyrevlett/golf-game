@@ -69,10 +69,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-WebGL-v2-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
+            Library-WebGL-v2-
             Library-WebGL-
-            Library-
 
       - name: Build Unity WebGL
         uses: game-ci/unity-builder@v4
