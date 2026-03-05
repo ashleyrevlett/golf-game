@@ -111,15 +111,15 @@ namespace GolfGame.UI
 
         private async void UpdateFinalScore(float totalCtp)
         {
-            if (finalScore != null)
-            {
-                finalScore.text = FormatFinalScore(totalCtp);
-            }
-
-            if (bestScore == null) return;
-
             try
             {
+                if (finalScore != null)
+                {
+                    finalScore.text = FormatFinalScore(totalCtp);
+                }
+
+                if (bestScore == null) return;
+
                 var bestScoreService = ServiceLocator.Get<IBestScoreService>();
                 if (bestScoreService == null)
                 {
@@ -143,14 +143,16 @@ namespace GolfGame.UI
                 }
                 else
                 {
-                    // No best exists yet
                     bestScore.style.display = DisplayStyle.None;
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[GameOverController] Failed to load best score: {ex.Message}");
-                bestScore.style.display = DisplayStyle.None;
+                Debug.LogError($"[GameOverController] UpdateFinalScore failed: {ex}");
+                if (bestScore != null)
+                {
+                    bestScore.style.display = DisplayStyle.None;
+                }
             }
         }
 
