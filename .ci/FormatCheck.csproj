@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <!-- No build output needed — this project exists solely for dotnet format -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Assets/Scripts/**/*.cs" />
+    <Compile Include="../Assets/Tests/**/*.cs" />
+  </ItemGroup>
+</Project>
