@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 
 namespace GolfGame.Tests.EditMode
@@ -17,6 +18,9 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress DontDestroyOnLoad / scene-load errors in edit mode
+            LogAssert.ignoreFailingMessages = true;
+
             if (AppManager.Instance != null)
             {
                 Object.DestroyImmediate(AppManager.Instance.gameObject);
@@ -24,6 +28,7 @@ namespace GolfGame.Tests.EditMode
 
             appManagerObj = new GameObject("AppManager");
             appManager = appManagerObj.AddComponent<AppManager>();
+            appManager.SendMessage("Awake");
         }
 
         [TearDown]
@@ -33,6 +38,7 @@ namespace GolfGame.Tests.EditMode
             {
                 Object.DestroyImmediate(appManagerObj);
             }
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]

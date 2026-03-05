@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 using GolfGame.Golf;
 using GolfGame.Environment;
@@ -10,6 +12,10 @@ namespace GolfGame.Tests.EditMode
     /// <summary>
     /// EditMode tests for ScoringManager statistics, best distance tracking,
     /// and CTP accumulation.
+    ///
+    /// In edit mode, BallController.OnBallLanded never fires automatically
+    /// (no physics simulation). Tests invoke it via reflection after positioning
+    /// the ball. GameManager coroutines don't run, so state is advanced manually.
     /// </summary>
     public class ScoringManagerTests
     {
@@ -25,6 +31,9 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress ShotPopup / Cinemachine / coroutine errors in edit mode
+            LogAssert.ignoreFailingMessages = true;
+
             if (AppManager.Instance != null)
             {
                 Object.DestroyImmediate(AppManager.Instance.gameObject);
@@ -36,6 +45,7 @@ namespace GolfGame.Tests.EditMode
             ballObj = new GameObject("Ball");
             ballObj.AddComponent<Rigidbody>();
             ballController = ballObj.AddComponent<BallController>();
+            ballController.SendMessage("Awake");
 
             pinObj = new GameObject("Pin");
             pinObj.transform.position = new Vector3(0f, 0f, 114f);
@@ -44,18 +54,47 @@ namespace GolfGame.Tests.EditMode
             scoringObj = new GameObject("ScoringManager");
             scoringManager = scoringObj.AddComponent<ScoringManager>();
 
-            SetPrivateField(scoringManager, "gameManager", gameManager);
-            SetPrivateField(scoringManager, "ballController", ballController);
-            SetPrivateField(scoringManager, "pinController", pinController);
+            // Invoke Start to subscribe to events via FindFirstObjectByType
+            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
         }
 
         [TearDown]
         public void TearDown()
         {
+            // Clean up ShotPopup objects leaked from HandleBallLanded
+            foreach (var popup in Object.FindObjectsByType<ShotPopup>(FindObjectsSortMode.None))
+                Object.DestroyImmediate(popup.gameObject);
+
             if (scoringObj != null) Object.DestroyImmediate(scoringObj);
             if (gameManagerObj != null) Object.DestroyImmediate(gameManagerObj);
             if (ballObj != null) Object.DestroyImmediate(ballObj);
             if (pinObj != null) Object.DestroyImmediate(pinObj);
+            LogAssert.ignoreFailingMessages = false;
+        }
+
+        /// <summary>
+        /// Simulate a ball landing: move the ball, fire BallController.OnBallLanded
+        /// event via reflection (physics doesn't run in edit mode).
+        /// </summary>
+        private void SimulateBallLandAndFire(Vector3 position)
+        {
+            ballObj.transform.position = position;
+            InvokeEvent(ballController, "OnBallLanded", position);
+        }
+
+        /// <summary>
+        /// Complete a full shot cycle: launch, land, score, advance to Ready.
+        /// </summary>
+        private void CompleteShotCycle(Vector3 landPosition, bool isFinal = false)
+        {
+            gameManager.LaunchShot();
+            SimulateBallLandAndFire(landPosition);
+            gameManager.BallLanded();
+            // Coroutine doesn't run in edit mode — manually advance for non-final shots
+            if (!isFinal)
+            {
+                gameManager.SetShotState(ShotState.Ready);
+            }
         }
 
         [Test]
@@ -67,54 +106,36 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void BestDistance_UpdatesOnCloserShot()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             // Simulate shot landing at (0,0,110) -> 4m from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 110f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 110f));
             Assert.AreEqual(4f, scoringManager.BestDistance, 0.1f);
 
             // Closer shot at (0,0,113) -> 1m from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 113f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 113f));
             Assert.AreEqual(1f, scoringManager.BestDistance, 0.1f);
         }
 
         [Test]
         public void BestDistance_DoesNotUpdateOnFartherShot()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             // Close shot: 2m from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 112f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 112f));
             float bestAfterFirst = scoringManager.BestDistance;
 
             // Farther shot: 10m from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 104f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 104f));
             Assert.AreEqual(bestAfterFirst, scoringManager.BestDistance, 0.001f);
         }
 
         [Test]
         public void ShotResult_RecordsCorrectShotNumber()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
-
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 100f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 100f));
 
             Assert.AreEqual(1, scoringManager.Results.Count);
             Assert.AreEqual(1, scoringManager.Results[0].ShotNumber);
@@ -123,15 +144,12 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnShotScored_FiresWithCorrectData()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             ShotResult? receivedResult = null;
             scoringManager.OnShotScored += result => receivedResult = result;
 
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 100f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 100f));
 
             Assert.IsNotNull(receivedResult);
             Assert.AreEqual(14f, receivedResult.Value.DistanceToPin, 0.1f);
@@ -140,62 +158,45 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnBestDistanceUpdated_FiresOnImprovement()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             var updates = new List<float>();
             scoringManager.OnBestDistanceUpdated += d => updates.Add(d);
 
             // First shot — always improves from MaxValue
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 100f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 100f));
             Assert.AreEqual(1, updates.Count);
 
             // Second shot — closer
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 113f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 113f));
             Assert.AreEqual(2, updates.Count);
         }
 
         [Test]
         public void OnBestDistanceUpdated_DoesNotFireWhenNoImprovement()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             var updates = new List<float>();
             scoringManager.OnBestDistanceUpdated += d => updates.Add(d);
 
             // First shot
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 113f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 113f));
             Assert.AreEqual(1, updates.Count);
 
             // Farther shot
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 50f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 50f));
             Assert.AreEqual(1, updates.Count); // no new update
         }
 
         [Test]
         public void AllShotsRecorded_InResultsList()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             for (int i = 0; i < 3; i++)
             {
-                gameManager.LaunchShot();
-                SimulateBallLand(new Vector3(0f, 0f, 100f + i));
-                gameManager.BallLanded();
+                CompleteShotCycle(new Vector3(0f, 0f, 100f + i));
             }
 
             Assert.AreEqual(3, scoringManager.Results.Count);
@@ -204,12 +205,8 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void Reset_ClearsBestDistanceAndResults()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
-
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 110f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 110f));
 
             Assert.AreEqual(1, scoringManager.Results.Count);
 
@@ -225,17 +222,18 @@ namespace GolfGame.Tests.EditMode
             // Create scoring manager without pin
             var noPinObj = new GameObject("NoPinScoring");
             var noPinScoring = noPinObj.AddComponent<ScoringManager>();
-            SetPrivateField(noPinScoring, "gameManager", gameManager);
-            SetPrivateField(noPinScoring, "ballController", ballController);
-            // pinController intentionally null
 
+            // Start subscribes to ballController via FindFirstObjectByType
             noPinScoring.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+            // Override: remove pinController (Start found our test pin)
+            SetPrivateField(noPinScoring, "pinController", null);
+
             gameManager.Activate();
 
             Assert.DoesNotThrow(() =>
             {
                 gameManager.LaunchShot();
-                SimulateBallLand(new Vector3(0f, 0f, 100f));
+                SimulateBallLandAndFire(new Vector3(0f, 0f, 100f));
                 gameManager.BallLanded();
             });
 
@@ -245,7 +243,7 @@ namespace GolfGame.Tests.EditMode
             Object.DestroyImmediate(noPinObj);
         }
 
-        // --- New CTP tests ---
+        // --- CTP tests ---
 
         [Test]
         public void TotalCtpDistance_StartsAtZero()
@@ -256,28 +254,18 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void TotalCtpDistance_AccumulatesAcrossShots()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             // Shot 1: lands at (0,0,110) -> 4 yds from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 110f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 110f));
             float dist1 = pinController.CalculateDistance(new Vector3(0f, 0f, 110f));
 
             // Shot 2: lands at (0,0,100) -> 14 yds from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 100f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(0f, 0f, 100f));
             float dist2 = pinController.CalculateDistance(new Vector3(0f, 0f, 100f));
 
             // Shot 3: lands at (2,0,112) -> ~2.8 yds from pin
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(2f, 0f, 112f));
-            gameManager.BallLanded();
-
+            CompleteShotCycle(new Vector3(2f, 0f, 112f));
             float dist3 = pinController.CalculateDistance(new Vector3(2f, 0f, 112f));
 
             Assert.AreEqual(dist1 + dist2 + dist3, scoringManager.TotalCtpDistance, 0.01f);
@@ -286,15 +274,12 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnShotRecorded_FiresWithDistanceToPin()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             float receivedDistance = -1f;
             scoringManager.OnShotRecorded += d => receivedDistance = d;
 
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 110f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 110f));
 
             float expectedDistance = pinController.CalculateDistance(new Vector3(0f, 0f, 110f));
             Assert.AreEqual(expectedDistance, receivedDistance, 0.01f);
@@ -303,7 +288,6 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnShotRecorded_FiresOnEachShot()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             var distances = new List<float>();
@@ -311,9 +295,7 @@ namespace GolfGame.Tests.EditMode
 
             for (int i = 0; i < 3; i++)
             {
-                gameManager.LaunchShot();
-                SimulateBallLand(new Vector3(0f, 0f, 100f + i * 5));
-                gameManager.BallLanded();
+                CompleteShotCycle(new Vector3(0f, 0f, 100f + i * 5));
             }
 
             Assert.AreEqual(3, distances.Count);
@@ -325,7 +307,6 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnAllShotsComplete_FiresAfterMaxShots()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             float receivedTotal = -1f;
@@ -333,9 +314,8 @@ namespace GolfGame.Tests.EditMode
 
             for (int i = 0; i < GameManager.MaxShots; i++)
             {
-                gameManager.LaunchShot();
-                SimulateBallLand(new Vector3(0f, 0f, 110f));
-                gameManager.BallLanded();
+                bool isFinal = i == GameManager.MaxShots - 1;
+                CompleteShotCycle(new Vector3(0f, 0f, 110f), isFinal);
             }
 
             Assert.AreEqual(scoringManager.TotalCtpDistance, receivedTotal, 0.01f);
@@ -344,7 +324,6 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void OnAllShotsComplete_DoesNotFireBeforeMaxShots()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             bool fired = false;
@@ -352,9 +331,7 @@ namespace GolfGame.Tests.EditMode
 
             for (int i = 0; i < GameManager.MaxShots - 1; i++)
             {
-                gameManager.LaunchShot();
-                SimulateBallLand(new Vector3(0f, 0f, 110f));
-                gameManager.BallLanded();
+                CompleteShotCycle(new Vector3(0f, 0f, 110f));
             }
 
             Assert.IsFalse(fired);
@@ -363,12 +340,8 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void Reset_ClearsTotalCtpDistance()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
-
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 110f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 110f));
 
             Assert.Greater(scoringManager.TotalCtpDistance, 0f);
 
@@ -380,16 +353,13 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void BallLandsOnPin_RecordsZeroDistance()
         {
-            scoringManager.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             gameManager.Activate();
 
             float receivedDistance = -1f;
             scoringManager.OnShotRecorded += d => receivedDistance = d;
 
             // Land at exact pin position
-            gameManager.LaunchShot();
-            SimulateBallLand(new Vector3(0f, 0f, 114f));
-            gameManager.BallLanded();
+            CompleteShotCycle(new Vector3(0f, 0f, 114f));
 
             Assert.AreEqual(0f, receivedDistance, 0.01f);
             Assert.AreEqual(0f, scoringManager.TotalCtpDistance, 0.01f);
@@ -402,9 +372,15 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual("138.2", 138.2f.ToString("F1"));
         }
 
-        private void SimulateBallLand(Vector3 position)
+        /// <summary>
+        /// Invoke a C# event's backing delegate via reflection.
+        /// </summary>
+        private static void InvokeEvent<T>(object target, string eventName, T arg)
         {
-            ballObj.transform.position = position;
+            var field = target.GetType().GetField(eventName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            if (field?.GetValue(target) is System.Action<T> handler)
+                handler.Invoke(arg);
         }
 
         private static void SetPrivateField(object obj, string fieldName, object value)

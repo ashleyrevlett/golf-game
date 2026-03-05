@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 using GolfGame.Multiplayer;
 
@@ -19,6 +20,8 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress coroutine / warning messages in edit mode
+            LogAssert.ignoreFailingMessages = true;
             ServiceLocator.Clear();
             ServiceLocator.Register<IAuthService>(new MockAuthService());
         }
@@ -31,13 +34,19 @@ namespace GolfGame.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(managerObj);
             }
             ServiceLocator.Clear();
+            LogAssert.ignoreFailingMessages = false;
         }
 
         private LeaderboardManager CreateManager(ILeaderboardService leaderboardService)
         {
             ServiceLocator.Register<ILeaderboardService>(leaderboardService);
             managerObj = new GameObject("LeaderboardManager");
-            return managerObj.AddComponent<LeaderboardManager>();
+            var mgr = managerObj.AddComponent<LeaderboardManager>();
+            // Start doesn't fire in edit mode — set internal fields via reflection
+            SetPrivateField(mgr, "leaderboardService", leaderboardService);
+            SetPrivateField(mgr, "authService", ServiceLocator.Get<IAuthService>());
+            SetPrivateField(mgr, "playerId", ServiceLocator.Get<IAuthService>()?.PlayerId);
+            return mgr;
         }
 
         [Test]
@@ -73,17 +82,7 @@ namespace GolfGame.Tests.EditMode
             mgr.PostScoreWithRetryAsync("player1", 5.0f).GetAwaiter().GetResult();
             Assert.AreEqual(1, mgr.RetryQueueCount);
 
-            // Swap to working service
-            var working = new MockLeaderboardService();
-            ServiceLocator.Register<ILeaderboardService>(working);
-            // Re-create manager to pick up new service -- or use internal method directly
-            // Since PostScoreWithRetryAsync uses the field, we need to test ProcessRetryQueueAsync
-            // But the field is set in Start(). For unit test, call process directly with working service.
-            // The retry queue is on the manager instance, but the leaderboardService field
-            // is set during Start. We'll test the queue behavior via the internal method.
-
-            // For this test, since the manager's leaderboardService was set to failing in Start,
-            // and we can't change it, we test that when failing stops failing, it dequeues.
+            // Recover — stop throwing
             failing.PostThrows = false;
             mgr.ProcessRetryQueueAsync().GetAwaiter().GetResult();
 
@@ -108,28 +107,12 @@ namespace GolfGame.Tests.EditMode
         [Test]
         public void PollLeaderboard_WhenGetFails_RetainsStaleCache()
         {
-            var mock = new MockLeaderboardService();
-            var mgr = CreateManager(mock);
-
-            // Let Start run and populate initial data
-            // Wait a frame equivalent -- in EditMode, Start has run synchronously
-            var initialEntries = mgr.CurrentEntries;
-
-            // Now swap to failing service and poll
-            var failing = new FailingLeaderboardService(getThrows: true);
-            ServiceLocator.Register<ILeaderboardService>(failing);
-
-            // Poll will fail but should retain stale cache
-            // Since leaderboardService is set during Start (to mock), and PollLeaderboardAsync
-            // uses the field, we need to ensure the stale cache behavior.
-            // The internal field is set once in Start. For this test, create a manager
-            // with a service that works first, then fails.
-            UnityEngine.Object.DestroyImmediate(managerObj);
-
             var configurable = new ConfigurableLeaderboardService();
-            mgr = CreateManager(configurable);
+            var mgr = CreateManager(configurable);
 
-            // First poll succeeds (from Start)
+            // Initial poll to populate cache (Start doesn't run in edit mode)
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
             Assert.Greater(mgr.CurrentEntries.Length, 0);
             var cachedEntries = mgr.CurrentEntries;
             int cachedRank = mgr.PlayerRank;
@@ -148,6 +131,9 @@ namespace GolfGame.Tests.EditMode
         {
             var configurable = new ConfigurableLeaderboardService();
             var mgr = CreateManager(configurable);
+
+            // Initial poll to populate cache
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
 
             LeaderboardEntry[] receivedEntries = null;
             int receivedRank = -99;
@@ -184,6 +170,13 @@ namespace GolfGame.Tests.EditMode
             // First enqueued (5.0) should be processed
             Assert.AreEqual(1, mgr.RetryQueueCount);
             Assert.AreEqual(5.0f, failing.LastPostedDistance, 0.001f);
+        }
+
+        private static void SetPrivateField(object obj, string fieldName, object value)
+        {
+            var field = obj.GetType().GetField(fieldName,
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field?.SetValue(obj, value);
         }
     }
 

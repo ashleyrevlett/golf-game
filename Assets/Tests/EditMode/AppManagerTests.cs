@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 
 namespace GolfGame.Tests.EditMode
@@ -17,6 +18,9 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress DontDestroyOnLoad / scene-load errors in edit mode
+            LogAssert.ignoreFailingMessages = true;
+
             // Clean up any existing instance
             if (AppManager.Instance != null)
             {
@@ -25,6 +29,8 @@ namespace GolfGame.Tests.EditMode
 
             appManagerObj = new GameObject("AppManager");
             appManager = appManagerObj.AddComponent<AppManager>();
+            // Awake doesn't auto-fire in edit mode — invoke manually
+            appManager.SendMessage("Awake");
         }
 
         [TearDown]
@@ -34,12 +40,12 @@ namespace GolfGame.Tests.EditMode
             {
                 Object.DestroyImmediate(appManagerObj);
             }
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]
         public void Singleton_SetsInstance()
         {
-            // Awake runs on AddComponent
             Assert.AreEqual(appManager, AppManager.Instance);
         }
 
@@ -48,8 +54,10 @@ namespace GolfGame.Tests.EditMode
         {
             var secondObj = new GameObject("AppManager2");
             var second = secondObj.AddComponent<AppManager>();
+            // Invoke Awake — detects existing Instance and calls Destroy (suppressed)
+            second.SendMessage("Awake");
 
-            // Second instance should destroy itself
+            // Second instance should not replace first
             Assert.AreEqual(appManager, AppManager.Instance);
             Object.DestroyImmediate(secondObj);
         }

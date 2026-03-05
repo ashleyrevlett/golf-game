@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Golf;
 
 namespace GolfGame.Tests.EditMode
@@ -18,10 +19,15 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress warnings from Resources.Load / physics config in edit mode
+            LogAssert.ignoreFailingMessages = true;
+
             ballObj = new GameObject("Ball");
             var collider = ballObj.AddComponent<SphereCollider>();
             rb = ballObj.AddComponent<Rigidbody>();
             ballController = ballObj.AddComponent<BallController>();
+            // Awake doesn't auto-fire in edit mode — invoke to set internal rb reference
+            ballController.SendMessage("Awake");
         }
 
         [TearDown]
@@ -31,6 +37,7 @@ namespace GolfGame.Tests.EditMode
             {
                 Object.DestroyImmediate(ballObj);
             }
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]

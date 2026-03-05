@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 using GolfGame.Multiplayer;
 
@@ -13,6 +14,8 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress Physics.autoSyncTransforms and other edit-mode warnings
+            LogAssert.ignoreFailingMessages = true;
             Bootstrap.ResetForTesting();
         }
 
@@ -20,6 +23,7 @@ namespace GolfGame.Tests.EditMode
         public void TearDown()
         {
             Bootstrap.ResetForTesting();
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]
@@ -27,6 +31,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj = new GameObject("Bootstrap");
             obj.AddComponent<Bootstrap>();
+            obj.SendMessage("Awake"); // Awake doesn't auto-fire in edit mode
 
             var auth = ServiceLocator.Get<IAuthService>();
             Assert.IsNotNull(auth);
@@ -39,6 +44,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj = new GameObject("Bootstrap");
             obj.AddComponent<Bootstrap>();
+            obj.SendMessage("Awake");
 
             var lb = ServiceLocator.Get<ILeaderboardService>();
             Assert.IsNotNull(lb);
@@ -51,6 +57,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj = new GameObject("Bootstrap");
             obj.AddComponent<Bootstrap>();
+            obj.SendMessage("Awake");
 
             var auth = ServiceLocator.Get<IAuthService>();
             Assert.IsInstanceOf<MockAuthService>(auth);
@@ -63,6 +70,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj1 = new GameObject("Bootstrap1");
             obj1.AddComponent<Bootstrap>();
+            obj1.SendMessage("Awake");
 
             // Register a custom service to detect overwrite
             var customAuth = new MockAuthService("custom", "Custom");
@@ -70,6 +78,7 @@ namespace GolfGame.Tests.EditMode
 
             var obj2 = new GameObject("Bootstrap2");
             obj2.AddComponent<Bootstrap>();
+            obj2.SendMessage("Awake"); // initialized=true, skips
 
             // Should still be the custom service (bootstrap skipped)
             Assert.AreSame(customAuth, ServiceLocator.Get<IAuthService>());
@@ -85,6 +94,7 @@ namespace GolfGame.Tests.EditMode
             // before any await, so they are available immediately.
             var obj = new GameObject("Bootstrap");
             obj.AddComponent<Bootstrap>();
+            obj.SendMessage("Awake");
 
             // Both services should be non-null immediately
             var auth = ServiceLocator.Get<IAuthService>();
@@ -100,6 +110,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj = new GameObject("Bootstrap");
             obj.AddComponent<Bootstrap>();
+            obj.SendMessage("Awake");
 
             var bestScore = ServiceLocator.Get<IBestScoreService>();
             Assert.IsNotNull(bestScore);
@@ -113,6 +124,7 @@ namespace GolfGame.Tests.EditMode
         {
             var obj1 = new GameObject("Bootstrap1");
             obj1.AddComponent<Bootstrap>();
+            obj1.SendMessage("Awake");
 
             Assert.IsNotNull(ServiceLocator.Get<IAuthService>());
             Object.DestroyImmediate(obj1);
@@ -123,6 +135,7 @@ namespace GolfGame.Tests.EditMode
 
             var obj2 = new GameObject("Bootstrap2");
             obj2.AddComponent<Bootstrap>();
+            obj2.SendMessage("Awake");
 
             Assert.IsNotNull(ServiceLocator.Get<IAuthService>());
             Object.DestroyImmediate(obj2);

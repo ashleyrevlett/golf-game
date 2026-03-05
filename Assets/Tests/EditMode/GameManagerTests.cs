@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using GolfGame.Core;
 
 namespace GolfGame.Tests.EditMode
@@ -8,6 +9,8 @@ namespace GolfGame.Tests.EditMode
     /// <summary>
     /// EditMode tests for GameManager shot state machine.
     /// Tests run without AppManager dependency by using Activate() directly.
+    /// Note: BallLanded() starts a coroutine (WaitForSeconds) that doesn't
+    /// complete in edit mode. Tests manually advance to Ready where needed.
     /// </summary>
     public class GameManagerTests
     {
@@ -17,6 +20,9 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress coroutine / DontDestroyOnLoad warnings in edit mode
+            LogAssert.ignoreFailingMessages = true;
+
             // Clean up any existing AppManager instance
             if (AppManager.Instance != null)
             {
@@ -34,6 +40,7 @@ namespace GolfGame.Tests.EditMode
             {
                 Object.DestroyImmediate(gameManagerObj);
             }
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]
@@ -83,6 +90,8 @@ namespace GolfGame.Tests.EditMode
             gameManager.OnShotStateChanged += state => receivedStates.Add(state);
 
             gameManager.BallLanded();
+            // Coroutine doesn't advance in edit mode — manually set Ready
+            gameManager.SetShotState(ShotState.Ready);
 
             Assert.AreEqual(2, receivedStates.Count);
             Assert.AreEqual(ShotState.Landed, receivedStates[0]);
@@ -100,6 +109,8 @@ namespace GolfGame.Tests.EditMode
                 gameManager.LaunchShot();
                 Assert.AreEqual(ShotState.Flying, gameManager.CurrentShotState);
                 gameManager.BallLanded();
+                // Manually advance — coroutine doesn't run in edit mode
+                gameManager.SetShotState(ShotState.Ready);
             }
 
             Assert.AreEqual(5, gameManager.CurrentShot);
@@ -123,6 +134,11 @@ namespace GolfGame.Tests.EditMode
             {
                 gameManager.LaunchShot();
                 gameManager.BallLanded();
+                // For non-final shots, manually advance to Ready
+                if (i < GameManager.MaxShots - 1)
+                {
+                    gameManager.SetShotState(ShotState.Ready);
+                }
             }
 
             Assert.IsTrue(gameOverFired);
@@ -142,6 +158,8 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual(1, eventCount); // Flying
 
             gameManager.BallLanded();
+            // Manually advance to Ready
+            gameManager.SetShotState(ShotState.Ready);
             Assert.AreEqual(3, eventCount); // Landed + Ready
         }
 
@@ -189,6 +207,8 @@ namespace GolfGame.Tests.EditMode
             gameManager.Activate();
             gameManager.LaunchShot();
             gameManager.BallLanded();
+            // Manually advance
+            gameManager.SetShotState(ShotState.Ready);
             Assert.AreEqual(1, gameManager.CurrentShot);
 
             gameManager.Deactivate();

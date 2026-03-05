@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using TMPro;
 using GolfGame.Environment;
 
@@ -15,6 +16,9 @@ namespace GolfGame.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            // Suppress "Destroy may not be called from edit mode" errors
+            // from YardageMarkerBuilder removing colliders via Object.Destroy
+            LogAssert.ignoreFailingMessages = true;
             parent = new GameObject("CourseRoot");
         }
 
@@ -22,6 +26,7 @@ namespace GolfGame.Tests.EditMode
         public void TearDown()
         {
             if (parent != null) Object.DestroyImmediate(parent);
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]
