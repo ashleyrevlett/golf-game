@@ -84,7 +84,7 @@ jobs:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: WebGL
           buildName: golf-game
-          buildProfile: Assets/Settings/BuildProfiles/WebGLRelease.asset
+          buildMethod: WebGLBuildScript.Build
 
       # Unity WebGL outputs Brotli-compressed files that need explicit headers
       # Cloudflare Pages respects _headers file in the root of the deploy dir
