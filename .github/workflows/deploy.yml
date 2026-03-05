@@ -1,0 +1,118 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'   # v1.0.0 (stable), v1.0.0-rc.1 (preview)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy target'
+        required: true
+        default: 'preview'
+        type: choice
+        options: [preview, production]
+
+env:
+  UNITY_VERSION: 6000.0.23f1
+
+jobs:
+  build-and-deploy:
+    name: Build WebGL + Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - uses: actions/checkout@v4
+
+      - name: Determine version and branch
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=manual-$(date +%Y%m%d%H%M)" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            if [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "branch=production" >> $GITHUB_OUTPUT
+            else
+              echo "branch=preview" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
+            Library-
+
+      - name: Build Unity WebGL
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: WebGL
+          buildName: golf-game
+
+      # Unity WebGL outputs Brotli-compressed files that need explicit headers
+      # Cloudflare Pages respects _headers file in the root of the deploy dir
+      - name: Add Cloudflare _headers for Unity WebGL
+        run: |
+          BUILD_DIR="build/WebGL/golf-game"
+          cat > "$BUILD_DIR/_headers" << 'HEADERS'
+          /Build/*.wasm.br
+            Content-Encoding: br
+            Content-Type: application/wasm
+          /Build/*.js.br
+            Content-Encoding: br
+            Content-Type: application/javascript
+          /Build/*.data.br
+            Content-Encoding: br
+            Content-Type: application/octet-stream
+          /*
+            Cross-Origin-Opener-Policy: same-origin
+            Cross-Origin-Embedder-Policy: require-corp
+          HEADERS
+          echo "✓ _headers written"
+          ls -la "$BUILD_DIR/"
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: acb2ed0071a890e9d25f684802076b86
+          projectName: golf-game
+          directory: build/WebGL/golf-game
+          branch: ${{ steps.meta.outputs.branch }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: '3'
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          BRANCH="${{ steps.meta.outputs.branch }}"
+          echo "## Deployed 🏌️" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** $VERSION" >> $GITHUB_STEP_SUMMARY
+          if [ "$BRANCH" = "production" ]; then
+            echo "**URL:** https://golf-game.pages.dev" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Environment:** preview (Cloudflare Pages preview URL)" >> $GITHUB_STEP_SUMMARY
+          fi
