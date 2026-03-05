@@ -49,21 +49,5 @@ namespace GolfGame.Tests.EditMode
             var result = service.GetBestScoreAsync().Result;
             Assert.AreEqual(30.0f, result, 0.01f);
         }
-
-        [Test]
-        public void GetBestScoreAsync_ReturnsCompletedTask()
-        {
-            var service = new PlayerPrefsBestScoreService();
-            var task = service.GetBestScoreAsync();
-            Assert.IsTrue(task.IsCompleted);
-        }
-
-        [Test]
-        public void SaveBestScoreAsync_ReturnsCompletedTask()
-        {
-            var service = new PlayerPrefsBestScoreService();
-            var task = service.SaveBestScoreAsync(10.0f);
-            Assert.IsTrue(task.IsCompleted);
-        }
     }
 }

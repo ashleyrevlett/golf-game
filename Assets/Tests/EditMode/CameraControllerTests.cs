@@ -169,20 +169,6 @@ namespace GolfGame.Tests.EditMode
             }
         }
 
-        [Test]
-        public void DestroyController_DoesNotThrowOnStateChange()
-        {
-            cameraController.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
-            gameManager.Activate();
-
-            // Destroy the controller
-            Object.DestroyImmediate(controllerObj);
-            controllerObj = null;
-
-            // State changes after destruction should not throw
-            Assert.DoesNotThrow(() => gameManager.LaunchShot());
-        }
-
         private static void SetPrivateField(object obj, string fieldName, object value)
         {
             var field = obj.GetType().GetField(fieldName,

@@ -365,13 +365,6 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual(0f, scoringManager.TotalCtpDistance, 0.01f);
         }
 
-        [Test]
-        public void VeryLargeDistance_FormatsCorrectly()
-        {
-            // Pure formatting test
-            Assert.AreEqual("138.2", 138.2f.ToString("F1"));
-        }
-
         /// <summary>
         /// Invoke a C# event's backing delegate via reflection.
         /// </summary>

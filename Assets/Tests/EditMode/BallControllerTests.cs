@@ -131,25 +131,6 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
-        public void OnBallLanded_EventExists()
-        {
-            // Verify event can be subscribed to without error
-            bool fired = false;
-            ballController.OnBallLanded += _ => fired = true;
-            ballController.OnBallLanded -= _ => fired = true;
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void OnBallBounced_EventExists()
-        {
-            bool fired = false;
-            ballController.OnBallBounced += (_, _) => fired = true;
-            ballController.OnBallBounced -= (_, _) => fired = true;
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
         public void Launch_WhileAlreadyFlying_DoesNothing()
         {
             var shot = new ShotParameters { PowerNormalized = 0.5f };

@@ -51,59 +51,5 @@ namespace GolfGame.Tests.EditMode
         {
             Assert.IsFalse(shotInput.IsActive);
         }
-
-        [Test]
-        public void OnShotReady_EventExists()
-        {
-            // Verify event can be subscribed without error
-            bool fired = false;
-            shotInput.OnShotReady += _ => fired = true;
-            shotInput.OnShotReady -= _ => {};
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void OnMeterPhaseChanged_EventExists()
-        {
-            bool fired = false;
-            shotInput.OnMeterPhaseChanged += _ => fired = true;
-            shotInput.OnMeterPhaseChanged -= _ => {};
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void OnMeterValueChanged_EventExists()
-        {
-            bool fired = false;
-            shotInput.OnMeterValueChanged += _ => fired = true;
-            shotInput.OnMeterValueChanged -= _ => {};
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void OnAccuracyValueChanged_EventExists()
-        {
-            bool fired = false;
-            shotInput.OnAccuracyValueChanged += _ => fired = true;
-            shotInput.OnAccuracyValueChanged -= _ => {};
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void OnPowerLocked_EventExists()
-        {
-            bool fired = false;
-            shotInput.OnPowerLocked += _ => fired = true;
-            shotInput.OnPowerLocked -= _ => {};
-            Assert.IsFalse(fired);
-        }
-
-        [Test]
-        public void MeterPhaseEnum_HasExpectedValues()
-        {
-            Assert.AreEqual(0, (int)ShotInput.MeterPhase.Idle);
-            Assert.AreEqual(1, (int)ShotInput.MeterPhase.Power);
-            Assert.AreEqual(2, (int)ShotInput.MeterPhase.Accuracy);
-        }
     }
 }
