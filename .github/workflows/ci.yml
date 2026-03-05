@@ -75,10 +75,40 @@ jobs:
           name: test-results
           path: test-results
 
+  unity-playmode-tests:
+    name: Unity Tests (PlayMode)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: Library-
+
+      - uses: game-ci/unity-test-runner@v4
+        id: playmode-tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: PlayMode
+          unityVersion: 6000.0.23f1
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          artifactsPath: playmode-test-results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playmode-test-results
+          path: playmode-test-results
+
   unity-build:
     name: Unity Build (WebGL)
     runs-on: ubuntu-latest
-    needs: unity-tests
+    needs: [unity-tests, unity-playmode-tests]
     steps:
       - uses: actions/checkout@v4
 
