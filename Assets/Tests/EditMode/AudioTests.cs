@@ -105,6 +105,148 @@ namespace GolfGame.Tests.EditMode
             Object.DestroyImmediate(managerObj);
         }
 
+        [Test]
+        public void AudioManager_Singleton_SetsInstance()
+        {
+            var managerObj = new GameObject("AudioManager_Singleton");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            Assert.AreEqual(manager, AudioManager.Instance);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_Singleton_DestroysSecondInstance()
+        {
+            var firstObj = new GameObject("AudioManager_First");
+            var first = firstObj.AddComponent<AudioManager>();
+
+            var secondObj = new GameObject("AudioManager_Second");
+            secondObj.AddComponent<AudioManager>();
+
+            Assert.AreEqual(first, AudioManager.Instance);
+
+            Object.DestroyImmediate(secondObj);
+            Object.DestroyImmediate(firstObj);
+        }
+
+        [Test]
+        public void AudioManager_OnDestroy_ClearsInstance()
+        {
+            var managerObj = new GameObject("AudioManager_Destroy");
+            managerObj.AddComponent<AudioManager>();
+
+            Assert.IsNotNull(AudioManager.Instance);
+            Object.DestroyImmediate(managerObj);
+            Assert.IsNull(AudioManager.Instance);
+        }
+
+        [Test]
+        public void AudioManager_PlaySFX_WithClip_ReturnsAudioSource()
+        {
+            var managerObj = new GameObject("AudioManager_SFX");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            var clip = AudioClip.Create("test", 44100, 1, 44100, false);
+            var source = manager.PlaySFX(clip, 0.5f, 1.2f);
+
+            Assert.IsNotNull(source);
+            Assert.AreEqual(clip, source.clip);
+            Assert.AreEqual(1.2f, source.pitch, 0.001f);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_PlayLoop_WithClip_ReturnsLoopingSource()
+        {
+            var managerObj = new GameObject("AudioManager_Loop");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            var clip = AudioClip.Create("loop_test", 44100, 1, 44100, false);
+            var source = manager.PlayLoop(clip, 0.8f);
+
+            Assert.IsNotNull(source);
+            Assert.IsTrue(source.loop);
+            Assert.AreEqual(clip, source.clip);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_StopSource_StopsAndClearsClip()
+        {
+            var managerObj = new GameObject("AudioManager_Stop");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            var clip = AudioClip.Create("stop_test", 44100, 1, 44100, false);
+            var source = manager.PlaySFX(clip);
+
+            manager.StopSource(source);
+            Assert.IsNull(source.clip);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_StopSource_NullDoesNotThrow()
+        {
+            var managerObj = new GameObject("AudioManager_StopNull");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            Assert.DoesNotThrow(() => manager.StopSource(null));
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_Config_ExposesAssignedConfig()
+        {
+            var managerObj = new GameObject("AudioManager_Config");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            // Config is null when not assigned via SerializeField
+            Assert.IsNull(manager.Config);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_PlaySFX_WithoutConfig_UsesFallbackVolume()
+        {
+            var managerObj = new GameObject("AudioManager_Fallback");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            var clip = AudioClip.Create("fallback_test", 44100, 1, 44100, false);
+            var source = manager.PlaySFX(clip, 1f, 1f);
+
+            // Without config, fallback sfxVol is 0.8f, so volume = 1 * 0.8 = 0.8
+            Assert.AreEqual(0.8f, source.volume, 0.001f);
+
+            Object.DestroyImmediate(managerObj);
+        }
+
+        [Test]
+        public void AudioManager_OnFirstUserGesture_SetsVolume()
+        {
+            var managerObj = new GameObject("AudioManager_Gesture");
+            var manager = managerObj.AddComponent<AudioManager>();
+
+            PlayerPrefs.SetFloat("SoundVolume", 0.6f);
+            manager.OnFirstUserGesture();
+            Assert.AreEqual(0.6f, AudioListener.volume, 0.001f);
+
+            // Second call is no-op
+            PlayerPrefs.SetFloat("SoundVolume", 0.9f);
+            manager.OnFirstUserGesture();
+            Assert.AreEqual(0.6f, AudioListener.volume, 0.001f);
+
+            AudioListener.volume = 1f;
+            PlayerPrefs.DeleteKey("SoundVolume");
+            Object.DestroyImmediate(managerObj);
+        }
+
         // BallAudioController Tests
 
         [Test]
