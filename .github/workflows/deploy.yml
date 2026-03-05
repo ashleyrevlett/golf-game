@@ -66,10 +66,12 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          BUILD_PATH: build/WebGL/golf-game
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: WebGL
           buildName: golf-game
+          buildMethod: WebGLBuildScript.Build
 
       # Unity WebGL outputs Brotli-compressed files that need explicit headers
       # Cloudflare Pages respects _headers file in the root of the deploy dir
