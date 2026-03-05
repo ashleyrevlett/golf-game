@@ -112,7 +112,7 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: acb2ed0071a890e9d25f684802076b86
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: golf-game
           directory: build/WebGL/golf-game
           branch: ${{ steps.meta.outputs.branch }}
