@@ -1,4 +1,5 @@
 using UnityEngine;
+using GolfGame.Core;
 
 namespace GolfGame.Environment
 {
@@ -31,11 +32,7 @@ namespace GolfGame.Environment
 
         private void CreateMaterials()
         {
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null)
-            {
-                shader = Shader.Find("Standard");
-            }
+            var shader = ShaderUtils.FindWithFallback("Universal Render Pipeline/Lit", "Standard");
 
             matTee = CreateMaterial(shader, new Color(0.298f, 0.686f, 0.314f));      // #4CAF50
             matFairway = CreateMaterial(shader, new Color(0.400f, 0.733f, 0.416f));   // #66BB6A

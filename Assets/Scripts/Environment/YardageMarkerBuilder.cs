@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using GolfGame.Core;
 
 namespace GolfGame.Environment
 {
@@ -89,11 +90,7 @@ namespace GolfGame.Environment
 
         private static Material CreateLineMaterial()
         {
-            var shader = Shader.Find("Universal Render Pipeline/Unlit");
-            if (shader == null)
-            {
-                shader = Shader.Find("Unlit/Color");
-            }
+            var shader = ShaderUtils.FindWithFallback("Universal Render Pipeline/Unlit", "Unlit/Color");
 
             var mat = new Material(shader);
             mat.color = LineColor;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using GolfGame.Core;
 using GolfGame.Golf;
 
 namespace GolfGame.Environment
@@ -48,11 +49,7 @@ namespace GolfGame.Environment
 
         private void CreateArrow()
         {
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null)
-            {
-                shader = Shader.Find("Standard");
-            }
+            var shader = ShaderUtils.FindWithFallback("Universal Render Pipeline/Lit", "Standard");
 
             arrowMaterial = new Material(shader);
             arrowMaterial.color = new Color(1f, 1f, 1f, 0.7f);

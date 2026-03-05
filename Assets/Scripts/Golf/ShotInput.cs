@@ -34,12 +34,10 @@ namespace GolfGame.Golf
 
         private MeterPhase currentPhase;
         private float currentAimAngle;
-        private float meterValue;
+        private MeterOscillator powerMeter = new MeterOscillator(0f, 1f);
+        private MeterOscillator accuracyMeter = new MeterOscillator(-1f, 1f);
         private float lockedPower;
-        private float accuracyValue;
         private bool isActive;
-        private bool meterRising;
-        private bool accuracyRising;
 
         /// <summary>
         /// Fires when a shot is ready with parameters. Consumed by BallController.
@@ -70,7 +68,7 @@ namespace GolfGame.Golf
         public float CurrentAimAngle => currentAimAngle;
 
         /// <summary>Current power meter value (0-1).</summary>
-        public float CurrentPower => currentPhase == MeterPhase.Power ? meterValue : lockedPower;
+        public float CurrentPower => currentPhase == MeterPhase.Power ? powerMeter.Value : lockedPower;
 
         /// <summary>Whether input is currently active.</summary>
         public bool IsActive => isActive;
@@ -112,11 +110,9 @@ namespace GolfGame.Golf
         {
             isActive = active;
             currentPhase = MeterPhase.Idle;
-            meterValue = 0f;
+            powerMeter.Reset();
+            accuracyMeter.Reset();
             lockedPower = 0f;
-            accuracyValue = 0f;
-            meterRising = true;
-            accuracyRising = true;
 
             if (aimLine != null)
             {
@@ -163,44 +159,22 @@ namespace GolfGame.Golf
             if (spacePressed)
             {
                 currentPhase = MeterPhase.Power;
-                meterValue = 0f;
-                meterRising = true;
+                powerMeter.Reset();
                 OnMeterPhaseChanged?.Invoke(currentPhase);
             }
         }
 
         private void UpdatePowerMeter()
         {
-            // Oscillate 0 -> 1 -> 0 -> 1 ...
-            float delta = meterSpeed * Time.deltaTime;
-            if (meterRising)
-            {
-                meterValue += delta;
-                if (meterValue >= 1f)
-                {
-                    meterValue = 1f;
-                    meterRising = false;
-                }
-            }
-            else
-            {
-                meterValue -= delta;
-                if (meterValue <= 0f)
-                {
-                    meterValue = 0f;
-                    meterRising = true;
-                }
-            }
-
-            OnMeterValueChanged?.Invoke(meterValue);
+            powerMeter.Tick(meterSpeed, Time.deltaTime);
+            OnMeterValueChanged?.Invoke(powerMeter.Value);
         }
 
         private void LockPower()
         {
-            lockedPower = meterValue;
+            lockedPower = powerMeter.Value;
             currentPhase = MeterPhase.Accuracy;
-            accuracyValue = 0f;
-            accuracyRising = true;
+            accuracyMeter.Reset();
 
             OnPowerLocked?.Invoke(lockedPower);
             OnMeterPhaseChanged?.Invoke(currentPhase);
@@ -208,33 +182,13 @@ namespace GolfGame.Golf
 
         private void UpdateAccuracyMeter()
         {
-            // Oscillate -1 -> 1 -> -1 ...
-            float delta = accuracySpeed * Time.deltaTime;
-            if (accuracyRising)
-            {
-                accuracyValue += delta;
-                if (accuracyValue >= 1f)
-                {
-                    accuracyValue = 1f;
-                    accuracyRising = false;
-                }
-            }
-            else
-            {
-                accuracyValue -= delta;
-                if (accuracyValue <= -1f)
-                {
-                    accuracyValue = -1f;
-                    accuracyRising = true;
-                }
-            }
-
-            OnAccuracyValueChanged?.Invoke(accuracyValue);
+            accuracyMeter.Tick(accuracySpeed, Time.deltaTime);
+            OnAccuracyValueChanged?.Invoke(accuracyMeter.Value);
         }
 
         private void LockAccuracyAndFire()
         {
-            float aimDeviation = accuracyValue * maxAccuracyDeviation;
+            float aimDeviation = accuracyMeter.Value * maxAccuracyDeviation;
 
             var parameters = new ShotParameters
             {
