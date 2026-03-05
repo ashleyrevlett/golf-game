@@ -67,7 +67,6 @@
     <Compile Include="Assets/Scripts/Audio/BallAudioController.cs" />
     <Compile Include="Assets/Scripts/Audio/AudioConfig.cs" />
     <Compile Include="Assets/Scripts/Audio/AudioManager.cs" />
-    <Compile Include="Assets/Scripts/Audio/UIAudioController.cs" />
     <Compile Include="Assets/Scripts/Audio/AmbientAudioController.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -104,10 +103,6 @@
     </Reference>
     <Reference Include="UnityEngine.DSPGraphModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.DirectorModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DirectorModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.GIModule">
@@ -172,10 +167,6 @@
     </Reference>
     <Reference Include="UnityEngine.MultiplayerModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.MultiplayerModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PerformanceReportingModule">

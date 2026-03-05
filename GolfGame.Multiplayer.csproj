@@ -64,7 +64,7 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/BuildPipeline/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/Scripts/Multiplayer/ServiceLocator.cs" />
+    <Compile Include="Assets/Scripts/Multiplayer/IBestScoreService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/UgsAuthService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/AssemblyInfo.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/LeaderboardManager.cs" />
@@ -74,6 +74,7 @@
     <Compile Include="Assets/Scripts/Multiplayer/ILeaderboardService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/Bootstrap.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/MockAuthService.cs" />
+    <Compile Include="Assets/Scripts/Multiplayer/PlayerPrefsBestScoreService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/UgsLeaderboardService.cs" />
     <Compile Include="Assets/Scripts/Multiplayer/LeaderboardEntry.cs" />
   </ItemGroup>
@@ -111,10 +112,6 @@
     </Reference>
     <Reference Include="UnityEngine.DSPGraphModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.DirectorModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DirectorModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.GIModule">
@@ -179,10 +176,6 @@
     </Reference>
     <Reference Include="UnityEngine.MultiplayerModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.MultiplayerModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PerformanceReportingModule">

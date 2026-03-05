@@ -68,7 +68,9 @@
     <Compile Include="Assets/Scripts/Environment/CourseConfig.cs" />
     <Compile Include="Assets/Scripts/Environment/WindIndicator.cs" />
     <Compile Include="Assets/Scripts/Environment/PinController.cs" />
+    <Compile Include="Assets/Scripts/Environment/ShotPopup.cs" />
     <Compile Include="Assets/Scripts/Environment/CourseBuilder.cs" />
+    <Compile Include="Assets/Scripts/Environment/YardageMarkerBuilder.cs" />
     <Compile Include="Assets/Scripts/Environment/ShotResult.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,10 +107,6 @@
     </Reference>
     <Reference Include="UnityEngine.DSPGraphModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.DirectorModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.DirectorModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.GIModule">
@@ -173,10 +171,6 @@
     </Reference>
     <Reference Include="UnityEngine.MultiplayerModule">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.MultiplayerModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PerformanceReportingModule">
@@ -1033,6 +1027,10 @@
     </Reference>
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.UI">

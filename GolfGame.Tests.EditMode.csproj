@@ -68,11 +68,18 @@
     <Compile Include="Assets/Tests/EditMode/GameplayHUDControllerTests.cs" />
     <Compile Include="Assets/Tests/EditMode/BootstrapTests.cs" />
     <Compile Include="Assets/Tests/EditMode/CameraConfigTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/GameOverControllerTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/PlayerPrefsBestScoreServiceTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/YardageMarkerBuilderTests.cs" />
     <Compile Include="Assets/Tests/EditMode/GameStateTests.cs" />
     <Compile Include="Assets/Tests/EditMode/WindSystemTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/ShotInputTests.cs" />
     <Compile Include="Assets/Tests/EditMode/BallControllerTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/PowerMeterControllerTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/SettingsControllerTests.cs" />
     <Compile Include="Assets/Tests/EditMode/LeaderboardManagerRetryTests.cs" />
     <Compile Include="Assets/Tests/EditMode/CameraControllerTests.cs" />
+    <Compile Include="Assets/Tests/EditMode/MainMenuControllerTests.cs" />
     <Compile Include="Assets/Tests/EditMode/AudioTests.cs" />
     <Compile Include="Assets/Tests/EditMode/AppManagerTests.cs" />
     <Compile Include="Assets/Tests/EditMode/ScoringManagerTests.cs" />
@@ -1154,6 +1161,10 @@
     </Reference>
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/netstandard.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.UI">
