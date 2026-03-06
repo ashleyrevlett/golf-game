@@ -64,6 +64,11 @@ namespace GolfGame.Golf
         /// </summary>
         public event Action<float> OnPowerLocked;
 
+        /// <summary>
+        /// Fires when aim angle changes. Payload is angle in degrees (-45 to 45).
+        /// </summary>
+        public event Action<float> OnAimAngleChanged;
+
         /// <summary>Current aim angle in degrees.</summary>
         public float CurrentAimAngle => currentAimAngle;
 
@@ -121,7 +126,6 @@ namespace GolfGame.Golf
 
             if (active)
             {
-                currentAimAngle = 0f;
                 UpdateAimLine();
             }
 
@@ -144,9 +148,50 @@ namespace GolfGame.Golf
             return false;
         }
 
+        private void UpdateAimInput()
+        {
+            float aimDelta = 0f;
+            float aimSpeed = maxAimAngle * aimSensitivity;
+
+            // Keyboard: arrow keys
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.leftArrowKey.isPressed)
+                    aimDelta -= aimSpeed * Time.deltaTime;
+                if (Keyboard.current.rightArrowKey.isPressed)
+                    aimDelta += aimSpeed * Time.deltaTime;
+            }
+
+            // Touch: horizontal drag
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+            {
+                float touchDelta = Touchscreen.current.primaryTouch.delta.x.ReadValue();
+                aimDelta += touchDelta * aimSensitivity * 0.1f;
+            }
+
+            // Mouse: horizontal drag while right button held
+            if (Mouse.current != null && Mouse.current.rightButton.isPressed)
+            {
+                float mouseDelta = Mouse.current.delta.x.ReadValue();
+                aimDelta += mouseDelta * aimSensitivity * 0.1f;
+            }
+
+            if (aimDelta != 0f)
+            {
+                currentAimAngle = Mathf.Clamp(currentAimAngle + aimDelta, -maxAimAngle, maxAimAngle);
+                OnAimAngleChanged?.Invoke(currentAimAngle);
+            }
+        }
+
         private void Update()
         {
             if (!isActive) return;
+
+            // Aim adjustment only during Idle phase (before meter starts)
+            if (currentPhase == MeterPhase.Idle)
+            {
+                UpdateAimInput();
+            }
 
             bool actionPressed = WasActionPressed();
 
