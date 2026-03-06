@@ -32,6 +32,7 @@ namespace GolfGame.Golf
         [Header("Wind")]
         [SerializeField] private float windMinSpeed;
         [SerializeField] private float windMaxSpeed = 8f;
+        [SerializeField] private float windSensitivity = 0.15f;
 
         [Header("Ball")]
         [SerializeField] private float ballMass = 0.046f;
@@ -53,6 +54,7 @@ namespace GolfGame.Golf
         public float FlightTimeout => flightTimeout;
         public float WindMinSpeed => windMinSpeed;
         public float WindMaxSpeed => windMaxSpeed;
+        public float WindSensitivity => windSensitivity;
         public float BallMass => ballMass;
         public float BallRadius => ballRadius;
     }

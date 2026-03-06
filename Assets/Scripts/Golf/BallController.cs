@@ -10,6 +10,7 @@ namespace GolfGame.Golf
         [SerializeField] private BallPhysicsConfig physicsConfig;
 
         private GameManager gameManager;
+        private WindSystem windSystem;
         private Rigidbody rb;
         private bool isFlying;
         private float flightTimer;
@@ -49,6 +50,7 @@ namespace GolfGame.Golf
         private void Start()
         {
             gameManager = FindFirstObjectByType<GameManager>();
+            windSystem = FindFirstObjectByType<WindSystem>();
             if (gameManager != null)
                 gameManager.OnResetToTee += ResetToTee;
             initialTeePosition = transform.position;
@@ -84,6 +86,12 @@ namespace GolfGame.Golf
         private void FixedUpdate()
         {
             if (!isFlying) return;
+
+            if (windSystem != null && physicsConfig != null)
+            {
+                Vector3 windForce = windSystem.CurrentWind * physicsConfig.WindSensitivity;
+                rb.AddForce(windForce, ForceMode.Force);
+            }
 
             flightTimer += Time.fixedDeltaTime;
 

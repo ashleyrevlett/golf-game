@@ -2,7 +2,7 @@
 
 ## Model
 
-Unity built-in physics (Rigidbody, colliders). Ball uses `ForceMode.Impulse` at launch and Unity's gravity/collision system for flight and bouncing. No custom aerodynamics simulation is active — drag, spin, and Magnus force are configured in `BallPhysicsConfig` but not yet applied by `BallController`.
+Unity built-in physics (Rigidbody, colliders). Ball uses `ForceMode.Impulse` at launch and Unity's gravity/collision system for flight and bouncing. Wind force is applied continuously during flight. No custom aerodynamics simulation beyond wind — drag, spin, and Magnus force are configured in `BallPhysicsConfig` but not yet applied by `BallController`.
 
 ## Ball State
 
@@ -38,6 +38,15 @@ In `FixedUpdate`, after a 0.5s grace period:
 - Linear velocity < 0.2 m/s **and** angular velocity < 0.1 rad/s → ball stops
 - On stop: zero velocities, set kinematic, fire `OnBallLanded(position)`
 
+## Wind
+
+While `isFlying`, `BallController` applies a continuous lateral force each `FixedUpdate`:
+
+    force = WindSystem.CurrentWind * BallPhysicsConfig.WindSensitivity
+
+Applied via `rb.AddForce()` (`ForceMode.Force` -- per-frame continuous force).
+Wind is horizontal only (y=0). Wind changes between shots, not during flight.
+
 ## Events
 
 | Event | Signature | When |
@@ -58,6 +67,9 @@ ScriptableObject at `Resources/BallPhysicsConfig`. All values are tunable in the
 | `MaxPowerMph` | 150 | Launch force calculation |
 | `MphToForceMultiplier` | 0.6 | Launch force calculation |
 | `BallMass` | 0.046 kg | Rigidbody mass |
+| `WindMinSpeed` | 0 | Wind system min speed |
+| `WindMaxSpeed` | 8 | Wind system max speed |
+| `WindSensitivity` | 0.15 | Wind force multiplier during flight |
 
 ### Configured but Inactive
 
@@ -76,8 +88,6 @@ These exist in `BallPhysicsConfig` but are **not consumed** by `BallController`:
 | `StopAngularThreshold` | 0.05 rad/s | Stop detection (BallController hardcodes 0.1) |
 | `StopConsecutiveFrames` | 10 | Multi-frame stop check (not implemented) |
 | `FlightTimeout` | 30s | Max flight duration (not implemented) |
-| `WindMinSpeed` | 0 | Wind system range |
-| `WindMaxSpeed` | 8 | Wind system range |
 | `BallRadius` | 0.02135 m | Ball dimensions |
 
 ## Key Data Types

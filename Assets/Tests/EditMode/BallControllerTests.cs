@@ -145,5 +145,21 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual(velocity1, velocity2,
                 "Second launch while flying should be ignored");
         }
+
+        [Test]
+        public void Launch_WithNoWindSystem_StillFlies()
+        {
+            // No WindSystem exists in scene — BallController should handle null gracefully
+            var shot = new ShotParameters
+            {
+                PowerNormalized = 0.8f,
+                AimAngleDegrees = 0f
+            };
+
+            ballController.Launch(shot);
+
+            Assert.IsTrue(ballController.IsFlying,
+                "Ball should be flying even without a WindSystem in scene");
+        }
     }
 }
