@@ -1,5 +1,7 @@
 # Golf Game
 
+> **Vision:** Make competitive multiplayer golf as instant as opening a link.
+>
 > **Core value prop:** A mobile-browser golf game with async global leaderboards — pick up, play 6 shots, see how you rank. No install, no account required to play.
 
 Closest-to-the-pin golf game built with Unity 6 for WebGL (mobile browser). 6 shots at 125 yards, lowest total distance to pin wins. Async leaderboard scoring via Unity Gaming Services.
