@@ -1,6 +1,6 @@
 ---
 topic: Testing
-tags: [testing, test-cleanup, coverage-theater, unity-tests, nunit]
+tags: [testing, test-cleanup, coverage-theater, unity-tests, nunit, asmdef, assembly-definitions]
 ---
 
 # Testing
@@ -19,3 +19,11 @@ tags: [testing, test-cleanup, coverage-theater, unity-tests, nunit]
 - If the test recreates the handler logic in a lambda, it tests the lambda -- not the production code
 - At minimum: add a comment explaining the EditMode limitation and that the lambda mirrors production logic
 - Better: use `[InternalsVisibleTo]` or move the test to PlayMode where `Start()` fires naturally
+
+## Cross-assembly using directives must update asmdef references
+<!-- issue: #98/#99 | pr: #105/#107 -->
+- Adding `using GolfGame.X` to a script in a different assembly (e.g., UI using Audio) requires updating the `.asmdef` file to add the reference
+- Missing asmdef references cause CS0234 compiler errors that break the entire project build
+- PR #105 added `using GolfGame.Audio` to SettingsController (in UI assembly) without updating UI's asmdef -- the breakage was only caught in PR #107's review
+- Pre-existing CI failures from this caused a wasted review cycle: reviewer couldn't distinguish new vs inherited failures
+- When adding a `using` directive, verify the target namespace's assembly is already referenced in the current file's asmdef
