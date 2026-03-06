@@ -41,7 +41,7 @@ Use `System.Action<T>` for all events. Never use `SendMessage`.
 
 ```csharp
 public event Action<GameState> OnStateChanged;
-public event Action<int, bool> OnGameOver;
+public event Action<int> OnGameOver;
 
 // ScoringManager events
 public event Action<ShotResult> OnShotScored;
@@ -128,7 +128,7 @@ ScoringManager.HandleBallLanded()
 ### Final Shot → Game Over
 
 ```
-GameManager fires OnGameOver(shotCount, isNewBest)
+GameManager fires OnGameOver(shotCount)
     ↓
 ScoringManager.HandleGameOver()
     └─ OnAllShotsComplete(totalCtpDistance) → GameOverController shows overlay
