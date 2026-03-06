@@ -235,6 +235,14 @@
     margin-top: 4px;
 }
 
+.accuracy-feedback {
+    font-size: var(--font-size-body);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    margin-top: 4px;
+    transition: opacity 0.3s ease-out;
+}
+
 /* Pause button hover */
 #pause-button-pod:hover {
     background-color: rgba(255, 255, 255, 0.15);

@@ -41,6 +41,7 @@
                 <ui:VisualElement name="accuracy-marker" class="accuracy-marker" style="display: none;" />
             </ui:VisualElement>
             <ui:Label name="power-readout" text="0%" class="power-readout" />
+            <ui:Label name="accuracy-feedback" text="" class="accuracy-feedback" style="display: none;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

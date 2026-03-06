@@ -22,6 +22,10 @@ namespace GolfGame.UI
         private VisualElement accuracyMarker;
         private Label meterLabel;
         private Label powerReadout;
+        private Label accuracyFeedback;
+        private IVisualElementScheduledItem feedbackHideSchedule;
+        private float lastAccuracyValue;
+        private bool wasInAccuracyPhase;
 
         private void Awake()
         {
@@ -43,6 +47,7 @@ namespace GolfGame.UI
             accuracyMarker = root.Q("accuracy-marker");
             meterLabel = root.Q<Label>("power-meter-label");
             powerReadout = root.Q<Label>("power-readout");
+            accuracyFeedback = root.Q<Label>("accuracy-feedback");
 
             if (shotInput != null)
             {
@@ -71,6 +76,11 @@ namespace GolfGame.UI
             switch (phase)
             {
                 case ShotInput.MeterPhase.Idle:
+                    if (wasInAccuracyPhase)
+                    {
+                        ShowAccuracyFeedback(lastAccuracyValue);
+                        wasInAccuracyPhase = false;
+                    }
                     SetMeterVisible(false);
                     break;
                 case ShotInput.MeterPhase.Power:
@@ -78,6 +88,7 @@ namespace GolfGame.UI
                     ShowPowerMode();
                     break;
                 case ShotInput.MeterPhase.Accuracy:
+                    wasInAccuracyPhase = true;
                     ShowAccuracyMode();
                     break;
             }
@@ -109,6 +120,8 @@ namespace GolfGame.UI
 
         private void HandleAccuracyValueChanged(float value)
         {
+            lastAccuracyValue = value;
+
             if (accuracyMarker != null)
             {
                 // Map -1..1 to 0%..100%
@@ -182,6 +195,48 @@ namespace GolfGame.UI
                 accuracyMarker.style.display = DisplayStyle.Flex;
                 accuracyMarker.style.left = Length.Percent(50f);
             }
+        }
+
+        private void ShowAccuracyFeedback(float accuracyValue)
+        {
+            if (accuracyFeedback == null) return;
+
+            var (label, color) = GetAccuracyRating(accuracyValue);
+
+            accuracyFeedback.text = label;
+            accuracyFeedback.style.color = color;
+            accuracyFeedback.style.display = DisplayStyle.Flex;
+            accuracyFeedback.style.opacity = 1f;
+
+            // Cancel any pending hide
+            feedbackHideSchedule?.Pause();
+
+            // Fade out after 1.5 seconds
+            feedbackHideSchedule = accuracyFeedback.schedule.Execute(() =>
+            {
+                accuracyFeedback.style.opacity = 0f;
+                // Hide after fade transition completes
+                accuracyFeedback.schedule.Execute(() =>
+                {
+                    accuracyFeedback.style.display = DisplayStyle.None;
+                }).StartingIn(300);
+            }).StartingIn(1500);
+        }
+
+        /// <summary>
+        /// Rate the accuracy lock quality. Value is -1 to 1 (0 = perfect center).
+        /// </summary>
+        public static (string label, Color color) GetAccuracyRating(float accuracyValue)
+        {
+            float absValue = Mathf.Abs(accuracyValue);
+
+            if (absValue <= 0.15f)
+                return ("GREAT!", new Color(0.3f, 0.8f, 0.3f));
+
+            if (absValue <= 0.45f)
+                return ("OK", new Color(1f, 0.84f, 0f));
+
+            return ("MISS", new Color(0.85f, 0.26f, 0.21f));
         }
 
         /// <summary>
