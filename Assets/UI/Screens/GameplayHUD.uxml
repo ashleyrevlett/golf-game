@@ -13,6 +13,14 @@
             <ui:Label name="shots-value" text="6" class="hud-value" />
         </ui:VisualElement>
 
+        <!-- Pause button: below shots-pod -->
+        <ui:VisualElement name="pause-button-pod" class="hud-pod"
+            style="position: absolute; right: 12px; top: 72px;
+                   width: 44px; height: 44px; justify-content: center; align-items: center;">
+            <ui:Label name="pause-icon" text="&#10074;&#10074;"
+                style="font-size: 20px; color: var(--color-text-primary); -unity-font-style: bold;" />
+        </ui:VisualElement>
+
         <!-- Wind: bottom-left -->
         <ui:VisualElement name="wind-pod" class="hud-pod" style="position: absolute; left: 12px; bottom: 12px;">
             <ui:Label name="wind-display" text="Wind: --" class="text-stat" />

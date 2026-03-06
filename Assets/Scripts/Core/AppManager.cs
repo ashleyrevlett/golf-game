@@ -129,10 +129,34 @@ namespace GolfGame.Core
         }
 
         /// <summary>
+        /// Pause the game. Only valid from Playing state.
+        /// Freezes gameplay via Time.timeScale.
+        /// </summary>
+        public void PauseGame()
+        {
+            if (currentState != AppState.Playing) return;
+            Time.timeScale = 0f;
+            SetState(AppState.Paused);
+        }
+
+        /// <summary>
+        /// Resume the game. Only valid from Paused state.
+        /// Restores Time.timeScale to 1.
+        /// </summary>
+        public void ResumeGame()
+        {
+            if (currentState != AppState.Paused) return;
+            Time.timeScale = 1f;
+            SetState(AppState.Playing);
+        }
+
+        /// <summary>
         /// Return to the title screen.
+        /// Restores Time.timeScale in case we're returning from pause.
         /// </summary>
         public void ReturnToTitle()
         {
+            Time.timeScale = 1f;
             SetState(AppState.Title);
         }
 

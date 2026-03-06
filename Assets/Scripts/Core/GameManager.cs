@@ -75,9 +75,9 @@ namespace GolfGame.Core
 
         private void HandleAppStateChanged(AppState newState)
         {
-            if (newState == AppState.Playing)
+            if (newState == AppState.Playing || newState == AppState.Paused)
             {
-                Activate();
+                if (!isActive) Activate();
             }
             else if (isActive)
             {

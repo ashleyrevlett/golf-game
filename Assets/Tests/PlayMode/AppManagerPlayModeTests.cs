@@ -37,6 +37,7 @@ namespace GolfGame.Tests.PlayMode
             {
                 Object.Destroy(managerObj);
             }
+            Time.timeScale = 1f;
             LogAssert.ignoreFailingMessages = false;
         }
 
@@ -83,6 +84,43 @@ namespace GolfGame.Tests.PlayMode
 
             Assert.IsNull(AppManager.Instance,
                 "Instance should be null after destroy");
+        }
+
+        [UnityTest]
+        public IEnumerator PauseGame_SetsTimeScaleToZero()
+        {
+            managerObj = new GameObject("AppManager");
+            managerObj.AddComponent<AppManager>();
+
+            yield return null;
+
+            AppManager.Instance.SetState(AppState.Playing);
+            AppManager.Instance.PauseGame();
+
+            yield return null;
+
+            Assert.AreEqual(0f, Time.timeScale,
+                "Time.timeScale should be 0 when paused");
+
+            Time.timeScale = 1f;
+        }
+
+        [UnityTest]
+        public IEnumerator ResumeGame_RestoresTimeScaleToOne()
+        {
+            managerObj = new GameObject("AppManager");
+            managerObj.AddComponent<AppManager>();
+
+            yield return null;
+
+            AppManager.Instance.SetState(AppState.Playing);
+            AppManager.Instance.PauseGame();
+            AppManager.Instance.ResumeGame();
+
+            yield return null;
+
+            Assert.AreEqual(1f, Time.timeScale,
+                "Time.timeScale should be 1 after resume");
         }
     }
 }

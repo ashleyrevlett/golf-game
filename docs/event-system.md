@@ -9,9 +9,11 @@ The game uses two state machines at different scopes:
 Controls screen flow:
 
 ```
-Title → Instructions → TransitionToGame → Playing → GameOver → Leaderboard
-  ↑                                                     │           │
-  └─────────────────────────────────────────────────────┴───────────┘
+Title → Instructions → TransitionToGame → Playing ⇄ Paused
+  ↑                                          ↓
+  ↑                                       GameOver → Leaderboard
+  ↑                                          │           │
+  └──────────────────────────────────────────┴───────────┘
 ```
 
 | State | Description |
@@ -20,6 +22,7 @@ Title → Instructions → TransitionToGame → Playing → GameOver → Leaderb
 | `Instructions` | Showing game instructions |
 | `TransitionToGame` | Camera blending to tee position |
 | `Playing` | Active gameplay (GameManager takes over) |
+| `Paused` | Gameplay frozen via Time.timeScale = 0 |
 | `GameOver` | Showing final score |
 | `Leaderboard` | Showing high scores |
 

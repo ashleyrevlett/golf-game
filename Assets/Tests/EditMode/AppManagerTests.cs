@@ -140,5 +140,81 @@ namespace GolfGame.Tests.EditMode
             appManager.ShowLeaderboard();
             Assert.AreEqual(AppState.Leaderboard, appManager.CurrentState);
         }
+
+        [Test]
+        public void PauseGame_FromPlaying_TransitionsToPaused()
+        {
+            appManager.SetState(AppState.Playing);
+            appManager.PauseGame();
+            Assert.AreEqual(AppState.Paused, appManager.CurrentState);
+        }
+
+        [Test]
+        public void PauseGame_FromNonPlaying_DoesNotChangeState()
+        {
+            appManager.SetState(AppState.Title);
+            appManager.PauseGame();
+            Assert.AreEqual(AppState.Title, appManager.CurrentState);
+        }
+
+        [Test]
+        public void ResumeGame_FromPaused_TransitionsToPlaying()
+        {
+            appManager.SetState(AppState.Playing);
+            appManager.PauseGame();
+            appManager.ResumeGame();
+            Assert.AreEqual(AppState.Playing, appManager.CurrentState);
+        }
+
+        [Test]
+        public void ResumeGame_FromNonPaused_DoesNotChangeState()
+        {
+            appManager.SetState(AppState.Playing);
+            appManager.ResumeGame();
+            Assert.AreEqual(AppState.Playing, appManager.CurrentState);
+        }
+
+        [Test]
+        public void ReturnToTitle_FromPaused_TransitionsToTitle()
+        {
+            appManager.SetState(AppState.Playing);
+            appManager.PauseGame();
+            appManager.ReturnToTitle();
+            Assert.AreEqual(AppState.Title, appManager.CurrentState);
+        }
+
+        [Test]
+        public void PauseGame_FiresOnAppStateChanged_WithPaused()
+        {
+            appManager.SetState(AppState.Playing);
+
+            var receivedStates = new List<AppState>();
+            appManager.OnAppStateChanged += state => receivedStates.Add(state);
+
+            appManager.PauseGame();
+
+            Assert.AreEqual(1, receivedStates.Count);
+            Assert.AreEqual(AppState.Paused, receivedStates[0]);
+        }
+
+        [Test]
+        public void PauseResumePause_CyclesCorrectly()
+        {
+            appManager.SetState(AppState.Playing);
+
+            var receivedStates = new List<AppState>();
+            appManager.OnAppStateChanged += state => receivedStates.Add(state);
+
+            appManager.PauseGame();
+            appManager.ResumeGame();
+            appManager.PauseGame();
+
+            Assert.AreEqual(AppState.Paused, appManager.CurrentState);
+            Assert.AreEqual(3, receivedStates.Count);
+            Assert.AreEqual(AppState.Paused, receivedStates[0]);
+            Assert.AreEqual(AppState.Playing, receivedStates[1]);
+            Assert.AreEqual(AppState.Paused, receivedStates[2]);
+        }
     }
 }
+

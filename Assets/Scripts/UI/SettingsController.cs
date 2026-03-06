@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using GolfGame.Audio;
@@ -15,6 +16,7 @@ namespace GolfGame.UI
 
         [SerializeField] private UIDocument uiDocument;
         private MainMenuController mainMenuController;
+        private Action customBackAction;
 
         private VisualElement root;
         private Slider volumeSlider;
@@ -73,6 +75,24 @@ namespace GolfGame.UI
             SetVisible(true);
         }
 
+        /// <summary>
+        /// Show the settings panel with a custom back action.
+        /// When Back is clicked, the custom action runs instead of returning to MainMenu.
+        /// </summary>
+        public void ShowWithBackAction(Action backAction)
+        {
+            customBackAction = backAction;
+            SetVisible(true);
+        }
+
+        /// <summary>
+        /// Hide the settings panel.
+        /// </summary>
+        public void Hide()
+        {
+            SetVisible(false);
+        }
+
         private void OnVolumeChanged(ChangeEvent<float> evt)
         {
             PlayerPrefs.SetFloat(VolumeKey, evt.newValue);
@@ -88,7 +108,13 @@ namespace GolfGame.UI
         private void OnBackClicked(ClickEvent evt)
         {
             SetVisible(false);
-            if (mainMenuController != null)
+            if (customBackAction != null)
+            {
+                var action = customBackAction;
+                customBackAction = null;
+                action.Invoke();
+            }
+            else if (mainMenuController != null)
             {
                 mainMenuController.Show();
             }

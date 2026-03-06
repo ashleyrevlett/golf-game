@@ -19,6 +19,7 @@ namespace GolfGame.UI
         private WindSystem windSystem;
 
         private VisualElement root;
+        private VisualElement pauseButtonPod;
         private Label scoreValue;
         private Label shotsValue;
         private Label windDisplay;
@@ -39,9 +40,12 @@ namespace GolfGame.UI
 
             root = uiDocument.rootVisualElement;
 
+            pauseButtonPod = root.Q("pause-button-pod");
             scoreValue = root.Q<Label>("score-value");
             shotsValue = root.Q<Label>("shots-value");
             windDisplay = root.Q<Label>("wind-display");
+
+            pauseButtonPod?.RegisterCallback<ClickEvent>(OnPauseClicked);
 
             if (AppManager.Instance != null)
             {
@@ -75,6 +79,8 @@ namespace GolfGame.UI
                 AppManager.Instance.OnAppStateChanged -= HandleAppStateChanged;
             }
 
+            pauseButtonPod?.UnregisterCallback<ClickEvent>(OnPauseClicked);
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged -= HandleShotStateChanged;
@@ -93,7 +99,12 @@ namespace GolfGame.UI
 
         private void HandleAppStateChanged(AppState state)
         {
-            SetVisible(state == AppState.Playing);
+            SetVisible(state == AppState.Playing || state == AppState.Paused);
+        }
+
+        private void OnPauseClicked(ClickEvent evt)
+        {
+            AppManager.Instance?.PauseGame();
         }
 
         private void HandleShotStateChanged(ShotState state)

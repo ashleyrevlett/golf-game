@@ -10,6 +10,7 @@ namespace GolfGame.Core
         Instructions,
         TransitionToGame,
         Playing,
+        Paused,
         GameOver,
         Leaderboard
     }

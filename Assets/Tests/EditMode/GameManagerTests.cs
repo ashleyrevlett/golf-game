@@ -215,5 +215,60 @@ namespace GolfGame.Tests.EditMode
             gameManager.Activate();
             Assert.AreEqual(0, gameManager.CurrentShot);
         }
+
+        [Test]
+        public void PauseGame_GameManagerRemainsActive()
+        {
+            // Set up AppManager so GameManager can subscribe
+            var appManagerObj = new GameObject("AppManager");
+            var appManager = appManagerObj.AddComponent<AppManager>();
+            appManager.SendMessage("Awake");
+
+            // NOTE: This lambda mirrors GameManager.HandleAppStateChanged because
+            // Start() does not run in EditMode, so the real event subscription
+            // never wires up. This is NOT testing the actual GameManager handler —
+            // it verifies that AppManager pause/resume state transitions work
+            // correctly when a subscriber keeps GameManager active during Paused.
+            // If HandleAppStateChanged logic changes, this test must be updated
+            // manually. A PlayMode test would exercise the real wiring but is
+            // outside the scope of this EditMode suite.
+            appManager.OnAppStateChanged += newState =>
+            {
+                if (newState == AppState.Playing || newState == AppState.Paused)
+                {
+                    if (!gameManager.IsActive) gameManager.Activate();
+                }
+                else if (gameManager.IsActive)
+                {
+                    gameManager.Deactivate();
+                }
+            };
+
+            // Transition to Playing — activates GameManager
+            appManager.SetState(AppState.Playing);
+            Assert.IsTrue(gameManager.IsActive);
+
+            // Advance shot count to prove state is preserved
+            gameManager.LaunchShot();
+            gameManager.BallLanded();
+            gameManager.SetShotState(ShotState.Ready);
+            gameManager.LaunchShot();
+            gameManager.BallLanded();
+            gameManager.SetShotState(ShotState.Ready);
+            Assert.AreEqual(2, gameManager.CurrentShot);
+
+            // Pause — GameManager must stay active with preserved state
+            appManager.PauseGame();
+            Assert.IsTrue(gameManager.IsActive);
+            Assert.AreEqual(2, gameManager.CurrentShot);
+            Assert.AreEqual(ShotState.Ready, gameManager.CurrentShotState);
+
+            // Resume — GameManager must not re-activate (no reset)
+            appManager.ResumeGame();
+            Assert.IsTrue(gameManager.IsActive);
+            Assert.AreEqual(2, gameManager.CurrentShot);
+
+            Object.DestroyImmediate(appManagerObj);
+        }
     }
 }

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:VisualElement name="pause-root" class="overlay" style="opacity: 0;">
+        <ui:VisualElement name="pause-panel" class="panel"
+            style="width: 80%; max-width: 400px; padding: 32px; align-items: center;
+                   scale: 0.9 0.9; opacity: 0;
+                   transition: scale 0.3s ease-in-out 0.2s, opacity 0.3s ease-in-out 0.2s;">
+            <ui:Label text="PAUSED" class="text-heading" style="margin-bottom: 24px;" />
+            <ui:Button name="resume-button" text="RESUME" class="btn-primary" />
+            <ui:Button name="settings-button" text="SETTINGS" class="btn-secondary" />
+            <ui:Button name="quit-button" text="QUIT" class="btn-secondary"
+                style="color: var(--color-accent);" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
