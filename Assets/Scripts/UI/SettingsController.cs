@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using GolfGame.Audio;
 
 namespace GolfGame.UI
 {
@@ -75,7 +76,7 @@ namespace GolfGame.UI
         private void OnVolumeChanged(ChangeEvent<float> evt)
         {
             PlayerPrefs.SetFloat(VolumeKey, evt.newValue);
-            AudioListener.volume = evt.newValue;
+            AudioManager.Instance.SetMasterVolume(evt.newValue);
         }
 
         private void OnQualityChanged(ChangeEvent<bool> evt)
