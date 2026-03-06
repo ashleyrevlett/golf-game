@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:VisualElement name="instructions-root" class="overlay" style="opacity: 0;">
+        <ui:VisualElement name="instructions-panel" class="panel" style="width: 90%; max-width: 500px; padding: 32px; align-items: center; scale: 0.9 0.9; opacity: 0; transition: scale 0.3s ease-in-out 0.2s, opacity 0.3s ease-in-out 0.2s;">
+            <ui:Label text="HOW TO PLAY" class="text-heading" style="margin-bottom: 24px;" />
+            <ui:VisualElement style="flex-direction: row; margin-bottom: 24px; align-self: stretch;">
+                <ui:Label text="1" class="text-heading text-gold" style="width: 44px; -unity-text-align: middle-center;" />
+                <ui:VisualElement style="flex-shrink: 1;">
+                    <ui:Label text="DRAG TO AIM" class="text-body" style="-unity-font-style: bold;" />
+                    <ui:Label text="Swipe to aim your shot at the pin" class="text-stat" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row; margin-bottom: 24px; align-self: stretch;">
+                <ui:Label text="2" class="text-heading text-gold" style="width: 44px; -unity-text-align: middle-center;" />
+                <ui:VisualElement style="flex-shrink: 1;">
+                    <ui:Label text="TAP FOR POWER" class="text-body" style="-unity-font-style: bold;" />
+                    <ui:Label text="Tap when the meter hits your target power" class="text-stat" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row; margin-bottom: 24px; align-self: stretch;">
+                <ui:Label text="3" class="text-heading text-gold" style="width: 44px; -unity-text-align: middle-center;" />
+                <ui:VisualElement style="flex-shrink: 1;">
+                    <ui:Label text="TAP FOR ACCURACY" class="text-body" style="-unity-font-style: bold;" />
+                    <ui:Label text="Tap again to set accuracy — hit the green zone" class="text-stat" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="height: 1px; background-color: rgba(255, 255, 255, 0.1); margin-bottom: 24px; align-self: stretch;" />
+            <ui:Label text="6 shots · Closest to the pin · Lowest distance wins" class="text-secondary" style="-unity-text-align: middle-center;" />
+            <ui:Button name="play-button" text="PLAY" class="btn-primary" style="margin-top: 32px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
