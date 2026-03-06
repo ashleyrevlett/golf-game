@@ -130,24 +130,38 @@ namespace GolfGame.Golf
             OnAccuracyValueChanged?.Invoke(0f);
         }
 
+        private bool WasActionPressed()
+        {
+            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+                return true;
+
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+                return true;
+
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+                return true;
+
+            return false;
+        }
+
         private void Update()
         {
             if (!isActive) return;
 
-            bool spacePressed = Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
+            bool actionPressed = WasActionPressed();
 
             switch (currentPhase)
             {
                 case MeterPhase.Idle:
-                    HandleIdlePhase(spacePressed);
+                    HandleIdlePhase(actionPressed);
                     break;
                 case MeterPhase.Power:
                     UpdatePowerMeter();
-                    if (spacePressed) LockPower();
+                    if (actionPressed) LockPower();
                     break;
                 case MeterPhase.Accuracy:
                     UpdateAccuracyMeter();
-                    if (spacePressed) LockAccuracyAndFire();
+                    if (actionPressed) LockAccuracyAndFire();
                     break;
             }
 
