@@ -1,24 +1,22 @@
-# CI/CD Gotchas (GameCI + WebGL + S3/CloudFront)
+# CI/CD Gotchas (GameCI + WebGL + Cloudflare Pages)
 
 ## GameCI Output Path
 
-GameCI outputs to `build/WebGL/WebGL/`, not `build/WebGL/`:
+With `buildName: golf-game`, GameCI outputs to `build/WebGL/golf-game/`, not `build/WebGL/WebGL/`:
 ```yaml
-# Correct
-aws s3 sync build/WebGL/WebGL/ s3://bucket/...
+# Correct — matches deploy.yml buildName param
+directory: build/WebGL/golf-game
 ```
 
 ## Brotli, Not Gzip
 
-GameCI compresses to `.br` (Brotli):
+GameCI compresses to `.br` (Brotli). Cloudflare Pages needs a `_headers` file to set `Content-Encoding: br`:
 ```yaml
-# Correct
---include "*.wasm.br" --content-encoding br
+# In _headers file
+/Build/*.wasm.br
+  Content-Encoding: br
+  Content-Type: application/wasm
 ```
-
-## S3-to-S3 Copy Ignores Cache Headers
-
-`aws s3 sync --cache-control` only works for local→S3, not S3→S3. Upload directly from local build.
 
 ## Disk Space (Unity 6)
 
@@ -54,22 +52,19 @@ env:
     rm -f .lfs-assets-id
 ```
 
-## CloudFront Default Root Object
+## Cloudflare Pages Preview URLs
 
-Only works at root `/`, not subdirectories. Always use full path:
-```
-https://domain.cloudfront.net/stable/index.html
-```
+Preview deployments get auto-generated URLs per branch. Production is at `https://golf-game.pages.dev`.
 
 ## SemVer Pre-release Tags
 
 Use dot separator: `v1.0.0-rc.1` not `v1.0.0-rc1`.
 
-## Naming
+## Branch Naming (Cloudflare Pages)
 
-- `/stable/` for production releases
-- `/staging/` for pre-releases
-- Never "latest" — ambiguous
+- `production` branch → production deployment at `golf-game.pages.dev`
+- `preview` branch → preview deployment at auto-generated URL
+- Tags with a hyphen (`-rc`, `-alpha`) deploy to preview; clean semver to production
 
 ## Same Build Type for Staging and Production
 
