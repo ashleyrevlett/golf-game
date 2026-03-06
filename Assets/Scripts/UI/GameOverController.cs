@@ -22,6 +22,7 @@ namespace GolfGame.UI
         private VisualElement gameoverPanel;
         private Label finalScore;
         private Label bestScore;
+        private VisualElement shotResultsContainer;
         private Button playAgainButton;
         private Button menuButton;
 
@@ -43,6 +44,7 @@ namespace GolfGame.UI
             gameoverPanel = root.Q("gameover-panel");
             finalScore = root.Q<Label>("final-score");
             bestScore = root.Q<Label>("best-score");
+            shotResultsContainer = root.Q("shot-results");
             playAgainButton = root.Q<Button>("play-again-button");
             menuButton = root.Q<Button>("menu-button");
 
@@ -96,6 +98,8 @@ namespace GolfGame.UI
             yield return new WaitForSeconds(delay);
             UpdateFinalScore(totalCtp);
             SetVisible(true);
+            BuildShotRows();
+            AnimateShotRows();
 
             // Trigger fade-in transitions
             if (gameoverRoot != null)
@@ -201,6 +205,9 @@ namespace GolfGame.UI
 
             if (!visible)
             {
+                // Clear dynamically added shot rows (keep header at index 0)
+                ClearShotRows();
+
                 // Reset overlay/panel for next show
                 if (gameoverRoot != null)
                 {
@@ -217,5 +224,124 @@ namespace GolfGame.UI
         public static bool HasBestScore(float bestScore) { return bestScore < float.MaxValue; }
 
         public static bool IsNewBestScore(float newScore, float previousBest) { return newScore < previousBest; }
+
+        /// <summary>
+        /// Returns the accuracy grade for a shot based on distance to pin.
+        /// A = under 5 yds, B = 5-15 yds, C = 15+ yds.
+        /// </summary>
+        internal static string GetShotGrade(float distanceToPin)
+        {
+            if (distanceToPin < 5f) return "A";
+            if (distanceToPin < 15f) return "B";
+            return "C";
+        }
+
+        /// <summary>
+        /// Returns the USS class name for the given grade letter.
+        /// </summary>
+        internal static string GetGradeClass(string grade)
+        {
+            switch (grade)
+            {
+                case "A": return "shot-grade-a";
+                case "B": return "shot-grade-b";
+                case "C": return "shot-grade-c";
+                default: return "shot-grade-c";
+            }
+        }
+
+        private void BuildShotRows()
+        {
+            if (shotResultsContainer == null) return;
+
+            if (scoringManager == null || scoringManager.Results.Count == 0)
+            {
+                shotResultsContainer.style.display = DisplayStyle.None;
+                return;
+            }
+
+            shotResultsContainer.style.display = DisplayStyle.Flex;
+
+            // Clear previous data rows (keep header at index 0)
+            ClearShotRows();
+
+            // Find best shot index (lowest DistanceToPin)
+            int bestIndex = 0;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < scoringManager.Results.Count; i++)
+            {
+                if (scoringManager.Results[i].DistanceToPin < bestDistance)
+                {
+                    bestDistance = scoringManager.Results[i].DistanceToPin;
+                    bestIndex = i;
+                }
+            }
+
+            // Build rows
+            for (int i = 0; i < scoringManager.Results.Count; i++)
+            {
+                var result = scoringManager.Results[i];
+                var row = new VisualElement();
+                row.AddToClassList("shot-row");
+
+                if (i == scoringManager.Results.Count - 1)
+                    row.AddToClassList("shot-row-last");
+
+                if (i == bestIndex)
+                    row.AddToClassList("shot-row-best");
+
+                var numberLabel = new Label($"{result.ShotNumber}");
+                numberLabel.AddToClassList("shot-number");
+                row.Add(numberLabel);
+
+                var distanceLabel = new Label($"{result.DistanceToPin:F1} yds");
+                distanceLabel.AddToClassList("shot-distance");
+                row.Add(distanceLabel);
+
+                string grade = GetShotGrade(result.DistanceToPin);
+                var gradeLabel = new Label(grade);
+                gradeLabel.AddToClassList("shot-grade");
+                gradeLabel.AddToClassList(GetGradeClass(grade));
+                row.Add(gradeLabel);
+
+                // Set initial state for stagger animation
+                row.style.opacity = 0f;
+                row.style.translate = new Translate(0, 8);
+                gradeLabel.style.scale = new Scale(new Vector2(0.8f, 0.8f));
+
+                shotResultsContainer.Add(row);
+            }
+        }
+
+        private void AnimateShotRows()
+        {
+            if (shotResultsContainer == null) return;
+
+            // Iterate data rows (children after index 0, which is the header)
+            for (int i = 1; i < shotResultsContainer.childCount; i++)
+            {
+                var row = shotResultsContainer[i];
+                int delayMs = (i - 1) * 60;
+                row.schedule.Execute(() =>
+                {
+                    row.style.opacity = 1f;
+                    row.style.translate = new Translate(0, 0);
+                    var grade = row.Q(className: "shot-grade");
+                    if (grade != null)
+                        grade.style.scale = new Scale(Vector2.one);
+                }).StartingIn(delayMs);
+            }
+        }
+
+        private void ClearShotRows()
+        {
+            if (shotResultsContainer == null) return;
+
+            // Remove all children after the header (index 0)
+            while (shotResultsContainer.childCount > 1)
+            {
+                shotResultsContainer.RemoveAt(shotResultsContainer.childCount - 1);
+            }
+        }
     }
 }

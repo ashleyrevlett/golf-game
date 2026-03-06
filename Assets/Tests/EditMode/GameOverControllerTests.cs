@@ -54,5 +54,61 @@ namespace GolfGame.Tests.EditMode
             Assert.IsTrue(label.StartsWith("BEST:"));
             Assert.IsFalse(label.Contains("NEW!"));
         }
+
+        // --- Shot grade tests ---
+
+        [Test]
+        public void GetShotGrade_ReturnsA_WhenDistanceUnder5()
+        {
+            Assert.AreEqual("A", GameOverController.GetShotGrade(2.5f));
+        }
+
+        [Test]
+        public void GetShotGrade_ReturnsB_WhenDistanceBetween5And15()
+        {
+            Assert.AreEqual("B", GameOverController.GetShotGrade(10.0f));
+        }
+
+        [Test]
+        public void GetShotGrade_ReturnsC_WhenDistanceOver15()
+        {
+            Assert.AreEqual("C", GameOverController.GetShotGrade(25.0f));
+        }
+
+        [Test]
+        public void GetShotGrade_ReturnsB_WhenDistanceExactly5()
+        {
+            Assert.AreEqual("B", GameOverController.GetShotGrade(5.0f));
+        }
+
+        [Test]
+        public void GetShotGrade_ReturnsC_WhenDistanceExactly15()
+        {
+            Assert.AreEqual("C", GameOverController.GetShotGrade(15.0f));
+        }
+
+        [Test]
+        public void GetShotGrade_ReturnsA_WhenDistanceIsZero()
+        {
+            Assert.AreEqual("A", GameOverController.GetShotGrade(0f));
+        }
+
+        [Test]
+        public void GetGradeClass_ReturnsShotGradeA_ForGradeA()
+        {
+            Assert.AreEqual("shot-grade-a", GameOverController.GetGradeClass("A"));
+        }
+
+        [Test]
+        public void GetGradeClass_ReturnsShotGradeB_ForGradeB()
+        {
+            Assert.AreEqual("shot-grade-b", GameOverController.GetGradeClass("B"));
+        }
+
+        [Test]
+        public void GetGradeClass_ReturnsShotGradeC_ForGradeC()
+        {
+            Assert.AreEqual("shot-grade-c", GameOverController.GetGradeClass("C"));
+        }
     }
 }

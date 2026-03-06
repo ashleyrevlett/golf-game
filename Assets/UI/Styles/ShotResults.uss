@@ -1,0 +1,71 @@
+/* Shot results table styles — uses tokens from Common.uss */
+
+.shot-results-container {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.shot-header-row {
+    flex-direction: row;
+    padding: 0 0 8px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.shot-row {
+    flex-direction: row;
+    padding: 12px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    align-items: center;
+    transition: opacity 0.2s ease-out, translate 0.2s ease-out;
+}
+
+.shot-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.shot-row-last {
+    border-bottom-width: 0;
+}
+
+.shot-row-best {
+    border-left-width: 4px;
+    border-left-color: var(--color-best);
+    padding-left: 8px;
+}
+
+.shot-number {
+    width: 32px;
+    font-size: var(--font-size-stat);
+    color: var(--color-text-secondary);
+    -unity-text-align: middle-left;
+}
+
+.shot-distance {
+    flex-grow: 1;
+    font-size: var(--font-size-body);
+    color: var(--color-text-primary);
+    -unity-text-align: middle-right;
+}
+
+.shot-grade {
+    width: 48px;
+    font-size: var(--font-size-body);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    transition: scale 0.15s ease-in-out;
+}
+
+.shot-grade-a {
+    color: var(--color-bg-button);
+}
+
+.shot-grade-b {
+    color: var(--color-best);
+}
+
+.shot-grade-c {
+    color: var(--color-accent);
+}

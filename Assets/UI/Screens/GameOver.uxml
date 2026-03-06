@@ -1,11 +1,19 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:Style src="project://database/Assets/UI/Styles/ShotResults.uss" />
     <ui:VisualElement name="gameover-root" class="overlay" style="opacity: 0;">
-        <ui:VisualElement name="gameover-panel" class="panel" style="align-items: center; padding: 48px 64px; scale: 0.9 0.9; opacity: 0; transition: scale 0.3s ease-in-out 0.2s, opacity 0.3s ease-in-out 0.2s;">
+        <ui:VisualElement name="gameover-panel" class="panel" style="align-items: center; padding: 32px 32px; width: 90%; max-width: 500px; scale: 0.9 0.9; opacity: 0; transition: scale 0.3s ease-in-out 0.2s, opacity 0.3s ease-in-out 0.2s;">
             <ui:Label text="GAME OVER" class="text-heading" style="margin-bottom: 16px;" />
             <ui:Label text="YOUR SCORE" class="text-secondary" style="margin-bottom: 8px;" />
             <ui:Label name="final-score" text="0.0 yds" class="text-title text-gold" style="margin-bottom: 8px;" />
-            <ui:Label name="best-score" text="" class="text-stat text-gold" style="margin-bottom: 32px;" />
+            <ui:Label name="best-score" text="" class="text-stat text-gold" style="margin-bottom: 8px;" />
+            <ui:VisualElement name="shot-results" class="shot-results-container">
+                <ui:VisualElement class="shot-header-row">
+                    <ui:Label text="#" class="shot-number text-stat" />
+                    <ui:Label text="DISTANCE" class="shot-distance text-stat" />
+                    <ui:Label text="GRADE" class="shot-grade text-stat" />
+                </ui:VisualElement>
+            </ui:VisualElement>
             <ui:Button name="play-again-button" text="PLAY AGAIN" class="btn-primary" style="margin-bottom: 8px;" />
             <ui:Button name="menu-button" text="MENU" class="btn-secondary" />
         </ui:VisualElement>
