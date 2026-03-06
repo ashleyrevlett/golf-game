@@ -1,7 +1,9 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using GolfGame.Audio;
+using GolfGame.Environment;
 
 namespace GolfGame.Tests.EditMode
 {
@@ -318,6 +320,308 @@ namespace GolfGame.Tests.EditMode
             Assert.AreEqual(0.5f, vol, 0.001f, "Fallback ambient volume should be 0.5");
 
             Object.DestroyImmediate(obj);
+        }
+
+        // --- Reflection Helpers ---
+
+        /// <summary>
+        /// Inject an AudioConfig into AudioManager's private 'config' SerializeField.
+        /// </summary>
+        private void InjectConfig(AudioManager manager, AudioConfig config)
+        {
+            var field = typeof(AudioManager).GetField("config",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(field, "AudioManager.config field should exist");
+            field.SetValue(manager, config);
+        }
+
+        /// <summary>
+        /// Inject an AudioClip into a private SerializeField on AudioConfig by name.
+        /// </summary>
+        private void InjectClipField(AudioConfig config, string fieldName, AudioClip clip)
+        {
+            var field = typeof(AudioConfig).GetField(fieldName,
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(field, $"AudioConfig.{fieldName} field should exist");
+            field.SetValue(config, clip);
+        }
+
+        // --- AudioManager Config Volume Tests ---
+
+        [Test]
+        public void AudioManager_PlaySFX_WithConfig_AppliesSfxVolumeMultiplier()
+        {
+            var manager = CreateManager("AudioManager_SfxConfig");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            InjectConfig(manager, config);
+
+            var clip = AudioClip.Create("sfx_config_test", 44100, 1, 44100, false);
+            var source = manager.PlaySFX(clip, 0.7f);
+
+            // config.SfxVolume defaults to 0.8f, so volume = 0.7 * 0.8 = 0.56
+            Assert.AreEqual(0.7f * config.SfxVolume, source.volume, 0.001f);
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        [Test]
+        public void AudioManager_PlayLoop_WithConfig_AppliesAmbientVolumeMultiplier()
+        {
+            var manager = CreateManager("AudioManager_LoopConfig");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            InjectConfig(manager, config);
+
+            var clip = AudioClip.Create("loop_config_test", 44100, 1, 44100, false);
+            var source = manager.PlayLoop(clip, 0.6f);
+
+            // config.AmbientVolume defaults to 0.5f, so volume = 0.6 * 0.5 = 0.3
+            Assert.AreEqual(0.6f * config.AmbientVolume, source.volume, 0.001f);
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        // --- BallAudioController Tests ---
+
+        [Test]
+        public void BallAudioController_HandleBallBounced_VolumeScalesWithSpeed()
+        {
+            // EditMode limitation: Start() doesn't fire, handler invoked directly via reflection.
+            var manager = CreateManager("AudioManager_Bounce");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            var bounceClip = AudioClip.Create("bounce_test", 44100, 1, 44100, false);
+            InjectConfig(manager, config);
+            InjectClipField(config, "ballBounce", bounceClip);
+
+            var obj = new GameObject("BallAudio_Bounce");
+            var controller = obj.AddComponent<BallAudioController>();
+
+            var method = typeof(BallAudioController).GetMethod("HandleBallBounced",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(method, "HandleBallBounced method should exist");
+
+            // speed=10 => volume = Clamp01(10/20) * sfxVolume = 0.5 * 0.8 = 0.4
+            method.Invoke(controller, new object[] { Vector3.zero, 10f });
+            var pool = manager.transform;
+            AudioSource found = null;
+            for (int i = 0; i < pool.childCount; i++)
+            {
+                var src = pool.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == bounceClip)
+                {
+                    found = src;
+                    break;
+                }
+            }
+            Assert.IsNotNull(found, "Should find a pool source with bounceClip");
+            Assert.AreEqual(Mathf.Clamp01(10f / 20f) * config.SfxVolume, found.volume, 0.001f);
+
+            // Reset for speed=0 test
+            manager.StopSource(found);
+
+            method.Invoke(controller, new object[] { Vector3.zero, 0f });
+            found = null;
+            for (int i = 0; i < pool.childCount; i++)
+            {
+                var src = pool.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == bounceClip)
+                {
+                    found = src;
+                    break;
+                }
+            }
+            Assert.IsNotNull(found, "Should find a pool source for speed=0");
+            Assert.AreEqual(0f, found.volume, 0.001f, "Volume should be 0 at speed=0");
+
+            // Reset for speed=25 (above max) test
+            manager.StopSource(found);
+
+            method.Invoke(controller, new object[] { Vector3.zero, 25f });
+            found = null;
+            for (int i = 0; i < pool.childCount; i++)
+            {
+                var src = pool.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == bounceClip)
+                {
+                    found = src;
+                    break;
+                }
+            }
+            Assert.IsNotNull(found, "Should find a pool source for speed=25");
+            Assert.AreEqual(1f * config.SfxVolume, found.volume, 0.001f,
+                "Volume should clamp to 1 * sfxVolume at speed > 20");
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        // --- AmbientAudioController Tests ---
+
+        [Test]
+        public void AmbientAudioController_HandleWindChanged_ScalesVolumeByWindMagnitude()
+        {
+            // EditMode limitation: Start() doesn't fire, handlers invoked directly via reflection.
+            var manager = CreateManager("AudioManager_Wind");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            var windClip = AudioClip.Create("wind_test", 44100, 1, 44100, false);
+            InjectConfig(manager, config);
+            InjectClipField(config, "windAmbience", windClip);
+
+            var obj = new GameObject("AmbientAudio_Wind");
+            var controller = obj.AddComponent<AmbientAudioController>();
+
+            // Start wind to create windSource
+            var startWind = typeof(AmbientAudioController).GetMethod("StartWind",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(startWind, "StartWind method should exist");
+            startWind.Invoke(controller, null);
+
+            // Verify windSource was created
+            var windSourceField = typeof(AmbientAudioController).GetField("windSource",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(windSourceField, "windSource field should exist");
+            var windSource = (AudioSource)windSourceField.GetValue(controller);
+            Assert.IsNotNull(windSource, "windSource should be created after StartWind");
+
+            // Invoke HandleWindChanged with magnitude 4 => normalized = 4/8 = 0.5
+            var handleWind = typeof(AmbientAudioController).GetMethod("HandleWindChanged",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(handleWind, "HandleWindChanged method should exist");
+            handleWind.Invoke(controller, new object[] { new Vector3(4f, 0f, 0f) });
+
+            Assert.AreEqual(Mathf.Clamp01(4f / 8f) * config.AmbientVolume, windSource.volume, 0.001f);
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        [Test]
+        public void AmbientAudioController_HandleShotScored_PlaysWhenWithinThreshold()
+        {
+            // EditMode limitation: Start() doesn't fire, handler invoked directly via reflection.
+            var manager = CreateManager("AudioManager_CrowdPlay");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            var crowdClip = AudioClip.Create("crowd_test", 44100, 1, 44100, false);
+            InjectConfig(manager, config);
+            InjectClipField(config, "crowdReaction", crowdClip);
+
+            var obj = new GameObject("AmbientAudio_CrowdPlay");
+            var controller = obj.AddComponent<AmbientAudioController>();
+
+            var handleScored = typeof(AmbientAudioController).GetMethod("HandleShotScored",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(handleScored, "HandleShotScored method should exist");
+
+            // DistanceToPin = 2f, threshold = 3f => should play
+            var result = new ShotResult { DistanceToPin = 2f };
+            handleScored.Invoke(controller, new object[] { result });
+
+            bool foundCrowdClip = false;
+            for (int i = 0; i < manager.transform.childCount; i++)
+            {
+                var src = manager.transform.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == crowdClip)
+                {
+                    foundCrowdClip = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(foundCrowdClip, "Crowd clip should play when within threshold");
+
+            // Also test exact threshold boundary (DistanceToPin == 3f, uses <=)
+            // Clear pool first
+            for (int i = 0; i < manager.transform.childCount; i++)
+            {
+                var src = manager.transform.GetChild(i).GetComponent<AudioSource>();
+                if (src != null)
+                {
+                    manager.StopSource(src);
+                }
+            }
+
+            var boundaryResult = new ShotResult { DistanceToPin = 3f };
+            handleScored.Invoke(controller, new object[] { boundaryResult });
+
+            foundCrowdClip = false;
+            for (int i = 0; i < manager.transform.childCount; i++)
+            {
+                var src = manager.transform.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == crowdClip)
+                {
+                    foundCrowdClip = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(foundCrowdClip, "Crowd clip should play at exact threshold (<=)");
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        [Test]
+        public void AmbientAudioController_HandleShotScored_SkipsWhenBeyondThreshold()
+        {
+            // EditMode limitation: Start() doesn't fire, handler invoked directly via reflection.
+            var manager = CreateManager("AudioManager_CrowdSkip");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            var crowdClip = AudioClip.Create("crowd_skip_test", 44100, 1, 44100, false);
+            InjectConfig(manager, config);
+            InjectClipField(config, "crowdReaction", crowdClip);
+
+            var obj = new GameObject("AmbientAudio_CrowdSkip");
+            var controller = obj.AddComponent<AmbientAudioController>();
+
+            var handleScored = typeof(AmbientAudioController).GetMethod("HandleShotScored",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(handleScored, "HandleShotScored method should exist");
+
+            // DistanceToPin = 5f, threshold = 3f => should NOT play
+            var result = new ShotResult { DistanceToPin = 5f };
+            handleScored.Invoke(controller, new object[] { result });
+
+            bool foundCrowdClip = false;
+            for (int i = 0; i < manager.transform.childCount; i++)
+            {
+                var src = manager.transform.GetChild(i).GetComponent<AudioSource>();
+                if (src != null && src.clip == crowdClip)
+                {
+                    foundCrowdClip = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(foundCrowdClip,
+                "Crowd clip should NOT play when beyond threshold");
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(manager.gameObject);
+        }
+
+        [Test]
+        public void AmbientAudioController_GetAmbientVolume_ReturnsConfigValueWhenAvailable()
+        {
+            var manager = CreateManager("AudioManager_AmbientVol");
+            var config = ScriptableObject.CreateInstance<AudioConfig>();
+            InjectConfig(manager, config);
+
+            var obj = new GameObject("AmbientAudio_ConfigVol");
+            var controller = obj.AddComponent<AmbientAudioController>();
+
+            var method = typeof(AmbientAudioController).GetMethod("GetAmbientVolume",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(method, "GetAmbientVolume method should exist");
+
+            float vol = (float)method.Invoke(controller, null);
+            Assert.AreEqual(config.AmbientVolume, vol, 0.001f,
+                "GetAmbientVolume should return config.AmbientVolume when manager has config");
+
+            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(manager.gameObject);
         }
 
     }

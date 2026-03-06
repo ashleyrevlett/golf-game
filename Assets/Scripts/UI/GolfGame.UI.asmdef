@@ -2,6 +2,7 @@
     "name": "GolfGame.UI",
     "rootNamespace": "GolfGame.UI",
     "references": [
+        "GolfGame.Audio",
         "GolfGame.Core",
         "GolfGame.Golf",
         "GolfGame.Environment",
