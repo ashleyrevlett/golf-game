@@ -1,0 +1,42 @@
+/* Leaderboard screen styles — uses tokens from Common.uss */
+
+.leaderboard-entry {
+    flex-direction: row;
+    padding: 12px 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    align-items: center;
+}
+
+.leaderboard-entry:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.leaderboard-entry-last {
+    border-bottom-width: 0;
+}
+
+.leaderboard-entry-player {
+    border-left-width: 4px;
+    border-left-color: var(--color-best);
+    padding-left: 8px;
+}
+
+.leaderboard-rank {
+    width: 40px;
+    font-size: var(--font-size-stat);
+    color: var(--color-text-secondary);
+    -unity-text-align: middle-left;
+}
+
+.leaderboard-name {
+    flex-grow: 1;
+    font-size: var(--font-size-body);
+    color: var(--color-text-primary);
+}
+
+.leaderboard-distance {
+    font-size: var(--font-size-body);
+    color: var(--color-text-primary);
+    -unity-text-align: middle-right;
+}

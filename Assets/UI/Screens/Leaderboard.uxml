@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:Style src="project://database/Assets/UI/Styles/Leaderboard.uss" />
+    <ui:VisualElement name="leaderboard-root" class="screen-root" style="opacity: 0;">
+        <ui:VisualElement name="leaderboard-panel" class="panel"
+            style="width: 90%; max-width: 500px; padding: 32px; scale: 0.9 0.9; opacity: 0;
+                   transition: scale 0.3s ease-in-out, opacity 0.3s ease-in-out;">
+            <!-- Header row: back button + title -->
+            <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 24px;">
+                <ui:Button name="back-button" text="&lt;" class="btn-secondary"
+                    style="min-width: 44px; min-height: 44px; margin-right: 16px;" />
+                <ui:Label text="LEADERBOARD" class="text-heading" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <!-- Loading label (shown initially, hidden once data loads) -->
+            <ui:Label name="loading-label" text="Loading..." class="text-secondary"
+                style="-unity-text-align: middle-center;" />
+            <!-- Empty state label (hidden by default) -->
+            <ui:Label name="empty-label" text="No scores yet. Play a round!" class="text-secondary"
+                style="-unity-text-align: middle-center; display: none;" />
+            <!-- Scrollable entries container -->
+            <ui:ScrollView name="entries-scroll" mode="Vertical"
+                style="max-height: 60%; display: none;" />
+            <!-- Footer -->
+            <ui:VisualElement style="margin-top: 16px; align-items: center;">
+                <ui:Label name="player-rank-label" text="" class="text-secondary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

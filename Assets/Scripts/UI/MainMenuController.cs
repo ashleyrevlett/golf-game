@@ -16,6 +16,7 @@ namespace GolfGame.UI
         private VisualElement root;
         private Button playButton;
         private Button settingsButton;
+        private Button leaderboardButton;
 
         private void Awake()
         {
@@ -33,9 +34,11 @@ namespace GolfGame.UI
 
             playButton = root.Q<Button>("play-button");
             settingsButton = root.Q<Button>("settings-button");
+            leaderboardButton = root.Q<Button>("leaderboard-button");
 
             playButton?.RegisterCallback<ClickEvent>(OnPlayClicked);
             settingsButton?.RegisterCallback<ClickEvent>(OnSettingsClicked);
+            leaderboardButton?.RegisterCallback<ClickEvent>(OnLeaderboardClicked);
 
             if (AppManager.Instance != null)
             {
@@ -48,6 +51,7 @@ namespace GolfGame.UI
         {
             playButton?.UnregisterCallback<ClickEvent>(OnPlayClicked);
             settingsButton?.UnregisterCallback<ClickEvent>(OnSettingsClicked);
+            leaderboardButton?.UnregisterCallback<ClickEvent>(OnLeaderboardClicked);
 
             if (AppManager.Instance != null)
             {
@@ -74,6 +78,14 @@ namespace GolfGame.UI
             if (settingsController != null)
             {
                 settingsController.Show();
+            }
+        }
+
+        private void OnLeaderboardClicked(ClickEvent evt)
+        {
+            if (AppManager.Instance != null)
+            {
+                AppManager.Instance.ShowLeaderboard();
             }
         }
 
