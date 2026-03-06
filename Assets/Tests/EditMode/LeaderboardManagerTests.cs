@@ -9,10 +9,16 @@ using GolfGame.Multiplayer;
 namespace GolfGame.Tests.EditMode
 {
     /// <summary>
-    /// Tests for LeaderboardManager retry queue and stale cache logic.
-    /// Uses FailingLeaderboardService to simulate network failures.
+    /// Tests for LeaderboardManager orchestration: retry queue, polling,
+    /// event firing, null guards, and partial failure handling.
+    ///
+    /// Private event handlers (HandleBestDistanceUpdated, HandleGameOver,
+    /// HandleShotStateChanged) are wired in Start() which doesn't run in
+    /// EditMode. The underlying async methods they delegate to
+    /// (PostScoreWithRetryAsync, PollLeaderboardAsync) are tested directly.
+    /// Event wiring coverage belongs in PlayMode tests.
     /// </summary>
-    public class LeaderboardManagerRetryTests
+    public class LeaderboardManagerTests
     {
         private GameObject managerObj;
         private LeaderboardManager manager;
@@ -73,6 +79,17 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
+        public void PostScoreAsync_WhenServiceSucceeds_DoesNotEnqueueRetry()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            mgr.PostScoreWithRetryAsync("player1", 5.0f).GetAwaiter().GetResult();
+
+            Assert.AreEqual(0, mgr.RetryQueueCount);
+        }
+
+        [Test]
         public void ProcessRetryQueue_WhenServiceRecovers_DequeuesSuccessfully()
         {
             var failing = new FailingLeaderboardService(postThrows: true);
@@ -102,6 +119,18 @@ namespace GolfGame.Tests.EditMode
             mgr.ProcessRetryQueueAsync().GetAwaiter().GetResult();
 
             Assert.AreEqual(1, mgr.RetryQueueCount);
+        }
+
+        [Test]
+        public void ProcessRetryQueue_WhenEmpty_DoesNothing()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            // Should not throw and queue stays at 0
+            mgr.ProcessRetryQueueAsync().GetAwaiter().GetResult();
+
+            Assert.AreEqual(0, mgr.RetryQueueCount);
         }
 
         [Test]
@@ -152,6 +181,92 @@ namespace GolfGame.Tests.EditMode
         }
 
         [Test]
+        public void PollLeaderboard_Success_UpdatesCurrentEntries()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
+            Assert.Greater(mgr.CurrentEntries.Length, 0);
+        }
+
+        [Test]
+        public void PollLeaderboard_Success_UpdatesPlayerRank()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            // Post a score for the mock player so they appear in the leaderboard
+            configurable.PostScoreAsync("player_local", 3.0f).GetAwaiter().GetResult();
+
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
+            Assert.Greater(mgr.PlayerRank, 0, "Player rank should be positive after posting a score");
+        }
+
+        [Test]
+        public void PollLeaderboard_Success_EventDataMatchesProperties()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            LeaderboardEntry[] receivedEntries = null;
+            int receivedRank = -99;
+            mgr.OnLeaderboardUpdated += (entries, rank) =>
+            {
+                receivedEntries = entries;
+                receivedRank = rank;
+            };
+
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
+            Assert.AreSame(mgr.CurrentEntries, receivedEntries,
+                "Event entries should be the same reference as CurrentEntries");
+            Assert.AreEqual(mgr.PlayerRank, receivedRank,
+                "Event rank should match PlayerRank");
+        }
+
+        [Test]
+        public void PollLeaderboard_WhenServiceNull_ReturnsSilently()
+        {
+            var configurable = new ConfigurableLeaderboardService();
+            var mgr = CreateManager(configurable);
+
+            // Set leaderboardService to null via reflection
+            SetPrivateField(mgr, "leaderboardService", null);
+
+            bool eventFired = false;
+            mgr.OnLeaderboardUpdated += (entries, rank) => { eventFired = true; };
+
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
+            Assert.AreEqual(0, mgr.CurrentEntries.Length,
+                "CurrentEntries should remain empty when service is null");
+            Assert.IsFalse(eventFired,
+                "OnLeaderboardUpdated should not fire when service is null");
+        }
+
+        [Test]
+        public void PollLeaderboard_WhenGetRankFails_EntriesStillUpdate()
+        {
+            var failing = new FailingLeaderboardService(rankThrows: true);
+            failing.DefaultEntries = new LeaderboardEntry[]
+            {
+                new LeaderboardEntry { PlayerId = "p1", DisplayName = "Player1", Distance = 2.0f, Rank = 1 },
+                new LeaderboardEntry { PlayerId = "p2", DisplayName = "Player2", Distance = 4.0f, Rank = 2 }
+            };
+            var mgr = CreateManager(failing);
+
+            mgr.PollLeaderboardAsync().GetAwaiter().GetResult();
+
+            // Entries should be updated (assigned before rank throw)
+            Assert.AreEqual(2, mgr.CurrentEntries.Length);
+            // Rank should remain at default -1 (never overwritten due to throw)
+            Assert.AreEqual(-1, mgr.PlayerRank);
+        }
+
+        [Test]
         public void RetryQueue_MultipleFailures_ProcessesInFIFOOrder()
         {
             var failing = new FailingLeaderboardService(postThrows: true);
@@ -190,6 +305,7 @@ namespace GolfGame.Tests.EditMode
         public bool RankThrows { get; set; }
         public bool TrackLastPostedDistance { get; set; }
         public float LastPostedDistance { get; private set; }
+        public LeaderboardEntry[] DefaultEntries { get; set; } = Array.Empty<LeaderboardEntry>();
 
         public FailingLeaderboardService(
             bool postThrows = false,
@@ -214,7 +330,7 @@ namespace GolfGame.Tests.EditMode
         {
             if (GetThrows)
                 throw new Exception("Simulated get failure");
-            return Task.FromResult(Array.Empty<LeaderboardEntry>());
+            return Task.FromResult(DefaultEntries);
         }
 
         public Task<int> GetPlayerRankAsync(string playerId)
