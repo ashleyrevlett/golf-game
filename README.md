@@ -1,6 +1,6 @@
 # Golf Game
 
-> **Vision:** Make competitive multiplayer golf as instant as opening a link.
+> **Vision:** Bring the thrill of competitive golf to anyone with a phone.
 >
 > **Core value prop:** A mobile-browser golf game with async global leaderboards — pick up, play 6 shots, see how you rank. No install, no account required to play.
 
