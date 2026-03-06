@@ -239,3 +239,35 @@
 #pause-button-pod:hover {
     background-color: rgba(255, 255, 255, 0.15);
 }
+
+/* Wind direction arrow */
+.wind-pod-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.wind-arrow-container {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    justify-content: center;
+    align-items: center;
+    transition: rotate 0.4s ease-out;
+}
+
+.wind-arrow {
+    width: 0;
+    height: 0;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 14px;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 0;
+}
+
+.wind-arrow-calm {
+    opacity: 0.3;
+}

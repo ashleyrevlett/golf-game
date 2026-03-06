@@ -22,8 +22,13 @@
         </ui:VisualElement>
 
         <!-- Wind: bottom-left -->
-        <ui:VisualElement name="wind-pod" class="hud-pod" style="position: absolute; left: 12px; bottom: 12px;">
-            <ui:Label name="wind-display" text="Wind: --" class="text-stat" />
+        <ui:VisualElement name="wind-pod" class="hud-pod wind-pod-row"
+            style="position: absolute; left: 12px; bottom: 12px;">
+            <ui:VisualElement name="wind-arrow-container" class="wind-arrow-container">
+                <ui:VisualElement name="wind-arrow" class="wind-arrow" />
+            </ui:VisualElement>
+            <ui:Label name="wind-display" text="Wind: --" class="text-stat"
+                style="margin-left: 8px;" />
         </ui:VisualElement>
 
         <!-- Power meter: bottom-center -->

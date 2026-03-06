@@ -20,6 +20,7 @@ namespace GolfGame.UI
 
         private VisualElement root;
         private VisualElement pauseButtonPod;
+        private VisualElement windArrowContainer;
         private Label scoreValue;
         private Label shotsValue;
         private Label windDisplay;
@@ -44,6 +45,7 @@ namespace GolfGame.UI
             scoreValue = root.Q<Label>("score-value");
             shotsValue = root.Q<Label>("shots-value");
             windDisplay = root.Q<Label>("wind-display");
+            windArrowContainer = root.Q("wind-arrow-container");
 
             pauseButtonPod?.RegisterCallback<ClickEvent>(OnPauseClicked);
 
@@ -145,11 +147,22 @@ namespace GolfGame.UI
 
         private void HandleWindChanged(Vector3 wind)
         {
+            float speed = wind.magnitude;
+            float dir = Mathf.Atan2(wind.x, wind.z) * Mathf.Rad2Deg;
+
             if (windDisplay != null)
             {
-                float speed = wind.magnitude;
-                float dir = Mathf.Atan2(wind.x, wind.z) * Mathf.Rad2Deg;
                 windDisplay.text = $"Wind: {speed:F1} m/s {GetCardinalDirection(dir)}";
+            }
+
+            if (windArrowContainer != null)
+            {
+                windArrowContainer.style.rotate = new StyleRotate(new Rotate(Angle.Degrees(dir)));
+
+                if (speed < 0.1f)
+                    windArrowContainer.AddToClassList("wind-arrow-calm");
+                else
+                    windArrowContainer.RemoveFromClassList("wind-arrow-calm");
             }
         }
 
