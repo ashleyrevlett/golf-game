@@ -103,22 +103,7 @@ namespace GolfGame.UI
             // Color transition: green -> yellow -> red
             if (meterFill != null)
             {
-                Color barColor;
-                if (value < 0.5f)
-                {
-                    barColor = Color.Lerp(
-                        new Color(0.3f, 0.8f, 0.3f),
-                        new Color(1f, 0.84f, 0f),
-                        value * 2f);
-                }
-                else
-                {
-                    barColor = Color.Lerp(
-                        new Color(1f, 0.84f, 0f),
-                        new Color(0.85f, 0.26f, 0.21f),
-                        (value - 0.5f) * 2f);
-                }
-                meterFill.style.backgroundColor = barColor;
+                meterFill.style.backgroundColor = GetMeterColor(value);
             }
         }
 
@@ -197,6 +182,26 @@ namespace GolfGame.UI
                 accuracyMarker.style.display = DisplayStyle.Flex;
                 accuracyMarker.style.left = Length.Percent(50f);
             }
+        }
+
+        /// <summary>
+        /// Get the meter bar color for a given power value (0-1).
+        /// Interpolates green (0) -> yellow (0.5) -> red (1).
+        /// </summary>
+        public static Color GetMeterColor(float value)
+        {
+            if (value < 0.5f)
+            {
+                return Color.Lerp(
+                    new Color(0.3f, 0.8f, 0.3f),
+                    new Color(1f, 0.84f, 0f),
+                    value * 2f);
+            }
+
+            return Color.Lerp(
+                new Color(1f, 0.84f, 0f),
+                new Color(0.85f, 0.26f, 0.21f),
+                (value - 0.5f) * 2f);
         }
 
         private void SetMeterVisible(bool visible)
