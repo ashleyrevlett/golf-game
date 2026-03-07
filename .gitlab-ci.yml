@@ -1,3 +1,10 @@
+include:
+  - project: roborev/claude-plugin
+    file: pipeline/agent-pipeline.yml
+
+variables:
+  ISSUE_ID: ""
+
 stages:
   - test
   - deploy
@@ -6,7 +13,7 @@ lint:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
-    - find . -name "*.cs" -exec grep -P "\t" {} + && exit 1 || true
+    - find . -name "*.cs" -exec grep -P "	" {} + && exit 1 || true
   only:
     - main
     - merge_requests
