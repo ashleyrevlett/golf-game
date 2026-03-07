@@ -1,0 +1,24 @@
+stages:
+  - test
+  - deploy
+
+lint:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - find . -name "*.cs" -exec grep -P "\t" {} + && exit 1 || true
+  only:
+    - main
+    - merge_requests
+
+deploy:
+  stage: deploy
+  image: node:20
+  script:
+    - npm install -g wrangler
+    - wrangler pages deploy build/ --project-name=golf-game
+  environment:
+    name: production
+  only:
+    - main
+  when: manual
