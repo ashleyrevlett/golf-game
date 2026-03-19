@@ -18,6 +18,15 @@ lint:
     - main
     - merge_requests
 
+cloud-code-test:
+  stage: test
+  image: node:20
+  script:
+    - node --test Assets/CloudCode/validate-and-post-score.test.js
+  only:
+    - main
+    - merge_requests
+
 deploy:
   stage: deploy
   image: node:20
