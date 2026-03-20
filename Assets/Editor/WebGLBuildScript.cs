@@ -12,9 +12,10 @@ public static class WebGLBuildScript
     {
         // Enable content-hashed filenames — prevents stale cache on Cloudflare Pages
         PlayerSettings.WebGL.nameFilesAsHashes = true;
-        PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+        PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+        PlayerSettings.WebGL.decompressionFallback = true;
 
-        Debug.Log("[WebGLBuildScript] nameFilesAsHashes=true, compression=Brotli");
+        Debug.Log("[WebGLBuildScript] nameFilesAsHashes=true, compression=Gzip, decompressionFallback=true");
 
         string[] scenes = EditorBuildSettings.scenes
             .Where(s => s.enabled)

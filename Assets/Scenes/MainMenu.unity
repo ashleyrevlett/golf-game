@@ -243,9 +243,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 200}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0000000000000000a000000000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: 8fb56b7b45274451d95e5b7a9f35f36a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  skipToPlaying: 0
+  debugStartState: 0
 --- !u!1 &864943999
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,6 +289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1785978891}
   - component: {fileID: 1785978890}
+  - component: {fileID: 1785978892}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -307,7 +310,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GolfGame.UI::GolfGame.UI.MainMenuController
   uiDocument: {fileID: 0}
-  settingsController: {fileID: 0}
 --- !u!4 &1785978891
 Transform:
   m_ObjectHideFlags: 0
@@ -323,6 +325,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1785978892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785978889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: a1b2c3d4e5f6789012345678abcdef01, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 200fc2024368a4c6693dbe792f9143bd, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
