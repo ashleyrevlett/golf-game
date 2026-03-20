@@ -20,36 +20,39 @@ GameCI compresses to `.br` (Brotli). Cloudflare Pages needs a `_headers` file to
 
 ## Disk Space (Unity 6)
 
-Unity 6 Docker images are ~15GB+. Add cleanup before checkout:
+Unity 6 Docker images are ~15GB+. Add cleanup in `before_script`:
 ```yaml
-- name: Free disk space
-  uses: jlumbroso/free-disk-space@v1.3.1
-  with:
-    tool-cache: false
-    android: true
-    dotnet: true
-    haskell: true
-    large-packages: true
-    docker-images: true
-    swap-storage: true
+before_script:
+  - rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
 ```
+Note: This runs inside the container, not on the host runner. It won't help with image-pull disk pressure on shared runners. For persistent disk issues, use a self-hosted runner or GitLab runner tags to route to a larger machine.
 
 ## GameCI Requires All Three Secrets
 
+Set these as CI/CD variables in GitLab project settings (Settings > CI/CD > Variables):
+- `UNITY_LICENSE` — `.ulf` file content (base64 or raw)
+- `UNITY_EMAIL` — Unity account email
+- `UNITY_PASSWORD` — Unity account password
+
+Reference them in `.gitlab-ci.yml` as `$UNITY_LICENSE`, `$UNITY_EMAIL`, `$UNITY_PASSWORD`:
 ```yaml
-env:
-  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+variables:
+  BUILD_PATH: build/WebGL/golf-game
+before_script:
+  - echo "$UNITY_LICENSE" > /tmp/unity.ulf
+  - unity-editor -batchmode -nographics -quit
+      -manualLicenseFile /tmp/unity.ulf
+      -logFile /dev/stdout || true
+  - rm -f /tmp/unity.ulf
 ```
 
 ## LFS Dirty Build Error
 
-`.lfs-assets-id` file causes "dirty build" errors. Delete after cache lookup:
+`.lfs-assets-id` file causes "dirty build" errors. Delete after LFS pull:
 ```yaml
-- run: |
-    git lfs pull
-    rm -f .lfs-assets-id
+script:
+  - git lfs install && git lfs pull
+  - rm -f .lfs-assets-id
 ```
 
 ## Cloudflare Pages Preview URLs

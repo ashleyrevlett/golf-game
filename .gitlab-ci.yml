@@ -7,6 +7,7 @@ variables:
 
 stages:
   - test
+  - build
   - deploy
 
 lint:
@@ -27,12 +28,41 @@ cloud-code-test:
     - main
     - merge_requests
 
+webgl-build:
+  stage: build
+  image: unityci/editor:6000.3.10f1-webgl-3
+  variables:
+    BUILD_PATH: build/WebGL/golf-game
+  before_script:
+    - rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
+    - echo "$UNITY_LICENSE" > /tmp/unity.ulf
+    - unity-editor -batchmode -nographics -quit
+        -manualLicenseFile /tmp/unity.ulf
+        -logFile /dev/stdout || true
+    - rm -f /tmp/unity.ulf
+  script:
+    - git lfs install && git lfs pull
+    - rm -f .lfs-assets-id
+    - unity-editor -batchmode -nographics -quit
+        -projectPath .
+        -executeMethod WebGLBuildScript.Build
+        -buildTarget WebGL
+        -logFile /dev/stdout
+  artifacts:
+    paths:
+      - build/WebGL/golf-game/
+    expire_in: 1 day
+  only:
+    - main
+    - merge_requests
+
 deploy:
   stage: deploy
   image: node:20
+  needs: [webgl-build]
   script:
     - npm install -g wrangler
-    - wrangler pages deploy build/ --project-name=golf-game
+    - wrangler pages deploy build/WebGL/golf-game/ --project-name=golf-game
   environment:
     name: production
   only:
