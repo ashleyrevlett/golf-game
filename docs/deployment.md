@@ -3,63 +3,41 @@
 ## Architecture
 
 ```
-GitHub Actions (GameCI build) → Cloudflare Pages → Users
+Local Unity build (Mac mini) → wrangler pages deploy → Cloudflare Pages → Users
 ```
 
 ## Cloudflare Pages
 
 - Project name: `golf-game`
-- Production URL: `https://golf-game.pages.dev`
-- Preview deployments: auto-generated per branch
-- Brotli-compressed Unity WebGL assets served with `_headers` rules
+- Production URL: `https://golf-game-amm.pages.dev`
+- Production branch: `production`
+- Brotli-compressed Unity WebGL assets
 
-## GitHub Actions Workflow
-
-Trigger: push a semver tag (`v1.0.0` for production, `v1.0.0-rc.1` for preview).
-
-Steps:
-1. Free disk space (GameCI requirement)
-2. Checkout with LFS
-3. Determine version and environment from tag
-4. Build WebGL with GameCI `unity-builder`
-5. Write `_headers` file for Brotli content encoding
-6. Deploy via `cloudflare/pages-action`
-
-Manual trigger via `workflow_dispatch` is also supported (choose `preview` or `production`).
-
-## Caching Strategy
-
-Two layers:
-
-1. **Hashed filenames** (`webGLNameFilesAsHashes: 1`) — unique filenames per build
-2. **Cloudflare `_headers`** — sets `Content-Encoding: br` for `.wasm.br`, `.js.br`, `.data.br` and COOP/COEP headers for SharedArrayBuffer
-
-## Required GitHub Secrets
-
-| Secret | Description |
-|--------|-------------|
-| `UNITY_LICENSE` | Unity `.ulf` license file contents |
-| `UNITY_EMAIL` | Unity account email |
-| `UNITY_PASSWORD` | Unity account password |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token with Pages deploy permission |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
-
-## Tagging and Releasing
-
-Semver with `alpha` → `rc` → stable progression:
+## Build & Deploy (Manual)
 
 ```bash
-# Preview (pre-release)
-git tag -a v1.0.0-rc.1 -m "Release candidate 1"
-git push --tags
+# 1. Build WebGL
+/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/MacOS/Unity \
+  -batchmode -nographics -quit \
+  -projectPath ~/Documents/apps/golf-game \
+  -executeMethod WebGLBuildScript.Build \
+  -logFile /tmp/unity-build.log
 
-# Production (stable)
-git tag -a v1.0.0 -m "Initial release"
-git push --tags
+# 2. Deploy to Cloudflare Pages
+export CLOUDFLARE_API_TOKEN=$(python3 -c "import json; print(json.load(open('$HOME/.config/cloudflare/credentials.json'))['api_key'])")
+export CLOUDFLARE_ACCOUNT_ID=$(python3 -c "import json; print(json.load(open('$HOME/.config/cloudflare/credentials.json'))['account_id'])")
+
+npx wrangler pages deploy build/WebGL/golf-game/ \
+  --project-name=golf-game \
+  --branch=production \
+  --commit-dirty=true
 ```
 
-Tags with a hyphen (`-`) deploy to preview. Clean semver tags deploy to production.
+## Future: GitLab CI Deploy
 
-## Rollback
+TODO: Set up self-hosted GitLab runner on Mac mini with Unity installed for automated tag-based deploys.
 
-Re-deploy a previous tag or use Cloudflare Pages dashboard to roll back to a prior deployment. Prefer "fail forward" — tag and deploy a fix rather than rolling back.
+## Versioning
+
+- Tag on main after merge: `git tag -a v1.1.0 -m "summary" && git push origin v1.1.0`
+- Deploy after tagging (currently manual, future: CI triggered by tags)
