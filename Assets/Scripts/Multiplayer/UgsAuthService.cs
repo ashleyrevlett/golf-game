@@ -1,7 +1,6 @@
 namespace GolfGame.Multiplayer
 {
     using System.Threading.Tasks;
-    using Unity.Services.Authentication;
     using UnityEngine;
 
     /// <summary>
@@ -10,15 +9,22 @@ namespace GolfGame.Multiplayer
     /// </summary>
     public class UgsAuthService : IAuthService
     {
-        public bool IsSignedIn => AuthenticationService.Instance.IsSignedIn;
-        public string PlayerId => AuthenticationService.Instance.PlayerId;
+        private readonly IUgsAuthProvider _auth;
+
+        public UgsAuthService(IUgsAuthProvider auth)
+        {
+            _auth = auth;
+        }
+
+        public bool IsSignedIn => _auth.IsSignedIn;
+        public string PlayerId => _auth.PlayerId;
 
         public async Task<string> GetPlayerTokenAsync()
         {
             try
             {
                 if (!IsSignedIn) await SignInAsync();
-                return AuthenticationService.Instance.AccessToken;
+                return _auth.AccessToken;
             }
             catch (System.Exception ex)
             {
@@ -32,16 +38,16 @@ namespace GolfGame.Multiplayer
             if (!IsSignedIn) await SignInAsync();
             return new PlayerInfo
             {
-                PlayerId = AuthenticationService.Instance.PlayerId,
-                DisplayName = $"Player_{AuthenticationService.Instance.PlayerId[..6]}",
-                Token = AuthenticationService.Instance.AccessToken
+                PlayerId = _auth.PlayerId,
+                DisplayName = $"Player_{_auth.PlayerId[..6]}",
+                Token = _auth.AccessToken
             };
         }
 
         public async Task SignInAsync()
         {
             if (IsSignedIn) return;
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await _auth.SignInAnonymouslyAsync();
             Debug.Log($"[UgsAuth] Signed in: {PlayerId}");
         }
     }

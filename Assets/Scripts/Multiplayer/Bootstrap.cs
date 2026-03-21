@@ -45,11 +45,15 @@ namespace GolfGame.Multiplayer
             try
             {
                 await UnityServices.InitializeAsync();
-                var authService = new UgsAuthService();
+                var authProvider = new DefaultUgsAuthProvider();
+                var authService = new UgsAuthService(authProvider);
                 await authService.SignInAsync();
 
                 ServiceLocator.Register<IAuthService>(authService);
-                ServiceLocator.Register<ILeaderboardService>(new UgsLeaderboardService());
+                ServiceLocator.Register<ILeaderboardService>(
+                    new UgsLeaderboardService(
+                        new DefaultUgsCloudCodeProvider(),
+                        new DefaultUgsLeaderboardsProvider()));
 
                 Debug.Log("[Bootstrap] UGS services registered");
             }
