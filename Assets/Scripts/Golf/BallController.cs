@@ -79,6 +79,7 @@ namespace GolfGame.Golf
             rb.angularVelocity = Vector3.zero;
             rb.AddForce(launchDir.normalized * force, ForceMode.Impulse);
             OnBallLaunched?.Invoke();
+            HapticsManager.TriggerShotHaptic(shot.PowerNormalized);
 
             Debug.Log($"[BallController] Launched: force={force:F1} dir={launchDir}");
         }

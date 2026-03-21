@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using GolfGame.Audio;
+using GolfGame.Core;
 
 namespace GolfGame.UI
 {
@@ -21,6 +22,7 @@ namespace GolfGame.UI
         private VisualElement root;
         private Slider volumeSlider;
         private Toggle qualityToggle;
+        private Toggle hapticsToggle;
         private Button backButton;
 
         private void Awake()
@@ -39,6 +41,7 @@ namespace GolfGame.UI
 
             volumeSlider = root.Q<Slider>("volume-slider");
             qualityToggle = root.Q<Toggle>("quality-toggle");
+            hapticsToggle = root.Q<Toggle>("haptics-toggle");
             backButton = root.Q<Button>("back-button");
 
             // Load saved settings
@@ -54,6 +57,12 @@ namespace GolfGame.UI
                 qualityToggle.RegisterValueChangedCallback(OnQualityChanged);
             }
 
+            if (hapticsToggle != null)
+            {
+                hapticsToggle.value = HapticsManager.IsEnabled;
+                hapticsToggle.RegisterValueChangedCallback(OnHapticsChanged);
+            }
+
             backButton?.RegisterCallback<ClickEvent>(OnBackClicked);
 
             // Start hidden
@@ -64,6 +73,7 @@ namespace GolfGame.UI
         {
             volumeSlider?.UnregisterValueChangedCallback(OnVolumeChanged);
             qualityToggle?.UnregisterValueChangedCallback(OnQualityChanged);
+            hapticsToggle?.UnregisterValueChangedCallback(OnHapticsChanged);
             backButton?.UnregisterCallback<ClickEvent>(OnBackClicked);
         }
 
@@ -103,6 +113,11 @@ namespace GolfGame.UI
         {
             PlayerPrefs.SetInt(QualityKey, evt.newValue ? 1 : 0);
             QualitySettings.SetQualityLevel(evt.newValue ? 1 : 0);
+        }
+
+        private void OnHapticsChanged(ChangeEvent<bool> evt)
+        {
+            HapticsManager.IsEnabled = evt.newValue;
         }
 
         private void OnBackClicked(ClickEvent evt)
