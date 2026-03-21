@@ -59,7 +59,7 @@ node --test Assets/CloudCode/validate-and-post-score.test.js
 # Window > General > Test Runner > PlayMode > Run All
 ```
 
-**CI:** GitHub Actions runs Cloud Code tests, EditMode tests, PlayMode tests, and a WebGL build on every push/PR. See `.github/workflows/ci.yml`.
+**CI:** GitLab CI runs Cloud Code tests, EditMode tests, PlayMode tests, and a WebGL build on every push/MR. See `.gitlab-ci.yml`.
 
 ## Project Structure
 

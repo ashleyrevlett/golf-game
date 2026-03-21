@@ -3,8 +3,6 @@ namespace GolfGame.Multiplayer
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Unity.Services.CloudCode;
-    using Unity.Services.Leaderboards;
     using UnityEngine;
 
     /// <summary>
@@ -17,6 +15,15 @@ namespace GolfGame.Multiplayer
         private const string LeaderboardId = "closest-to-pin";
         private const string CloudCodeFunction = "validate-and-post-score";
 
+        private readonly IUgsCloudCodeProvider _cloudCode;
+        private readonly IUgsLeaderboardsProvider _leaderboards;
+
+        public UgsLeaderboardService(IUgsCloudCodeProvider cloudCode, IUgsLeaderboardsProvider leaderboards)
+        {
+            _cloudCode = cloudCode;
+            _leaderboards = leaderboards;
+        }
+
         public async Task PostScoreAsync(string playerId, float distance)
         {
             var args = new Dictionary<string, object>
@@ -24,7 +31,7 @@ namespace GolfGame.Multiplayer
                 { "distance", distance }
             };
             // Cloud Code validates and writes; throws on rejection
-            var result = await CloudCodeService.Instance.CallEndpointAsync<ScorePostResult>(
+            var result = await _cloudCode.CallEndpointAsync<ScorePostResult>(
                 CloudCodeFunction, args);
 
             if (!result.success)
@@ -38,14 +45,12 @@ namespace GolfGame.Multiplayer
 
         public async Task<LeaderboardEntry[]> GetLeaderboardAsync(int count)
         {
-            var response = await LeaderboardsService.Instance
-                .GetScoresAsync(LeaderboardId,
-                    new GetScoresOptions { Limit = count });
+            var scores = await _leaderboards.GetScoresAsync(LeaderboardId, count);
 
-            var entries = new LeaderboardEntry[response.Results.Count];
-            for (int i = 0; i < response.Results.Count; i++)
+            var entries = new LeaderboardEntry[scores.Count];
+            for (int i = 0; i < scores.Count; i++)
             {
-                var r = response.Results[i];
+                var r = scores[i];
                 entries[i] = new LeaderboardEntry
                 {
                     Rank = r.Rank + 1, // UGS is 0-based, we use 1-based
@@ -61,8 +66,7 @@ namespace GolfGame.Multiplayer
         {
             try
             {
-                var entry = await LeaderboardsService.Instance
-                    .GetPlayerScoreAsync(LeaderboardId);
+                var entry = await _leaderboards.GetPlayerScoreAsync(LeaderboardId);
                 return entry.Rank + 1; // 0-based to 1-based
             }
             catch (Exception ex)
