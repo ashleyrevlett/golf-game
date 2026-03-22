@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 using GolfGame.Core;
@@ -26,6 +27,13 @@ namespace GolfGame.UI
         private Button playAgainButton;
         private Button menuButton;
         private Button viewLeaderboardButton;
+        private Button shareButton;
+        private float lastTotalCtp;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void ShareScore(string text, string gameObjectName);
+#endif
 
         private void Awake()
         {
@@ -49,10 +57,12 @@ namespace GolfGame.UI
             playAgainButton = root.Q<Button>("play-again-button");
             menuButton = root.Q<Button>("menu-button");
             viewLeaderboardButton = root.Q<Button>("view-leaderboard-button");
+            shareButton = root.Q<Button>("share-button");
 
             playAgainButton?.RegisterCallback<ClickEvent>(OnPlayAgainClicked);
             menuButton?.RegisterCallback<ClickEvent>(OnMenuClicked);
             viewLeaderboardButton?.RegisterCallback<ClickEvent>(OnViewLeaderboardClicked);
+            shareButton?.RegisterCallback<ClickEvent>(OnShareClicked);
 
             if (AppManager.Instance != null)
             {
@@ -71,6 +81,7 @@ namespace GolfGame.UI
             playAgainButton?.UnregisterCallback<ClickEvent>(OnPlayAgainClicked);
             menuButton?.UnregisterCallback<ClickEvent>(OnMenuClicked);
             viewLeaderboardButton?.UnregisterCallback<ClickEvent>(OnViewLeaderboardClicked);
+            shareButton?.UnregisterCallback<ClickEvent>(OnShareClicked);
 
             if (AppManager.Instance != null)
             {
@@ -93,6 +104,7 @@ namespace GolfGame.UI
 
         private void HandleAllShotsComplete(float totalCtp)
         {
+            lastTotalCtp = totalCtp;
             // Delay showing game over to let player see ball landing + popup
             StartCoroutine(ShowGameOverAfterDelay(totalCtp, 1.5f));
         }
@@ -208,6 +220,41 @@ namespace GolfGame.UI
             }
         }
 
+        public static string FormatShareText(float totalCtp)
+        {
+            return $"I scored {totalCtp:F1} yds in Golf Game \u2014 beat me!";
+        }
+
+        private void OnShareClicked(ClickEvent evt)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ShareScore(FormatShareText(lastTotalCtp), gameObject.name);
+#else
+            Debug.Log($"[GameOverController] Share (editor): {FormatShareText(lastTotalCtp)}");
+            OnShareResult("copied");
+#endif
+        }
+
+        public void OnShareResult(string result)
+        {
+            if (shareButton == null) return;
+
+            if (result == "shared")
+                shareButton.text = "SHARED!";
+            else if (result == "copied")
+                shareButton.text = "COPIED!";
+
+            if (result == "shared" || result == "copied")
+            {
+                shareButton.style.backgroundColor = new Color(76f / 255f, 175f / 255f, 80f / 255f);
+                shareButton.schedule.Execute(() =>
+                {
+                    shareButton.text = "SHARE";
+                    shareButton.style.backgroundColor = StyleKeyword.Null;
+                }).StartingIn(2000);
+            }
+        }
+
         private void SetVisible(bool visible)
         {
             if (root != null)
@@ -229,6 +276,12 @@ namespace GolfGame.UI
                 {
                     gameoverPanel.style.opacity = 0f;
                     gameoverPanel.style.scale = new Scale(new Vector2(0.9f, 0.9f));
+                }
+
+                if (shareButton != null)
+                {
+                    shareButton.text = "SHARE";
+                    shareButton.style.backgroundColor = StyleKeyword.Null;
                 }
             }
         }

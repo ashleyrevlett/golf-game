@@ -110,5 +110,28 @@ namespace GolfGame.Tests.EditMode
         {
             Assert.AreEqual("shot-grade-c", GameOverController.GetGradeClass("C"));
         }
+
+        // --- Share text format tests ---
+
+        [Test]
+        public void FormatShareText_ContainsScoreWithOneDecimal()
+        {
+            string result = GameOverController.FormatShareText(45.3f);
+            Assert.IsTrue(result.Contains("45.3 yds"));
+        }
+
+        [Test]
+        public void FormatShareText_ContainsBeatMePhrase()
+        {
+            string result = GameOverController.FormatShareText(10.0f);
+            Assert.IsTrue(result.Contains("beat me!"));
+        }
+
+        [Test]
+        public void FormatShareText_FormatsZeroScore()
+        {
+            string result = GameOverController.FormatShareText(0f);
+            Assert.AreEqual("I scored 0.0 yds in Golf Game \u2014 beat me!", result);
+        }
     }
 }

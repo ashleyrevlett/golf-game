@@ -1,0 +1,158 @@
+## Implementation Plan (Revised)
+
+> **Agent:** `software-architect`
+
+**Approach**: Add a share button to the game over screen that calls the Web Share API via a jslib bridge, falling back to clipboard copy. Follows the existing jslib pattern (`Haptics.jslib`) and the existing button layout in `GameOver.uxml`. A static helper method formats the share text, keeping it unit-testable in EditMode. Success feedback includes both text change and green tint per visual design spec.
+
+**Key decisions**:
+- **Separate jslib file** (`ShareBridge.jslib`): Keeps sharing logic isolated from haptics/touch, matching the one-concern-per-jslib pattern.
+- **Callback from JS to C#**: JS calls `SendMessage` on the Unity game object to report success/failure, so the button text and tint can update without polling.
+- **Static `FormatShareText` helper**: Extracted as a `public static` method on `GameOverController` for direct EditMode unit testing -- matches the existing pattern (`FormatFinalScore`, `FormatBestScoreLabel`).
+- **No coroutine for reset timer**: Use `VisualElement.schedule.Execute` (already used in `AnimateShotRows`) to reset button text and background after 2s -- avoids mixing coroutines with UI-only logic.
+- **Green tint on success**: Per visual design spec, apply inline `background-color: rgb(76,175,80)` on success, revert with `StyleKeyword.Null` after 2s to let USS reassert.
+
+### Files to modify
+- `Assets/Scripts/UI/GameOverController.cs` -- add share button field, click handler, jslib extern, text/tint reset logic
+- `Assets/UI/Screens/GameOver.uxml` -- add share button element between leaderboard and menu buttons
+- `Assets/Tests/EditMode/GameOverControllerTests.cs` -- add tests for `FormatShareText`
+
+### Files to create
+- `Assets/Plugins/WebGL/ShareBridge.jslib` -- JS interop for Web Share API with clipboard fallback
+
+### Steps
+
+**1. Create `ShareBridge.jslib`**
+- File: `Assets/Plugins/WebGL/ShareBridge.jslib`
+- Follow `Haptics.jslib` pattern: `mergeInto(LibraryManager.library, { ... })`
+- One exported function: `ShareScore(textPtr, gameObjectNamePtr)`
+- Calls `navigator.share()` if available, else falls back to `navigator.clipboard.writeText()`
+- On success, calls `SendMessage(gameObjectName, 'OnShareResult', 'shared')` or `'copied'`
+- On failure or dismiss, calls with `'failed'`
+- Dual rejection handling: try/catch for sync throws (API absent), `.catch()` on promise for async rejections (user dismiss, permission denied)
+- Key interface:
+  ```js
+  ShareScore: function(textPtr, gameObjectNamePtr) {
+      var text = UTF8ToString(textPtr);
+      var goName = UTF8ToString(gameObjectNamePtr);
+      var url = window.location.href;
+      var fullText = text + " " + url;
+      try {
+          if (navigator.share) {
+              navigator.share({ text: fullText }).then(function() {
+                  SendMessage(goName, 'OnShareResult', 'shared');
+              }).catch(function() {
+                  SendMessage(goName, 'OnShareResult', 'failed');
+              });
+          } else if (navigator.clipboard) {
+              navigator.clipboard.writeText(fullText).then(function() {
+                  SendMessage(goName, 'OnShareResult', 'copied');
+              }).catch(function() {
+                  SendMessage(goName, 'OnShareResult', 'failed');
+              });
+          } else {
+              SendMessage(goName, 'OnShareResult', 'failed');
+          }
+      } catch(e) {
+          SendMessage(goName, 'OnShareResult', 'failed');
+      }
+  }
+  ```
+
+**2. Add share button to `GameOver.uxml`**
+- File: `Assets/UI/Screens/GameOver.uxml`
+- Add `<ui:Button name="share-button" text="SHARE" class="btn-secondary" style="margin-bottom: 8px;" />` after `view-leaderboard-button` (line 18), before `menu-button` (line 19)
+
+**3. Wire share button in `GameOverController.cs`**
+- File: `Assets/Scripts/UI/GameOverController.cs`
+- Add field: `private Button shareButton;`
+- Add field to track score: `private float lastTotalCtp;`
+- In `Start()` (after line 51): query `share-button`, register click callback `OnShareClicked`
+- In `OnDestroy()` (after line 73): unregister callback
+- Store `totalCtp` in `HandleAllShotsComplete` (line 95) into `lastTotalCtp`
+- Add `FormatShareText` static helper:
+  ```csharp
+  public static string FormatShareText(float totalCtp)
+  {
+      return $"I scored {totalCtp:F1} yds in Golf Game \u2014 beat me!";
+  }
+  ```
+- Add DllImport extern (guarded):
+  ```csharp
+  #if UNITY_WEBGL && !UNITY_EDITOR
+  [System.Runtime.InteropServices.DllImport("__Internal")]
+  private static extern void ShareScore(string text, string gameObjectName);
+  #endif
+  ```
+- Add click handler:
+  ```csharp
+  private void OnShareClicked(ClickEvent evt)
+  {
+      #if UNITY_WEBGL && !UNITY_EDITOR
+      ShareScore(FormatShareText(lastTotalCtp), gameObject.name);
+      #else
+      Debug.Log($"[GameOverController] Share (editor): {FormatShareText(lastTotalCtp)}");
+      OnShareResult("copied");
+      #endif
+  }
+  ```
+- Add `OnShareResult(string result)` callback with green tint per visual design spec:
+  ```csharp
+  public void OnShareResult(string result)
+  {
+      if (shareButton == null) return;
+      if (result == "shared")
+          shareButton.text = "SHARED!";
+      else if (result == "copied")
+          shareButton.text = "COPIED!";
+      // "failed" -- no feedback, button stays as SHARE
+
+      if (result == "shared" || result == "copied")
+      {
+          shareButton.style.backgroundColor = new Color(76f/255f, 175f/255f, 80f/255f);
+          shareButton.schedule.Execute(() =>
+          {
+              shareButton.text = "SHARE";
+              shareButton.style.backgroundColor = StyleKeyword.Null;
+          }).StartingIn(2000);
+      }
+  }
+  ```
+- In `SetVisible(false)` path (after line 232): reset `shareButton.text = "SHARE"` and `shareButton.style.backgroundColor = StyleKeyword.Null` to clean state when hiding
+
+**4. Add unit tests for `FormatShareText`**
+- File: `Assets/Tests/EditMode/GameOverControllerTests.cs`
+- Follow existing pattern (static method tests, NUnit `[Test]`)
+- Test cases listed below
+
+### Testing
+
+**Test strategy**: EditMode unit tests for the static `FormatShareText` helper. The jslib bridge, button wiring, and green tint are integration-level (require WebGL runtime / UI Toolkit) -- covered by manual verification.
+
+**Test files**:
+- `Assets/Tests/EditMode/GameOverControllerTests.cs` -- add share text format tests
+
+**Test cases**:
+- `FormatShareText_ContainsScoreWithOneDecimal`: asserts `FormatShareText(45.3f)` contains `"45.3 yds"`
+- `FormatShareText_ContainsBeatMePhrase`: asserts output contains `"beat me!"`
+- `FormatShareText_FormatsZeroScore`: asserts `FormatShareText(0f)` produces `"I scored 0.0 yds in Golf Game \u2014 beat me!"`
+
+**Existing test helpers to reuse**: None needed -- follows the same direct static-method-call pattern as `FormatFinalScore` tests.
+
+**Manual verification**:
+- Build WebGL and test on mobile browser: tap Share, verify native share sheet appears (or clipboard copy + "Copied!" feedback on desktop)
+- Verify green tint appears immediately on success, reverts after 2 seconds
+- Verify "Shared!"/"Copied!" text resets to "SHARE" after 2 seconds
+- Verify button placement between View Leaderboard and Menu
+- Test in Unity Editor Play Mode: confirm no crash (extern is guarded), debug log appears
+
+### Risks
+- **`SendMessage` requires matching GameObject name**: The jslib passes `gameObject.name` to `SendMessage`. If the GameObject is renamed in the scene, the callback breaks silently. Mitigation: use `gameObject.name` dynamically (not hardcoded), document this coupling.
+- **Web Share API availability**: Not available on all mobile browsers (notably Firefox Android has limited support). The clipboard fallback handles this. No risk of unhandled errors due to dual catch pattern.
+
+### Insights
+- The existing jslib files (`Haptics.jslib`, `TouchBlocker.jslib`) don't use `SendMessage` callbacks -- this is the first async JS-to-C# callback in the project. If more jslib callbacks emerge, consider a shared callback pattern, but for now one direct `SendMessage` is simplest.
+- Architecture plans must explicitly cover every visual state transition described in the design spec -- when the designer says "not just a text swap," that's a direct signal the architecture must address the additional CSS property changes.
+
+---
+
+Skip Agents: visual-designer

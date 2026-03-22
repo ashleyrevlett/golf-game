@@ -75,6 +75,51 @@ Without this: `Module.dynCall_vi is not a function` at runtime.
 
 Unity 6 Build Profiles **override** global `ProjectSettings/ProjectSettings.asset`. Changing a setting in ProjectSettings alone has no effect if a Build Profile is active. Always update in the Build Profile `.asset` files.
 
+## JS Interop — Callbacks from JS to C#
+
+When a jslib function needs to report results back to C#, use `SendMessage`:
+
+```javascript
+mergeInto(LibraryManager.library, {
+    DoAsyncWork: function(gameObjectNamePtr, paramPtr) {
+        var goName = UTF8ToString(gameObjectNamePtr);
+        var param = UTF8ToString(paramPtr);
+
+        navigator.share({ text: param }).then(function() {
+            SendMessage(goName, 'OnAsyncResult', 'success');
+        }).catch(function() {
+            SendMessage(goName, 'OnAsyncResult', 'failed');
+        });
+    }
+});
+```
+
+In C#:
+```csharp
+#if UNITY_WEBGL && !UNITY_EDITOR
+[DllImport("__Internal")]
+private static extern void DoAsyncWork(string gameObjectName, string param);
+#endif
+
+public void OnAsyncResult(string result)
+{
+    // Handle result from JavaScript
+}
+```
+
+**Critical — dual rejection handling**: Async browser APIs can reject both synchronously (API absent) and as a Promise (user dismisses). Always use both try/catch and `.catch()`:
+```js
+try {
+    if (navigator.share) {
+        navigator.share(...).catch(function() { /* promise rejection */ });
+    }
+} catch(e) {
+    // Synchronous throw (API absent)
+}
+```
+
+**Note**: `SendMessage` requires an exact GameObject name and method name. If the receiving GameObject is renamed or the method is removed, the callback fails silently. Guard with existence checks in C#.
+
 ## Missing .meta Files
 
 Always commit `.meta` files with new scripts/assets. Unity uses them for GUID references. Missing `.meta` = broken scene/prefab references on other machines.
