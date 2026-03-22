@@ -25,6 +25,7 @@ namespace GolfGame.UI
         private VisualElement shotResultsContainer;
         private Button playAgainButton;
         private Button menuButton;
+        private Button viewLeaderboardButton;
 
         private void Awake()
         {
@@ -47,9 +48,11 @@ namespace GolfGame.UI
             shotResultsContainer = root.Q("shot-results");
             playAgainButton = root.Q<Button>("play-again-button");
             menuButton = root.Q<Button>("menu-button");
+            viewLeaderboardButton = root.Q<Button>("view-leaderboard-button");
 
             playAgainButton?.RegisterCallback<ClickEvent>(OnPlayAgainClicked);
             menuButton?.RegisterCallback<ClickEvent>(OnMenuClicked);
+            viewLeaderboardButton?.RegisterCallback<ClickEvent>(OnViewLeaderboardClicked);
 
             if (AppManager.Instance != null)
             {
@@ -67,6 +70,7 @@ namespace GolfGame.UI
         {
             playAgainButton?.UnregisterCallback<ClickEvent>(OnPlayAgainClicked);
             menuButton?.UnregisterCallback<ClickEvent>(OnMenuClicked);
+            viewLeaderboardButton?.UnregisterCallback<ClickEvent>(OnViewLeaderboardClicked);
 
             if (AppManager.Instance != null)
             {
@@ -193,6 +197,14 @@ namespace GolfGame.UI
             if (AppManager.Instance != null)
             {
                 AppManager.Instance.ReturnToTitle();
+            }
+        }
+
+        private void OnViewLeaderboardClicked(ClickEvent evt)
+        {
+            if (AppManager.Instance != null)
+            {
+                AppManager.Instance.ShowLeaderboard();
             }
         }
 
