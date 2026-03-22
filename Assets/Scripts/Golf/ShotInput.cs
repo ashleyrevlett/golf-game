@@ -39,6 +39,9 @@ namespace GolfGame.Golf
         private float lockedPower;
         private bool isActive;
 
+        [SerializeField] private float tapThresholdPx = 10f;
+        private Vector2 touchStartPosition;
+
         /// <summary>
         /// Fires when a shot is ready with parameters. Consumed by BallController.
         /// </summary>
@@ -139,8 +142,14 @@ namespace GolfGame.Golf
             if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
                 return true;
 
-            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-                return true;
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasReleasedThisFrame)
+            {
+                float displacement = Vector2.Distance(
+                    Touchscreen.current.primaryTouch.position.ReadValue(),
+                    touchStartPosition);
+                if (displacement < tapThresholdPx)
+                    return true;
+            }
 
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
                 return true;
@@ -183,9 +192,21 @@ namespace GolfGame.Golf
             }
         }
 
+        private void UpdateTouchTracking()
+        {
+            if (Touchscreen.current == null) return;
+            var touch = Touchscreen.current.primaryTouch;
+            if (touch.press.wasPressedThisFrame)
+            {
+                touchStartPosition = touch.position.ReadValue();
+            }
+        }
+
         private void Update()
         {
             if (!isActive) return;
+
+            UpdateTouchTracking();
 
             // Aim adjustment only during Idle phase (before meter starts)
             if (currentPhase == MeterPhase.Idle)
