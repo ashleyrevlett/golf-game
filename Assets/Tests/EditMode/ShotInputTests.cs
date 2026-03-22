@@ -1,3 +1,4 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using GolfGame.Golf;
@@ -50,6 +51,15 @@ namespace GolfGame.Tests.EditMode
         public void IsActive_DefaultsFalse()
         {
             Assert.IsFalse(shotInput.IsActive);
+        }
+
+        [Test]
+        public void TapThresholdPx_DefaultsTo10()
+        {
+            var field = typeof(ShotInput).GetField("tapThresholdPx",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(field, "tapThresholdPx field not found");
+            Assert.AreEqual(10f, (float)field.GetValue(shotInput));
         }
     }
 }
