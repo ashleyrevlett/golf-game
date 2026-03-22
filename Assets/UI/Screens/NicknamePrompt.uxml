@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="project://database/Assets/UI/Styles/Common.uss" />
+    <ui:VisualElement name="nickname-overlay" class="overlay" style="opacity: 0;">
+        <ui:VisualElement name="nickname-panel" class="panel" style="align-items: center; padding: 48px 40px; width: 320px;">
+            <ui:Label name="heading-label" text="What's your name?" class="text-heading" style="margin-bottom: var(--spacing-md);" />
+            <ui:Label name="subtext-label" text="Rivals will see this on the leaderboard." class="text-secondary" style="-unity-text-align: middle-center; margin-bottom: var(--spacing-lg);" />
+            <ui:TextField name="nickname-field" max-length="20" style="width: 100%; margin-bottom: 4px; background-color: rgba(255, 255, 255, 0.08); border-radius: var(--radius-button); border-width: 2px; border-color: var(--color-text-secondary); color: var(--color-text-primary); font-size: var(--font-size-body); min-height: var(--min-tap-target); transition: border-color 0.15s ease-in-out;" />
+            <ui:Label name="char-counter" text="0 / 20" class="text-stat" style="-unity-text-align: middle-right; width: 100%; margin-bottom: var(--spacing-md);" />
+            <ui:Button name="save-button" text="SAVE NAME" class="btn-primary" style="width: 100%;" />
+            <ui:Button name="skip-button" text="SKIP" class="btn-secondary" style="width: 100%;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

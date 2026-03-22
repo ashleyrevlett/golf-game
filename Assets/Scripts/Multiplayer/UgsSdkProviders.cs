@@ -24,6 +24,7 @@ namespace GolfGame.Multiplayer
         string PlayerId { get; }
         string AccessToken { get; }
         Task SignInAnonymouslyAsync();
+        Task UpdatePlayerNameAsync(string name);
     }
 
     internal interface IUgsCloudCodeProvider
@@ -46,6 +47,11 @@ namespace GolfGame.Multiplayer
         public Task SignInAnonymouslyAsync()
         {
             return AuthenticationService.Instance.SignInAnonymouslyAsync();
+        }
+
+        public Task UpdatePlayerNameAsync(string name)
+        {
+            return AuthenticationService.Instance.UpdatePlayerNameAsync(name);
         }
     }
 

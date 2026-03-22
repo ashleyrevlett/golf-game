@@ -12,6 +12,8 @@ namespace GolfGame.UI
     {
         [SerializeField] private UIDocument uiDocument;
         private SettingsController settingsController;
+        private NicknamePromptController nicknamePromptController;
+        private bool nicknamePromptPending;
 
         private VisualElement root;
         private Button playButton;
@@ -29,6 +31,7 @@ namespace GolfGame.UI
         private void Start()
         {
             settingsController = FindFirstObjectByType<SettingsController>();
+            nicknamePromptController = FindFirstObjectByType<NicknamePromptController>();
 
             root = uiDocument.rootVisualElement;
 
@@ -39,6 +42,11 @@ namespace GolfGame.UI
             playButton?.RegisterCallback<ClickEvent>(OnPlayClicked);
             settingsButton?.RegisterCallback<ClickEvent>(OnSettingsClicked);
             leaderboardButton?.RegisterCallback<ClickEvent>(OnLeaderboardClicked);
+
+            if (nicknamePromptController != null)
+            {
+                nicknamePromptController.OnPromptDismissed += OnNicknamePromptDismissed;
+            }
 
             if (AppManager.Instance != null)
             {
@@ -53,6 +61,11 @@ namespace GolfGame.UI
             settingsButton?.UnregisterCallback<ClickEvent>(OnSettingsClicked);
             leaderboardButton?.UnregisterCallback<ClickEvent>(OnLeaderboardClicked);
 
+            if (nicknamePromptController != null)
+            {
+                nicknamePromptController.OnPromptDismissed -= OnNicknamePromptDismissed;
+            }
+
             if (AppManager.Instance != null)
             {
                 AppManager.Instance.OnAppStateChanged -= HandleAppStateChanged;
@@ -61,7 +74,20 @@ namespace GolfGame.UI
 
         private void HandleAppStateChanged(AppState state)
         {
+            if (state == AppState.Title && NicknamePromptController.NeedsPrompt && nicknamePromptController != null)
+            {
+                nicknamePromptPending = true;
+                SetVisible(false);
+                nicknamePromptController.Show();
+                return;
+            }
             SetVisible(state == AppState.Title);
+        }
+
+        private void OnNicknamePromptDismissed()
+        {
+            nicknamePromptPending = false;
+            SetVisible(true);
         }
 
         private void OnPlayClicked(ClickEvent evt)

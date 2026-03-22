@@ -49,6 +49,12 @@ namespace GolfGame.Multiplayer
                 var authService = new UgsAuthService(authProvider);
                 await authService.SignInAsync();
 
+                var nickname = PlayerPrefs.GetString("nickname", "");
+                if (!string.IsNullOrEmpty(nickname))
+                {
+                    await authService.UpdateDisplayNameAsync(nickname);
+                }
+
                 ServiceLocator.Register<IAuthService>(authService);
                 ServiceLocator.Register<ILeaderboardService>(
                     new UgsLeaderboardService(
