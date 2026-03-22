@@ -36,12 +36,20 @@ namespace GolfGame.Multiplayer
         public async Task<PlayerInfo> GetPlayerInfoAsync()
         {
             if (!IsSignedIn) await SignInAsync();
+            var nickname = PlayerPrefs.GetString("nickname", "");
             return new PlayerInfo
             {
                 PlayerId = _auth.PlayerId,
-                DisplayName = $"Player_{_auth.PlayerId[..6]}",
+                DisplayName = string.IsNullOrEmpty(nickname) ? $"Player_{_auth.PlayerId[..6]}" : nickname,
                 Token = _auth.AccessToken
             };
+        }
+
+        public async Task UpdateDisplayNameAsync(string displayName)
+        {
+            if (!IsSignedIn) await SignInAsync();
+            await _auth.UpdatePlayerNameAsync(displayName);
+            Debug.Log($"[UgsAuth] Display name updated: {displayName}");
         }
 
         public async Task SignInAsync()

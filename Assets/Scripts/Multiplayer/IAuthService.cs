@@ -19,6 +19,11 @@ namespace GolfGame.Multiplayer
         Task<PlayerInfo> GetPlayerInfoAsync();
 
         /// <summary>
+        /// Update the player's display name on the server.
+        /// </summary>
+        Task UpdateDisplayNameAsync(string displayName);
+
+        /// <summary>
         /// Whether the player is currently signed in.
         /// Synchronous getter for cached state.
         /// </summary>
