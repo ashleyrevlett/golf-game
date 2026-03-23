@@ -104,4 +104,4 @@ jobs:
         run: |
           echo "## Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**URL:** https://golf-game.ashleyrevlett.workers.dev" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://golf-game-99x.pages.dev" >> $GITHUB_STEP_SUMMARY
