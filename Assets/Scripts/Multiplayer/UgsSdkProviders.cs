@@ -10,7 +10,7 @@ namespace GolfGame.Multiplayer
     /// Raw leaderboard score DTO decoupled from UGS SDK response types.
     /// Rank is 0-based (matching UGS convention); services convert to 1-based.
     /// </summary>
-    internal struct RawLeaderboardScore
+    public struct RawLeaderboardScore
     {
         public int Rank;
         public string PlayerId;
@@ -18,7 +18,7 @@ namespace GolfGame.Multiplayer
         public double Score;
     }
 
-    internal interface IUgsAuthProvider
+    public interface IUgsAuthProvider
     {
         bool IsSignedIn { get; }
         string PlayerId { get; }
@@ -27,12 +27,12 @@ namespace GolfGame.Multiplayer
         Task UpdatePlayerNameAsync(string name);
     }
 
-    internal interface IUgsCloudCodeProvider
+    public interface IUgsCloudCodeProvider
     {
         Task<T> CallEndpointAsync<T>(string function, Dictionary<string, object> args);
     }
 
-    internal interface IUgsLeaderboardsProvider
+    public interface IUgsLeaderboardsProvider
     {
         Task<List<RawLeaderboardScore>> GetScoresAsync(string leaderboardId, int limit);
         Task<RawLeaderboardScore> GetPlayerScoreAsync(string leaderboardId);
