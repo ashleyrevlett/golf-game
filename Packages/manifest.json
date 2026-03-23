@@ -7,6 +7,7 @@
     "com.unity.nuget.newtonsoft-json": "3.2.2",
     "com.unity.services.authentication": "3.3.3",
     "com.unity.services.cloudcode": "2.10.2",
+    "com.unity.services.cloudsave": "3.4.0",
     "com.unity.services.leaderboards": "2.1.0",
     "com.unity.test-framework": "1.4.5",
     "com.unity.ugui": "2.0.0",
@@ -15,11 +16,11 @@
     "com.unity.modules.imageconversion": "1.0.0",
     "com.unity.modules.imgui": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.particlesystem": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.screencapture": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.unitywebrequest": "1.0.0",
-    "com.unity.modules.screencapture": "1.0.0",
-    "com.unity.modules.particlesystem": "1.0.0"
+    "com.unity.modules.unitywebrequest": "1.0.0"
   }
 }
