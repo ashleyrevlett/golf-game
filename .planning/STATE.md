@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 02-02-PLAN.md (camera guards and physics timestep)
-last_updated: "2026-03-23T04:00:57.954Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 02-01-PLAN.md (core stability fixes)
+last_updated: "2026-03-23T04:02:52.424Z"
 progress:
   total_phases: 3
   completed_phases: 1
@@ -49,6 +49,7 @@ Plan: 2 of 2
 | Phase 01-ci-cd-pipeline P01 | 2min | 2 tasks | 5 files |
 | Phase 01 P02 | 2 | 2 tasks | 2 files |
 | Phase 02-runtime-stability P02 | 8min | 2 tasks | 3 files |
+| Phase 02 P01 | 2min | 5 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - [Phase 01]: Push-to-main auto-deploy documented — no manual git tagging step needed
 - [Phase 02-runtime-stability]: Camera.main null-guarded in ScoringManager via local var cache + Debug.LogWarning; CameraController emits per-tag Debug.LogWarning on null tag lookup
 - [Phase 02-runtime-stability]: Physics fixed timestep set to 60Hz (0.01666667) in TimeManager.asset — WebGL-aligned, no per-script override needed
+- [Phase 02]: Cap leaderboard retry queue at MaxRetryQueueSize=10; drop entries with LogWarning when full (STAB-01)
+- [Phase 02]: Use this==null post-await guard pattern over CancellationToken for minimal diff (STAB-02, STAB-06)
+- [Phase 02]: Camera.main null guard in ScoringManager uses local variable extraction (STAB-03)
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T04:00:57.951Z
-Stopped at: Completed 02-02-PLAN.md (camera guards and physics timestep)
+Last session: 2026-03-23T04:02:52.421Z
+Stopped at: Completed 02-01-PLAN.md (core stability fixes)
 Resume file: None

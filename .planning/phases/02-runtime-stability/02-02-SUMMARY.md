@@ -72,7 +72,7 @@ Each task was committed atomically:
 1. **Task 1: Guard Camera.main in ScoringManager and add tag-lookup warnings in CameraController** - `8e902ad` (fix)
 2. **Task 2: Set physics fixed timestep to 60Hz in TimeManager.asset** - `b60ca32` (chore)
 
-**Plan metadata:** (final docs commit — see below)
+**Plan metadata:** `173fe08` (docs: complete plan)
 
 ## Files Created/Modified
 
@@ -105,6 +105,16 @@ None — no external service configuration required.
 - Phase 02 runtime stability goals fully addressed across both plans
 - Ready for Phase 03 or deployment testing
 
+## Self-Check: PASSED
+
+- FOUND: Assets/Scripts/Environment/ScoringManager.cs
+- FOUND: Assets/Scripts/Camera/CameraController.cs
+- FOUND: ProjectSettings/TimeManager.asset
+- FOUND: .planning/phases/02-runtime-stability/02-02-SUMMARY.md
+- FOUND commit 8e902ad (Task 1 — camera guards)
+- FOUND commit b60ca32 (Task 2 — physics timestep)
+- FOUND commit 173fe08 (plan metadata)
+
 ---
 *Phase: 02-runtime-stability*
-*Completed: 2026-03-22*
+*Completed: 2026-03-23*
