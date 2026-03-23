@@ -46,7 +46,7 @@ Plans:
 
 Plans:
 - [ ] 02-01-PLAN.md — Cap retry queue, add failure event and notice label, add post-await lifecycle guards (LeaderboardManager, GameOverController, GameOver.uxml)
-- [ ] 02-02-PLAN.md — Guard Camera.main in ScoringManager, add tag-lookup error logging in CameraController, set 60Hz physics timestep
+- [x] 02-02-PLAN.md — Guard Camera.main in ScoringManager, add tag-lookup error logging in CameraController, set 60Hz physics timestep
 
 ### Phase 3: WebGL + Mobile Verification
 **Goal**: A human can open the deployed URL on a phone, play a round, and see their score on the leaderboard

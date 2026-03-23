@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 01-02-PLAN.md (documentation update)
-last_updated: "2026-03-23T03:04:19.352Z"
+status: Ready to execute
+stopped_at: Completed 02-02-PLAN.md (camera guards and physics timestep)
+last_updated: "2026-03-23T04:00:57.954Z"
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-22)
 
 **Core value:** A human can open the URL, take shots, and see their score on the leaderboard -- without errors.
-**Current focus:** Phase 01 — ci-cd-pipeline
+**Current focus:** Phase 02 — runtime-stability
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (runtime-stability) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: Not started
 *Updated after each plan completion*
 | Phase 01-ci-cd-pipeline P01 | 2min | 2 tasks | 5 files |
 | Phase 01 P02 | 2 | 2 tasks | 2 files |
+| Phase 02-runtime-stability P02 | 8min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,8 @@ Recent decisions affecting current work:
 - [Phase 01]: No Content-Encoding headers in _headers file — decompressionFallback=true handles decompression client-side
 - [Phase 01]: Gzip compression documented as actual format used by WebGLBuildScript.cs (not Brotli)
 - [Phase 01]: Push-to-main auto-deploy documented — no manual git tagging step needed
+- [Phase 02-runtime-stability]: Camera.main null-guarded in ScoringManager via local var cache + Debug.LogWarning; CameraController emits per-tag Debug.LogWarning on null tag lookup
+- [Phase 02-runtime-stability]: Physics fixed timestep set to 60Hz (0.01666667) in TimeManager.asset — WebGL-aligned, no per-script override needed
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T03:00:05.744Z
-Stopped at: Completed 01-02-PLAN.md (documentation update)
+Last session: 2026-03-23T04:00:57.951Z
+Stopped at: Completed 02-02-PLAN.md (camera guards and physics timestep)
 Resume file: None

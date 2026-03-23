@@ -18,9 +18,9 @@
 
 - [ ] **STAB-01**: Leaderboard retry queue is capped at 10 entries (prevents iOS Safari memory crash)
 - [ ] **STAB-02**: Fire-and-forget async calls in LeaderboardManager are wrapped with outer exception handling
-- [ ] **STAB-03**: `Camera.main` null dereference in `ScoringManager.HandleBallLanded()` is guarded
-- [ ] **STAB-04**: Camera tag lookup failures in `CameraController` log an error instead of silently failing
-- [ ] **STAB-05**: Physics fixed timestep is 60Hz (not 50Hz) to match WebGL's assumed frame rate
+- [x] **STAB-03**: `Camera.main` null dereference in `ScoringManager.HandleBallLanded()` is guarded
+- [x] **STAB-04**: Camera tag lookup failures in `CameraController` log an error instead of silently failing
+- [x] **STAB-05**: Physics fixed timestep is 60Hz (not 50Hz) to match WebGL's assumed frame rate
 - [ ] **STAB-06**: Post-`await` MonoBehaviour lifecycle guards added in `LeaderboardManager` and `GameOverController`
 
 ### WebGL + Mobile
@@ -77,9 +77,9 @@
 | CI-06 | Phase 1 | Complete |
 | STAB-01 | Phase 2 | Pending |
 | STAB-02 | Phase 2 | Pending |
-| STAB-03 | Phase 2 | Pending |
-| STAB-04 | Phase 2 | Pending |
-| STAB-05 | Phase 2 | Pending |
+| STAB-03 | Phase 2 | Complete |
+| STAB-04 | Phase 2 | Complete |
+| STAB-05 | Phase 2 | Complete |
 | STAB-06 | Phase 2 | Pending |
 | WEB-01 | Phase 3 | Pending |
 | WEB-02 | Phase 3 | Pending |
