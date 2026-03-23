@@ -48,6 +48,11 @@ namespace GolfGame.Multiplayer
         /// </summary>
         public event Action<LeaderboardEntry[], int> OnLeaderboardUpdated;
 
+        /// <summary>
+        /// Fires when score submission is permanently dropped (retry queue exhausted).
+        /// </summary>
+        public event Action OnLeaderboardSubmitFailed;
+
         private async void Start()
         {
             try
@@ -182,6 +187,7 @@ namespace GolfGame.Multiplayer
                 if (retryQueue.Count >= MaxRetryQueueSize)
                 {
                     Debug.LogWarning($"[LeaderboardManager] Retry queue full ({MaxRetryQueueSize} entries) — dropping score submission for player {id}");
+                    OnLeaderboardSubmitFailed?.Invoke();
                     return;
                 }
                 Debug.LogWarning($"[LeaderboardManager] Post failed, queuing retry: {ex.Message}");

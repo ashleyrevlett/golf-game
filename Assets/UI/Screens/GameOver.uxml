@@ -14,6 +14,7 @@
                     <ui:Label text="GRADE" class="shot-grade text-stat" />
                 </ui:VisualElement>
             </ui:VisualElement>
+            <ui:Label name="submit-failed-notice" text="Score couldn&#x27;t be submitted" class="text-secondary" style="display: none; color: rgb(255, 100, 100); margin-bottom: 8px;" />
             <ui:Button name="play-again-button" text="PLAY AGAIN" class="btn-primary" style="margin-bottom: 8px;" />
             <ui:Button name="view-leaderboard-button" text="VIEW LEADERBOARD" class="btn-secondary" style="margin-bottom: 8px;" />
             <ui:Button name="share-button" text="SHARE" class="btn-secondary" style="margin-bottom: 8px;" />

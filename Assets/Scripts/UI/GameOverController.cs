@@ -28,6 +28,8 @@ namespace GolfGame.UI
         private Button menuButton;
         private Button viewLeaderboardButton;
         private Button shareButton;
+        private Label submitFailedNotice;
+        private LeaderboardManager leaderboardManager;
         private float lastTotalCtp;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -46,6 +48,7 @@ namespace GolfGame.UI
         private void Start()
         {
             scoringManager = FindFirstObjectByType<ScoringManager>();
+            leaderboardManager = FindFirstObjectByType<LeaderboardManager>();
 
             root = uiDocument.rootVisualElement;
 
@@ -54,6 +57,7 @@ namespace GolfGame.UI
             finalScore = root.Q<Label>("final-score");
             bestScore = root.Q<Label>("best-score");
             shotResultsContainer = root.Q("shot-results");
+            submitFailedNotice = root.Q<Label>("submit-failed-notice");
             playAgainButton = root.Q<Button>("play-again-button");
             menuButton = root.Q<Button>("menu-button");
             viewLeaderboardButton = root.Q<Button>("view-leaderboard-button");
@@ -74,6 +78,11 @@ namespace GolfGame.UI
             {
                 scoringManager.OnAllShotsComplete += HandleAllShotsComplete;
             }
+
+            if (leaderboardManager != null)
+            {
+                leaderboardManager.OnLeaderboardSubmitFailed += HandleLeaderboardSubmitFailed;
+            }
         }
 
         private void OnDestroy()
@@ -92,6 +101,11 @@ namespace GolfGame.UI
             {
                 scoringManager.OnAllShotsComplete -= HandleAllShotsComplete;
             }
+
+            if (leaderboardManager != null)
+            {
+                leaderboardManager.OnLeaderboardSubmitFailed -= HandleLeaderboardSubmitFailed;
+            }
         }
 
         private void HandleAppStateChanged(AppState state)
@@ -99,6 +113,14 @@ namespace GolfGame.UI
             if (state != AppState.GameOver)
             {
                 SetVisible(false);
+            }
+        }
+
+        private void HandleLeaderboardSubmitFailed()
+        {
+            if (submitFailedNotice != null)
+            {
+                submitFailedNotice.style.display = DisplayStyle.Flex;
             }
         }
 
@@ -148,11 +170,13 @@ namespace GolfGame.UI
                 }
 
                 float previousBest = await bestScoreService.GetBestScoreAsync();
+                if (this == null) return;
                 bool isNewBest = totalCtp < previousBest;
 
                 if (isNewBest)
                 {
                     await bestScoreService.SaveBestScoreAsync(totalCtp);
+                    if (this == null) return;
                     bestScore.text = FormatBestScoreLabel(totalCtp, true);
                     bestScore.style.display = DisplayStyle.Flex;
                 }
@@ -276,6 +300,11 @@ namespace GolfGame.UI
                 {
                     gameoverPanel.style.opacity = 0f;
                     gameoverPanel.style.scale = new Scale(new Vector2(0.9f, 0.9f));
+                }
+
+                if (submitFailedNotice != null)
+                {
+                    submitFailedNotice.style.display = DisplayStyle.None;
                 }
 
                 if (shareButton != null)
