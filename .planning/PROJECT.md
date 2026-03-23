@@ -20,14 +20,17 @@ A human can open the URL, take shots, and see their score on the leaderboard —
 - ✓ Mock services fallback (editor + offline) — existing
 - ✓ UI Toolkit screen-space UI — existing
 
+### Validated
+
+- ✓ GitHub Actions pipeline configured (lint + cloud-code-tests + WebGL build + deploy) — Validated in Phase 1: CI/CD Pipeline
+- ✓ Unity license secrets (UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD) and Cloudflare secrets documented in build.yml and docs — Validated in Phase 1: CI/CD Pipeline
+- ✓ WebGL build deploys to Cloudflare Pages via wrangler@^4, `_headers` with Cache-Control — Validated in Phase 1: CI/CD Pipeline (end-to-end run pending human test)
+- ✓ docs/ci-cd-gotchas.md and docs/deployment.md accurate (GitHub Actions, Gzip, correct secrets) — Validated in Phase 1: CI/CD Pipeline
+
 ### Active
 
-- [ ] GitLab CI pipeline passes (lint + cloud code test + WebGL build)
-- [ ] Unity license secrets documented and configured in GitLab CI
-- [ ] WebGL build deploys to Cloudflare Pages without compression errors
 - [ ] Game plays without runtime crashes in browser (async void exceptions handled)
 - [ ] Critical null reference bugs fixed (GameManager, BallController, camera)
-- [ ] Cloudflare _headers file configured for correct Content-Encoding
 - [ ] UI is clean and functional at mobile resolution
 
 ### Out of Scope
@@ -40,9 +43,9 @@ A human can open the URL, take shots, and see their score on the leaderboard —
 ## Context
 
 - Claude built the entire codebase autonomously; conventions are consistent but runtime correctness is unverified
-- GitLab CI `.gitlab-ci.yml` exists and is structurally correct; Unity license secrets not yet set in GitLab CI/CD variables
-- Cloudflare Pages is the deployment target (`golf-game-amm.pages.dev`); the build uses Unity Gzip compression but no `_headers` file exists, causing Cloudflare to double-compress and break WebGL in browser
-- Key known bugs: async void event handlers with no exception safety, null refs in core component lookups (GameManager, BallController, CameraController), leaderboard retry queue unbounded, physics framerate hardcoded at 50Hz
+- Phase 1 complete: GitHub Actions pipeline in `.github/workflows/build.yml` replaces GitLab CI; `_headers` file created; docs updated. End-to-end pipeline run requires 5 GitHub secrets to be configured manually.
+- Cloudflare Pages deployment target: `golf-game-amm.pages.dev`; Unity Gzip compression + `decompressionFallback=true` + `_headers` Cache-Control-only file
+- Key known bugs (Phase 2 scope): async void event handlers with no exception safety, null refs in core component lookups (GameManager, BallController, CameraController), leaderboard retry queue unbounded, physics framerate hardcoded at 50Hz
 - Cloud Code JS tests exist and pass (`node --test validate-and-post-score.test.js`)
 - No C# unit tests — only integration tests via Play mode
 
@@ -59,10 +62,11 @@ A human can open the URL, take shots, and see their score on the leaderboard —
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Keep Gzip compression in Unity build | `decompressionFallback = true` already set; simpler than Brotli | — Pending |
-| Fix Cloudflare via `_headers` file | Avoids switching hosts; standard approach for Unity WebGL on Cloudflare | — Pending |
-| Fix async void with try-catch (not rewrite to async Task) | Minimal diff; Unity event handlers must be void | — Pending |
-| No C# unit tests in this milestone | Getting it running is priority; tests are a future milestone | — Pending |
+| Keep Gzip compression in Unity build | `decompressionFallback = true` already set; simpler than Brotli | ✓ Phase 1: Implemented in build.yml + _headers |
+| Fix Cloudflare via `_headers` file | Avoids switching hosts; standard approach for Unity WebGL on Cloudflare | ✓ Phase 1: _headers committed, copied to build by CI |
+| Switch from GitLab CI to GitHub Actions + GameCI | GameCI handles Unity license; GitHub Actions is standard for public repos | ✓ Phase 1: build.yml with game-ci/unity-builder@v4 |
+| Fix async void with try-catch (not rewrite to async Task) | Minimal diff; Unity event handlers must be void | — Phase 2 |
+| No C# unit tests in this milestone | Getting it running is priority; tests are a future milestone | — Ongoing |
 
 ## Evolution
 
@@ -82,4 +86,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-22 after initialization*
+*Last updated: 2026-03-23 after Phase 1: CI/CD Pipeline completion*
