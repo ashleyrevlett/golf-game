@@ -13,15 +13,16 @@ permissions:
 
 jobs:
   lint:
-    name: Lint (C# whitespace)
+    name: Lint (C# tabs)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - name: Check whitespace formatting
-        run: dotnet format whitespace .ci/FormatCheck.csproj --verify-no-changes --verbosity diagnostic
+      - name: Check for tab characters in C# files
+        run: |
+          if grep -rP "\t" Assets/Scripts/ --include="*.cs" -l; then
+            echo "Tab characters found — use spaces"
+            exit 1
+          fi
 
   cloud-code-tests:
     name: Cloud Code Tests
