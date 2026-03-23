@@ -29,6 +29,7 @@ namespace GolfGame.Multiplayer
         private readonly Queue<(string playerId, float distance)> retryQueue
             = new Queue<(string, float)>();
         private const float RetryInterval = 10f;
+        private const int MaxRetryQueueSize = 10;
         private bool isRetrying;
 
         /// <summary>
@@ -84,6 +85,7 @@ namespace GolfGame.Multiplayer
 
                 // Initial poll
                 await PollLeaderboardAsync();
+                if (this == null) return;
             }
             catch (Exception ex)
             {
@@ -145,7 +147,9 @@ namespace GolfGame.Multiplayer
             {
                 if (leaderboardService == null) return;
                 await PostScoreWithRetryAsync(playerId, distance);
+                if (this == null) return;
                 await PollLeaderboardAsync();
+                if (this == null) return;
             }
             catch (Exception ex)
             {
@@ -159,6 +163,7 @@ namespace GolfGame.Multiplayer
             {
                 isPolling = false;
                 await PollLeaderboardAsync();
+                if (this == null) return;
             }
             catch (Exception ex)
             {
@@ -174,6 +179,11 @@ namespace GolfGame.Multiplayer
             }
             catch (Exception ex)
             {
+                if (retryQueue.Count >= MaxRetryQueueSize)
+                {
+                    Debug.LogWarning($"[LeaderboardManager] Retry queue full ({MaxRetryQueueSize} entries) — dropping score submission for player {id}");
+                    return;
+                }
                 Debug.LogWarning($"[LeaderboardManager] Post failed, queuing retry: {ex.Message}");
                 retryQueue.Enqueue((id, dist));
                 StartRetryIfNeeded();
