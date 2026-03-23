@@ -22,6 +22,8 @@ namespace GolfGame.Tests.EditMode
             IsSignedIn = true;
             return Task.CompletedTask;
         }
+
+        public Task UpdatePlayerNameAsync(string name) => Task.CompletedTask;
     }
 
     public class UgsAuthServiceTests
