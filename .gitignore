@@ -9,6 +9,7 @@
 MemoryCaptures/
 Recordings/
 *.csproj
+!.ci/*.csproj
 *.sln
 *.suo
 *.tmp
