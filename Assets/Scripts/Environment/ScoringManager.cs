@@ -176,7 +176,15 @@ namespace GolfGame.Environment
             }
 
             // Spawn post-shot popup
-            ShotPopup.Create(landPosition + Vector3.up * 1.5f, distanceToPin, Camera.main);
+            var mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                Debug.LogWarning("[ScoringManager] Camera.main is null — skipping shot popup");
+            }
+            else
+            {
+                ShotPopup.Create(landPosition + Vector3.up * 1.5f, distanceToPin, mainCamera);
+            }
         }
 
         private void HandleGameOver(int shots)
