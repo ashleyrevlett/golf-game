@@ -12,7 +12,7 @@ This milestone takes a Claude-built Unity WebGL golf game from "code exists" to 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: CI/CD Pipeline** - Get the GitLab CI pipeline green and deploying to Cloudflare Pages with correct docs
+- [ ] **Phase 1: CI/CD Pipeline** - Get the GitHub Actions pipeline green and deploying to Cloudflare Pages with correct docs
 - [ ] **Phase 2: Runtime Stability** - Fix null refs, async exceptions, and physics issues so the game runs without crashes
 - [ ] **Phase 3: WebGL + Mobile Verification** - Verify the game loads and plays correctly across browsers and mobile devices
 
@@ -23,15 +23,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: CI-01, CI-02, CI-03, CI-04, CI-05, CI-06, DOC-01, DOC-02
 **Success Criteria** (what must be TRUE):
-  1. A merge request triggers lint and cloud-code-test stages that pass without manual intervention
-  2. The WebGL build stage completes successfully using the configured Unity license
-  3. The deploy stage publishes the build to golf-game-amm.pages.dev with correct cache/security headers
+  1. A push to main triggers lint and cloud-code-test jobs that pass without manual intervention
+  2. The WebGL build-and-deploy job completes successfully using the configured Unity license
+  3. The deploy step publishes the build to golf-game-amm.pages.dev with correct Cache-Control headers
   4. `docs/ci-cd-gotchas.md` and `docs/deployment.md` accurately describe the Gzip/decompressionFallback approach and CI secret requirements
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Replace ci.yml + deploy.yml + .gitlab-ci.yml with consolidated build.yml; create _headers file
+- [ ] 01-02-PLAN.md — Rewrite docs/ci-cd-gotchas.md and docs/deployment.md to reflect GitHub Actions + Gzip
 
 ### Phase 2: Runtime Stability
 **Goal**: The game runs from start to game-over without null reference exceptions, unhandled async errors, or silent failures
@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CI/CD Pipeline | 0/0 | Not started | - |
+| 1. CI/CD Pipeline | 0/2 | Not started | - |
 | 2. Runtime Stability | 0/0 | Not started | - |
 | 3. WebGL + Mobile Verification | 0/0 | Not started | - |
