@@ -12,7 +12,7 @@ This milestone takes a Claude-built Unity WebGL golf game from "code exists" to 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: CI/CD Pipeline** - Get the GitHub Actions pipeline green and deploying to Cloudflare Pages with correct docs
+- [x] **Phase 1: CI/CD Pipeline** - Get the GitHub Actions pipeline green and deploying to Cloudflare Pages with correct docs (completed 2026-03-23)
 - [ ] **Phase 2: Runtime Stability** - Fix null refs, async exceptions, and physics issues so the game runs without crashes
 - [ ] **Phase 3: WebGL + Mobile Verification** - Verify the game loads and plays correctly across browsers and mobile devices
 
@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Replace ci.yml + deploy.yml + .gitlab-ci.yml with consolidated build.yml; create _headers file
-- [ ] 01-02-PLAN.md — Rewrite docs/ci-cd-gotchas.md and docs/deployment.md to reflect GitHub Actions + Gzip
+- [x] 01-02-PLAN.md — Rewrite docs/ci-cd-gotchas.md and docs/deployment.md to reflect GitHub Actions + Gzip
 
 ### Phase 2: Runtime Stability
 **Goal**: The game runs from start to game-over without null reference exceptions, unhandled async errors, or silent failures
@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CI/CD Pipeline | 1/2 | In Progress|  |
+| 1. CI/CD Pipeline | 2/2 | Complete   | 2026-03-23 |
 | 2. Runtime Stability | 0/0 | Not started | - |
 | 3. WebGL + Mobile Verification | 0/0 | Not started | - |

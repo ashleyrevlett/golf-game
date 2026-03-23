@@ -32,8 +32,8 @@
 
 ### Documentation
 
-- [ ] **DOC-01**: `docs/ci-cd-gotchas.md` corrected (Brotli references replaced with Gzip, decompressionFallback approach documented)
-- [ ] **DOC-02**: `docs/deployment.md` corrected (reflects actual compression approach and secret requirements)
+- [x] **DOC-01**: `docs/ci-cd-gotchas.md` corrected (Brotli references replaced with Gzip, decompressionFallback approach documented)
+- [x] **DOC-02**: `docs/deployment.md` corrected (reflects actual compression approach and secret requirements)
 
 ## v2 Requirements
 
@@ -85,8 +85,8 @@
 | WEB-02 | Phase 3 | Pending |
 | WEB-03 | Phase 3 | Pending |
 | WEB-04 | Phase 3 | Pending |
-| DOC-01 | Phase 1 | Pending |
-| DOC-02 | Phase 1 | Pending |
+| DOC-01 | Phase 1 | Complete |
+| DOC-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total

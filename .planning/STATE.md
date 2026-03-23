@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 01-ci-cd-pipeline/01-01-PLAN.md
-last_updated: "2026-03-23T02:58:50.022Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 01-02-PLAN.md (documentation update)
+last_updated: "2026-03-23T03:00:05.747Z"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 2 of 2
 
 *Updated after each plan completion*
 | Phase 01-ci-cd-pipeline P01 | 2min | 2 tasks | 5 files |
+| Phase 01 P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -59,6 +60,9 @@ Recent decisions affecting current work:
 - Fix async void with try-catch wrappers (not rewrite to async Task)
 - No C# unit tests this milestone (runtime stability via code fixes only)
 - [Phase 01-ci-cd-pipeline]: Consolidated ci.yml + deploy.yml into single build.yml; deleted .gitlab-ci.yml; used wrangler@^4 CLI not cloudflare/pages-action; _headers committed to repo root and copied by CI
+- [Phase 01]: No Content-Encoding headers in _headers file — decompressionFallback=true handles decompression client-side
+- [Phase 01]: Gzip compression documented as actual format used by WebGLBuildScript.cs (not Brotli)
+- [Phase 01]: Push-to-main auto-deploy documented — no manual git tagging step needed
 
 ### Pending Todos
 
@@ -72,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T02:58:50.020Z
-Stopped at: Completed 01-ci-cd-pipeline/01-01-PLAN.md
+Last session: 2026-03-23T03:00:05.744Z
+Stopped at: Completed 01-02-PLAN.md (documentation update)
 Resume file: None
