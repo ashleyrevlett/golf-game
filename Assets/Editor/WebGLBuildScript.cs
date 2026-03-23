@@ -31,10 +31,16 @@ public static class WebGLBuildScript
             return;
         }
 
-        // Read output path from GameCI env var
-        string buildPath = System.Environment.GetEnvironmentVariable("CUSTOM_BUILD_PATH")
-                        ?? System.Environment.GetEnvironmentVariable("BUILD_PATH")
-                        ?? "build/WebGL/golf-game";
+        // Read output path from GameCI env vars.
+        // GameCI v4 sets BUILD_PATH (folder) and BUILD_FILE (name) separately;
+        // CUSTOM_BUILD_PATH is the full path if set by older GameCI versions.
+        string buildPath = System.Environment.GetEnvironmentVariable("CUSTOM_BUILD_PATH");
+        if (string.IsNullOrEmpty(buildPath))
+        {
+            string basePath = System.Environment.GetEnvironmentVariable("BUILD_PATH") ?? "build/WebGL";
+            string buildFile = System.Environment.GetEnvironmentVariable("BUILD_FILE") ?? "golf-game";
+            buildPath = $"{basePath}/{buildFile}";
+        }
 
         Debug.Log($"[WebGLBuildScript] Output: {buildPath}");
 
