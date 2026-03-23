@@ -8,7 +8,7 @@
 [Uu]ser[Ss]ettings/
 MemoryCaptures/
 Recordings/
-Assembly-CSharp*.csproj
+*.csproj
 *.sln
 *.suo
 *.tmp
@@ -50,6 +50,9 @@ Thumbs.db
 .vs/
 .vscode/
 *.swp
+
+# Claude Code
+.claude/
 
 # Node
 node_modules/
