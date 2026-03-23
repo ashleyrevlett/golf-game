@@ -88,6 +88,9 @@ jobs:
           buildName: golf-game
           buildMethod: WebGLBuildScript.Build
 
+      - name: Fix build directory permissions
+        run: sudo chown -R $(id -u):$(id -g) build/
+
       - name: Copy _headers into build output
         run: cp _headers build/WebGL/golf-game/_headers
 
