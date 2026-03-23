@@ -42,11 +42,11 @@ Plans:
   2. LeaderboardManager retries are capped and async calls cannot crash the game with unhandled exceptions
   3. Camera lookups and ScoringManager ball-landed handling work without null reference errors
   4. Physics runs at 60Hz fixed timestep and MonoBehaviour lifecycle is respected after await calls
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Cap retry queue, add failure event and notice label, add post-await lifecycle guards (LeaderboardManager, GameOverController, GameOver.uxml)
+- [ ] 02-02-PLAN.md — Guard Camera.main in ScoringManager, add tag-lookup error logging in CameraController, set 60Hz physics timestep
 
 ### Phase 3: WebGL + Mobile Verification
 **Goal**: A human can open the deployed URL on a phone, play a round, and see their score on the leaderboard
@@ -71,5 +71,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CI/CD Pipeline | 2/2 | Complete   | 2026-03-23 |
-| 2. Runtime Stability | 0/0 | Not started | - |
+| 2. Runtime Stability | 0/2 | Not started | - |
 | 3. WebGL + Mobile Verification | 0/0 | Not started | - |
