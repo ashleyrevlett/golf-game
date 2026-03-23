@@ -38,8 +38,16 @@ namespace GolfGame.Camera
             ballController = FindFirstObjectByType<BallController>();
 
             teeCamera = GameObject.FindWithTag("TeeCamera")?.GetComponent<CinemachineCamera>();
+            if (teeCamera == null)
+                Debug.LogWarning("[CameraController] TeeCamera tag lookup returned null — camera transitions will be disabled");
+
             flightCamera = GameObject.FindWithTag("FlightCamera")?.GetComponent<CinemachineCamera>();
+            if (flightCamera == null)
+                Debug.LogWarning("[CameraController] FlightCamera tag lookup returned null — camera transitions will be disabled");
+
             landingCamera = GameObject.FindWithTag("LandingCamera")?.GetComponent<CinemachineCamera>();
+            if (landingCamera == null)
+                Debug.LogWarning("[CameraController] LandingCamera tag lookup returned null — camera transitions will be disabled");
 
             if (teeCamera == null)
                 Debug.LogWarning("[CameraController] TeeCamera tag not found — check scene tag assignment");
