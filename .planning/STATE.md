@@ -1,3 +1,17 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: Ready to execute
+stopped_at: Completed 01-ci-cd-pipeline/01-01-PLAN.md
+last_updated: "2026-03-23T02:58:50.022Z"
+progress:
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 1
+---
+
 # Project State
 
 ## Project Reference
@@ -5,20 +19,17 @@
 See: .planning/PROJECT.md (updated 2026-03-22)
 
 **Core value:** A human can open the URL, take shots, and see their score on the leaderboard -- without errors.
-**Current focus:** Phase 1: CI/CD Pipeline
+**Current focus:** Phase 01 — ci-cd-pipeline
 
 ## Current Position
 
-Phase: 1 of 3 (CI/CD Pipeline)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-22 -- Roadmap created
-
-Progress: [░░░░░░░░░░] 0%
+Phase: 01 (ci-cd-pipeline) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -30,10 +41,12 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-ci-cd-pipeline P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -45,6 +58,7 @@ Recent decisions affecting current work:
 - Keep Gzip compression with decompressionFallback=true (no Content-Encoding header needed)
 - Fix async void with try-catch wrappers (not rewrite to async Task)
 - No C# unit tests this milestone (runtime stability via code fixes only)
+- [Phase 01-ci-cd-pipeline]: Consolidated ci.yml + deploy.yml into single build.yml; deleted .gitlab-ci.yml; used wrangler@^4 CLI not cloudflare/pages-action; _headers committed to repo root and copied by CI
 
 ### Pending Todos
 
@@ -58,6 +72,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22
-Stopped at: Roadmap created, ready to plan Phase 1
+Last session: 2026-03-23T02:58:50.020Z
+Stopped at: Completed 01-ci-cd-pipeline/01-01-PLAN.md
 Resume file: None

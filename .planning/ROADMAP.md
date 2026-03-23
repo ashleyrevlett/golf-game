@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Replace ci.yml + deploy.yml + .gitlab-ci.yml with consolidated build.yml; create _headers file
+- [x] 01-01-PLAN.md — Replace ci.yml + deploy.yml + .gitlab-ci.yml with consolidated build.yml; create _headers file
 - [ ] 01-02-PLAN.md — Rewrite docs/ci-cd-gotchas.md and docs/deployment.md to reflect GitHub Actions + Gzip
 
 ### Phase 2: Runtime Stability
@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CI/CD Pipeline | 0/2 | Not started | - |
+| 1. CI/CD Pipeline | 1/2 | In Progress|  |
 | 2. Runtime Stability | 0/0 | Not started | - |
 | 3. WebGL + Mobile Verification | 0/0 | Not started | - |

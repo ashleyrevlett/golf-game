@@ -7,12 +7,12 @@
 
 ### CI/CD Pipeline
 
-- [ ] **CI-01**: GitLab CI lint and cloud-code-test stages pass on merge requests
-- [ ] **CI-02**: Unity license activation succeeds in CI (UNITY_LICENSE secret documented and configured)
-- [ ] **CI-03**: WebGL build stage completes without errors (no silent `|| true` masking failures)
-- [ ] **CI-04**: Deploy stage deploys to Cloudflare Pages (`golf-game-amm.pages.dev`)
-- [ ] **CI-05**: Wrangler is pinned to `^4` to prevent silent breakage from major version changes
-- [ ] **CI-06**: `_headers` file in build output sets cache-control and security headers (no Content-Encoding — decompressionFallback handles decompression)
+- [x] **CI-01**: GitLab CI lint and cloud-code-test stages pass on merge requests
+- [x] **CI-02**: Unity license activation succeeds in CI (UNITY_LICENSE secret documented and configured)
+- [x] **CI-03**: WebGL build stage completes without errors (no silent `|| true` masking failures)
+- [x] **CI-04**: Deploy stage deploys to Cloudflare Pages (`golf-game-amm.pages.dev`)
+- [x] **CI-05**: Wrangler is pinned to `^4` to prevent silent breakage from major version changes
+- [x] **CI-06**: `_headers` file in build output sets cache-control and security headers (no Content-Encoding — decompressionFallback handles decompression)
 
 ### Runtime Stability
 
@@ -69,12 +69,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CI-01 | Phase 1 | Pending |
-| CI-02 | Phase 1 | Pending |
-| CI-03 | Phase 1 | Pending |
-| CI-04 | Phase 1 | Pending |
-| CI-05 | Phase 1 | Pending |
-| CI-06 | Phase 1 | Pending |
+| CI-01 | Phase 1 | Complete |
+| CI-02 | Phase 1 | Complete |
+| CI-03 | Phase 1 | Complete |
+| CI-04 | Phase 1 | Complete |
+| CI-05 | Phase 1 | Complete |
+| CI-06 | Phase 1 | Complete |
 | STAB-01 | Phase 2 | Pending |
 | STAB-02 | Phase 2 | Pending |
 | STAB-03 | Phase 2 | Pending |
