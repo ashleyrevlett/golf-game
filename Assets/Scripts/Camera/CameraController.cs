@@ -41,6 +41,13 @@ namespace GolfGame.Camera
             flightCamera = GameObject.FindWithTag("FlightCamera")?.GetComponent<CinemachineCamera>();
             landingCamera = GameObject.FindWithTag("LandingCamera")?.GetComponent<CinemachineCamera>();
 
+            if (teeCamera == null)
+                Debug.LogWarning("[CameraController] TeeCamera tag not found — check scene tag assignment");
+            if (flightCamera == null)
+                Debug.LogWarning("[CameraController] FlightCamera tag not found — check scene tag assignment");
+            if (landingCamera == null)
+                Debug.LogWarning("[CameraController] LandingCamera tag not found — check scene tag assignment");
+
             if (gameManager != null)
             {
                 gameManager.OnShotStateChanged += HandleShotStateChanged;
